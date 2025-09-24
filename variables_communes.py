@@ -1,0 +1,43 @@
+﻿# %pip install sqlalchemy
+
+from pathlib import Path
+from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
+from sqlalchemy.ext.automap import automap_base
+
+print("Importation de variables_communes.py réussie")
+
+rep_defaut = Path.cwd()
+print(f"VC_1 ---> Répertoire par défaut {rep_defaut}")
+
+rep_source = rep_defaut / "sources"
+
+rep_bdd = rep_defaut / "bdd" / "bdd.sqlite"
+
+print(f"VC_2 ---> Version SQLAlchemy {__version__}")
+
+try:
+    engine = create_engine(f'sqlite:///{rep_bdd}')
+    print(f"VC_3 ---> Création de engine réussie")
+except Exception as e:
+    print(f"VC_3 ---> Erreur lors de la création de l'engine : {e}")
+
+d_feuille_table = {'data': 't_data', 'Parametres': 't_parametres', 'F_RGD_Originel_completee': 't_originel_completee',
+                   'F_definition_cles_repartitions': 't_cles_repartition', 'F_lexique_batrub': 't_lexique_batrub',
+                   'F_lexique_bat': 't_lexique_bat', 'F_lexique_rub': 't_lexique_rub', 'F_lexique_typ': 't_lexique_typ',
+                   'F_liste_groupes': 't_liste_groupes', 'F_liste_group_a_etudier': 't_groupes_a_etudier_par_facture',
+                   'F_agregation': 't_agregation'}
+
+d_tables_colonnes = {"t_data": {"Type d'appel": "type_appel", "cle": "cle", "Exercice": "exercice", "Libelle": "libelle1", "Debut de periode": "debut_periode", "Fin de periode": "fin_periode",
+                                "Periode Cloturee": "periode_cloturee", "Numéro du batiment": "bat", "BAT": "bat", "Nom du batiment": "bat_tit", "RUB": "rub",
+                                "Numéro de la rubrique": "rub", "Nom de la rubrique": "rub_tit", "Num type charge": "typ", "TYP": "typ", "Nom du type de charge": "typ_tit", "BATRUBTYP": "batrubtyp",
+                                "BATRUB": "batrub", "Date": "date", "Libelle.1": "libelle", "Reference": "reference", "Montant à repartir": "montant_a_repartir",
+                                "Nom du fournisseur": "nom_fournisseur"},
+                     "t_parametres": {"Indicateur": "indicateur", "Valeur": "valeur"},
+                     "t_Originel_completee": {"Exercice": "exercice", "Periode Cloturee": "periode_cloturee", "BAT": "bat", "RUB": "rub", "TYP": "typ", "Nom du type de charge": "typ_tit",
+                                              "BATRUBTYP": "batrubtyp", "BATRUB": "batrub", "Date": "\"date\"", "Libelle1": "libelle", "Reference": "reference", "Montant1": "montant1",
+                                              "Nom du fournisseur": "nom_fournisseur", "Rang_doublon": "rang_doublon", "Groupe": "groupe", "Montant": "montant"}
+                     }
+
+# Colonnes composantes de la cle
+ccc = "bat  ||  rub  ||  typ  ||  date  ||  libelle  ||  reference  ||  montant  ||  nom_fournisseur || rang_doublon"
+ccc_v = "{bat} , {rub} , {typ} , {date} , {libelle} , {reference} , {montant} , {nom_fournisseur} , {rang_doublon}"

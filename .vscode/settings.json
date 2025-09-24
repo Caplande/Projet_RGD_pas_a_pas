@@ -1,0 +1,11 @@
+{
+"terminal.integrated.env.windows": {
+  "LANG": "fr_FR.UTF-8",
+  "LC_ALL": "fr_FR.UTF-8"
+},
+"files.encoding": "utf8",
+"terminal.integrated.defaultProfile.windows": "Command Prompt",
+"terminal.integrated.defaultEncoding": "utf8",
+"python.formatting.provider": "black",
+"editor.formatOnSave": true
+}
