@@ -18,8 +18,12 @@ print(f"VC_2 ---> Version SQLAlchemy {__version__}")
 try:
     engine = create_engine(f'sqlite:///{rep_bdd}')
     print(f"VC_3 ---> Création de engine réussie")
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+    print(f"VC_4 ---> Création de metadata réussie")
 except Exception as e:
     print(f"VC_3 ---> Erreur lors de la création de l'engine : {e}")
+    print(f"VC_4 ---> Erreur lors de la création de metadata : {e}")
 
 d_feuille_table = {'data': 't_data', 'Parametres': 't_parametres', 'F_RGD_Originel_completee': 't_originel_completee',
                    'F_definition_cles_repartitions': 't_cles_repartition', 'F_lexique_batrub': 't_lexique_batrub',

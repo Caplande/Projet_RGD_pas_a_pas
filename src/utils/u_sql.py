@@ -14,14 +14,23 @@ def supprimer_table(nom_table):
         conn.commit()
 
 
-def supprimer_toutes_tables():
-    with vc.engine.connect() as conn:
-        conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
-        tables = conn.fetchall()
-        for table in tables:
-            supprimer_table(table[0])
-        conn.commit()
+def supprimer_toutes_tables(l_tables=None):
+    """
+    Supprime les tables SQLite contenues dans l_tables.
+    Si l_tables est None, supprime toutes les tables de la base.
+    """
+    with vc.engine.begin() as conn:
+        if l_tables:  # si une liste de tables est fournie
+            for table_name in l_tables:
+                if table_name in vc.metadata.tables:
+                    conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                    # print(f"Table {table_name} supprimée.")
+                else:
+                    print(f"⚠️ Table {table_name} non trouvée.")
+        else:  # si aucune liste -> supprimer toutes les tables
+            for table_name in vc.metadata.tables:
+                conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                print(f"Table {table_name} supprimée.")
 
 
 def supprimer_colonne_toutes_tables(nom_colonne):
@@ -128,7 +137,7 @@ def renommer_toutes_colonnes_toutes_tables():
 
 def raz_colonne(nom_table, nom_colonne):
     sessionlocal = sessionmaker(vc.engine)
-    cls = get_class_from_table_name(nom_table)
+    cls = extraire_model_cls(nom_table)
     col_obj = getattr(cls, nom_colonne)
     # Mettre toute la colonne ma_colonne à la valeur vide ""
     with sessionlocal() as session:
@@ -342,10 +351,3 @@ def extraire_model_cls(nom_cls):
             model_cls = mapper.class_
             break
     return model_cls
-
-
-def get_class_from_table_name(table_name):
-    for cls in modl.Base.registry.mappers:
-        if cls.local_table.name == table_name:
-            return cls.class_
-    return None
