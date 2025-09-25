@@ -26,7 +26,7 @@ def supprimer_toutes_tables(l_tables=None):
                     conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
                     # print(f"Table {table_name} supprimée.")
                 else:
-                    print(f"⚠️ Table {table_name} non trouvée.")
+                    print(f"Table {table_name} non trouvée.")
         else:  # si aucune liste -> supprimer toutes les tables
             for table_name in vc.metadata.tables:
                 conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))

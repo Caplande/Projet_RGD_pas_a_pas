@@ -4,6 +4,7 @@ from src.utils import u_sql as u_sql
 
 print("Module u_gen chargé avec succès.")
 
+
 def traiter_classeur(classeur, l_sauf=[None]):
     """
     Traite un classeur en effectuant des opérations spécifiques.
@@ -21,6 +22,7 @@ def traiter_classeur(classeur, l_sauf=[None]):
             convertir_feuilles_en_table(classeur, nom_feuille)
     except Exception as e:
         pass
+
 
 def convertir_feuilles_en_table(classeur, nom_feuille):
     """
@@ -40,13 +42,16 @@ def convertir_feuilles_en_table(classeur, nom_feuille):
     except Exception as e:
         pass
 
+
 def diff_entre_deux_listes(l1, moins_l2):
     return [x for x in l1 if x not in moins_l2]
+
 
 def calculer_clef_ligne(ligne):
     import hashlib
     # Concaténer tous les champs de la ligne en une seule chaîne de caractères
-    concat_str = ''.join(str(getattr(ligne, col)) for col in ligne.__table__.columns.keys())
+    concat_str = ''.join(str(getattr(ligne, col))
+                         for col in ligne.__table__.columns.keys())
     # Calculer le hachage SHA256 de la chaîne concaténée
     sha256_hash = hashlib.sha256(concat_str.encode()).hexdigest()
     return sha256_hash

@@ -9,3 +9,4 @@ print("Module actualiser_donnees chargé avec succès.")
 u_sql.supprimer_toutes_tables(["tampon_data", "tampon_parametres"])
 
 # 2) Charger les données excel (source_active.xlsm) actualisées
+u_gen.traiter_classeur(vc.rep_source / "source_active.xlsm")
