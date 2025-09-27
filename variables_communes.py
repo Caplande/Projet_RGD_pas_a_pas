@@ -3,6 +3,8 @@
 from pathlib import Path
 from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import registry, declarative_base
+from src import modeles as modls
 
 print("Importation de variables_communes.py réussie")
 
@@ -16,11 +18,13 @@ rep_bdd = rep_defaut / "bdd" / "bdd.sqlite"
 print(f"VC_2 ---> Version SQLAlchemy {__version__}")
 
 try:
-    engine = create_engine(f'sqlite:///{rep_bdd}')
+    DATABASE_URL = "sqlite:///./bdd/bdd.sqlite"
+    engine = create_engine(DATABASE_URL)
     print(f"VC_3 ---> Création de engine réussie")
-    metadata = MetaData()
-    metadata.reflect(bind=engine)
-    print(f"VC_4 ---> Création de metadata réussie")
+    Base = modls.Base
+    print(f"VC_4 ---> Création de Base réussie")
+    metadata = Base.metadata
+    print(f"VC_5 ---> Création de metadata réussie")
 except Exception as e:
     print(f"VC_3 ---> Erreur lors de la création de l'engine : {e}")
     print(f"VC_4 ---> Erreur lors de la création de metadata : {e}")

@@ -351,3 +351,115 @@ def extraire_model_cls(nom_cls):
             model_cls = mapper.class_
             break
     return model_cls
+
+
+def clone_table(db_path, source_table, new_table):
+    """
+    Clone une table SQLite (structure, données, index, triggers).
+
+    :param db_path: chemin vers la base SQLite (ex: "ma_base.db")
+    :param source_table: nom de la table existante à copier
+    :param new_table: nom de la nouvelle table
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    try:
+        # --- 1) Récupérer la structure de la table ---
+        cursor.execute("""
+            SELECT sql 
+            FROM sqlite_master 
+            WHERE type='table' AND name=?;
+        """, (source_table,))
+        create_sql = cursor.fetchone()
+
+        if not create_sql or not create_sql[0]:
+            raise ValueError(f"Table {source_table} introuvable.")
+
+        # Adapter le CREATE TABLE
+        create_new = create_sql[0].replace(source_table, new_table, 1)
+        print(f"▶ Création structure:\n{create_new}")
+        cursor.execute(create_new)
+
+        # --- 2) Copier les données ---
+        cursor.execute(
+            f"INSERT INTO {new_table} SELECT * FROM {source_table};")
+        print("✅ Données copiées.")
+
+        # --- 3) Recréer les index ---
+        cursor.execute("""
+            SELECT sql 
+            FROM sqlite_master 
+            WHERE type='index' AND tbl_name=? AND sql IS NOT NULL;
+        """, (source_table,))
+        for (index_sql,) in cursor.fetchall():
+            new_index_sql = index_sql.replace(source_table, new_table, 1)
+            print(f"▶ Création index:\n{new_index_sql}")
+            cursor.execute(new_index_sql)
+
+        # --- 4) Recréer les triggers ---
+        cursor.execute("""
+            SELECT sql 
+            FROM sqlite_master 
+            WHERE type='trigger' AND tbl_name=?;
+        """, (source_table,))
+        for (trigger_sql,) in cursor.fetchall():
+            new_trigger_sql = trigger_sql.replace(source_table, new_table, 1)
+            print(f"▶ Création trigger:\n{new_trigger_sql}")
+            cursor.execute(new_trigger_sql)
+
+        conn.commit()
+        print(f"🎉 Table '{source_table}' clonée en '{new_table}'.")
+
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ Erreur : {e}")
+    finally:
+        conn.close()
+
+
+def run_sql_sequence(db_path, sql_statements):
+    """
+    Exécute une séquence de requêtes SQL dans une transaction atomique.
+
+    :param db_path: chemin vers la base SQLite (ex: "ma_base.db")
+    :param sql_statements: liste de requêtes SQL (strings)
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        # Commence une transaction explicite
+        conn.execute("BEGIN")
+
+        for sql in sql_statements:
+            print(f"▶ Exécution: {sql}")
+            cursor.execute(sql)
+
+        # Validation si tout est OK
+        conn.commit()
+        print("✅ Toutes les requêtes ont été exécutées avec succès.")
+    except Exception as e:
+        # Annulation si une erreur survient
+        conn.rollback()
+        print(f"❌ Erreur rencontrée: {e}")
+    finally:
+        conn.close()
+
+
+def convertir_colonne_en_date_julien(nom_table, nom_colonne):
+    ancienne_table = nom_table
+    col = nom_colonne
+    sql_statements1 = [
+        f"ALTER TABLE {ancienne_table} ADD COLUMN date_julien REAL;",
+        f"UPDATE {ancienne_table} SET date_julien = julianday({col});",
+        f"ALTER TABLE {ancienne_table} DROP COLUMN {col};",
+    ]
+    sql_statements2 = [
+        f"DROP TABLE {ancienne_table};",
+        f"ALTER TABLE nouvelle_table RENAME TO {ancienne_table};",
+        f"ALTER TABLE {ancienne_table} RENAME COLUMN date_julien TO {col};"
+    ]
+
+    run_sql_sequence(vc.rep_bdd, sql_statements1)
+    clone_table(vc.rep_bdd, ancienne_table, "nouvelle_table")
+    run_sql_sequence(vc.rep_bdd, sql_statements2)
