@@ -23,11 +23,9 @@ try:
     print(f"VC_3 ---> Création de engine réussie")
     Base = modls.Base
     print(f"VC_4 ---> Création de Base réussie")
-    metadata = Base.metadata
-    print(f"VC_5 ---> Création de metadata réussie")
 except Exception as e:
     print(f"VC_3 ---> Erreur lors de la création de l'engine : {e}")
-    print(f"VC_4 ---> Erreur lors de la création de metadata : {e}")
+    print(f"VC_4 ---> Erreur lors de la création de Base : {e}")
 
 d_feuille_table = {'data': 't_data', 'Parametres': 't_parametres', 'F_RGD_Originel_completee': 't_originel_completee',
                    'F_definition_cles_repartitions': 't_cles_repartition', 'F_lexique_batrub': 't_lexique_batrub',
@@ -45,6 +43,25 @@ d_tables_colonnes = {"t_data": {"Type d'appel": "type_appel", "cle": "cle", "Exe
                                               "BATRUBTYP": "batrubtyp", "BATRUB": "batrub", "Date": "\"date\"", "Libelle1": "libelle", "Reference": "reference", "Montant1": "montant1",
                                               "Nom du fournisseur": "nom_fournisseur", "Rang_doublon": "rang_doublon", "Groupe": "groupe", "Montant": "montant"}
                      }
+
+nom_originel_nom_pep8 = {"id": "id", "Type d'appel": "type_appel", "Libelle": "libelle1", "Debut de periode": "debut_periode", "Fin de periode": "fin_periode",
+                         "Periode Cloturee": "periode_cloturee", "Numéro du batiment": "bat", "Nom du batiment": "bat_tit", "Numéro de la rubrique": "rub",
+                         "Nom de la rubrique": "rub_tit", "Num type charge": "typ", "Nom du type de charge": "typ_tit", "Date": "date_a", "Libelle.1": "libelle",
+                         "Reference": "reference", "Montant à repartir": "montant", "Nom du fournisseur": "nom_fournisseur"}
+
+tampon_data_types = {'id': ['BIGINT', 0, None, 0], "Type d'appel": ['TEXT', 0, None, 0], 'Libelle': ['TEXT', 0, None, 0],
+                     'Debut de periode': ['DATETIME', 0, None, 0], 'Fin de periode': ['DATETIME', 0, None, 0], 'Periode Cloturee': ['TEXT', 0, None, 0],
+                     'Numéro du batiment': ['BIGINT', 0, None, 0], 'Nom du batiment': ['TEXT', 0, None, 0], 'Numéro de la rubrique': ['BIGINT', 0, None, 0],
+                     'Nom de la rubrique': ['TEXT', 0, None, 0], 'Num type charge': ['BIGINT', 0, None, 0], 'Nom du type de charge': ['TEXT', 0, None, 0],
+                     'Date': ['TEXT', 0, None, 0], 'Libelle.1': ['TEXT', 0, None, 0], 'Reference': ['TEXT', 0, None, 0],
+                     'Montant à repartir': ['FLOAT', 0, None, 0], 'Nom du fournisseur': ['TEXT', 0, None, 0]}
+
+t_data_types = {'id': ['INTEGER', 0, None, 1], 'type_appel': ['TEXT (2)', 0, None, 0], 'libelle1': ['TEXT', 0, None, 0], 'periode_cloturee': ['TEXT', 0, None, 0],
+                'bat': ['TEXT (3)', 0, None, 0], 'bat_tit': ['TEXT (50)', 0, None, 0], 'rub': ['TEXT (2)', 0, None, 0], 'rub_tit': ['TEXT (50)', 0, None, 0],
+                'typ': ['TEXT (3)', 0, None, 0], 'typ_tit': ['TEXT (50)', 0, None, 0], 'libelle': ['TEXT (50)', 0, None, 0], 'reference': ['TEXT (50)', 0, None, 0],
+                'montant': ['FLOAT', 0, None, 0], 'nom_fournisseur': ['TEXT (50)', 0, None, 0], 'debut_periode': ['REAL', 0, None, 0],
+                'fin_periode': ['REAL', 0, None, 0], 'date_a': ['REAL', 0, None, 0]}
+
 
 # Colonnes composantes de la cle
 ccc = "bat  ||  rub  ||  typ  ||  date  ||  libelle  ||  reference  ||  montant  ||  nom_fournisseur || rang_doublon"

@@ -1,3 +1,6 @@
+from sqlalchemy import Table, MetaData, Column, Integer, PrimaryKeyConstraint
+from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy.orm import declarative_base
 import sqlite3
 import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
@@ -353,7 +356,7 @@ def extraire_model_cls(nom_cls):
     return model_cls
 
 
-def clone_table(db_path, source_table, new_table):
+def cloner_table(db_path, source_table, new_table):
     """
     Clone une table SQLite (structure, données, index, triggers).
 
@@ -461,5 +464,177 @@ def convertir_colonne_en_date_julien(nom_table, nom_colonne):
     ]
 
     run_sql_sequence(vc.rep_bdd, sql_statements1)
-    clone_table(vc.rep_bdd, ancienne_table, "nouvelle_table")
+    cloner_table(vc.rep_bdd, ancienne_table, "nouvelle_table")
     run_sql_sequence(vc.rep_bdd, sql_statements2)
+
+
+def introspecter_table_non_mappee(nom_table):
+    # Conteneur de métadonnées
+    metadata = MetaData()
+
+    # Réflection de la table existante
+    table = Table(nom_table, metadata, autoload_with=vc.engine)
+
+    # Liste des noms de colonnes
+    colonnes = [c.name for c in table.columns]
+    print(colonnes)
+
+
+def extraire_table_depuis_nom_table(nom_table):
+    mettre_a_jour_Base()
+    metadata = vc.Base.metadata
+    # Récupérer la table par son nom
+    return metadata.tables[nom_table]
+
+
+def vider_table(nom_table):
+    with Session(vc.engine) as session:
+        session.query(extraire_classe_depuis_nom_table(nom_table)).delete()
+        session.commit()
+
+
+def extraire_classe_depuis_nom_table(nom_table):
+    mettre_a_jour_Base()
+    for mapper in vc.Base.registry.mappers:
+        if mapper.local_table.name == nom_table:
+            return mapper.class_
+    return None
+
+
+def mettre_a_jour_Base_old():
+    metadata = vc.Base.metadata  # celui attaché à ton declarative_base()
+    metadata.reflect(bind=vc.engine)
+
+
+def mettre_a_jour_Base():
+    from sqlalchemy import inspect, Table
+
+
+def attach_all_tables():
+    """
+    Inscrit dans Base toutes les tables de la base de données.
+    Pour chaque table non encore mappée, on crée dynamiquement une classe ORM.
+
+    :param Base: ton declarative_base()
+    :param engine: SQLAlchemy engine
+    :return: dict {nom_table: classe ORM}
+    """
+    insp = inspect(vc.engine)
+    metadata = vc.Base.metadata
+    mapped_classes = {}
+
+    # toutes les tables dans la BDD
+    all_tables = insp.get_table_names()
+
+    for table_name in all_tables:
+        # Vérifier si la table est déjà mappée
+        if table_name in metadata.tables:
+            continue
+
+        # Réfléchir la table
+        table = Table(table_name, metadata, autoload_with=vc.engine)
+
+        # Nom de classe : CamelCase à partir du nom de table
+        class_name = "".join([part.capitalize()
+                             for part in table_name.split("_")])
+
+        # Création dynamique de la classe
+        cls = type(class_name, (vc.Base,), {"__table__": table})
+
+        mapped_classes[table_name] = cls
+
+    return mapped_classes
+
+
+def check_engine(engine, check_tables: bool = True):
+    """
+    Vérifie que l'engine SQLAlchemy fonctionne correctement.
+
+    - Teste une connexion avec SELECT 1
+    - Si check_tables=True, liste aussi les tables présentes
+    """
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("✅ Connexion réussie à la base de données.")
+    except Exception as e:
+        print("❌ Erreur de connexion :", e)
+        return False
+
+    if check_tables:
+        try:
+            insp = inspect(engine)
+            tables = insp.get_table_names()
+            if tables:
+                print("📋 Tables trouvées :", tables)
+            else:
+                print("⚠️ Aucun table trouvée dans la base.")
+        except Exception as e:
+            print("❌ Impossible de récupérer la liste des tables :", e)
+            return False
+
+    return True
+
+
+def identifier_colonnes(nom_table):
+    mettre_a_jour_Base()
+    table = extraire_table_depuis_nom_table(nom_table)
+    if table is not None:
+        req = f"PRAGMA table_info({nom_table});"
+        with vc.engine.connect() as conn:
+            result = conn.execute(text(req))
+            cols = result.fetchall()
+            colonnes = {col[1]: [col[2], col[3], col[4], col[5]]
+                        for col in cols}
+            return colonnes
+        return []
+
+
+def attach_table_to_base_with_pk(Base, engine, table_name, class_name=None, pk_columns=None):
+    """
+    Rattache (mappe) une table existante à Base en créant dynamiquement une classe ORM.
+    Si la table n'a pas de PK, on peut :
+      - fournir pk_columns=['col1', 'col2'], ou
+      - laisser pk_columns=None et accepter l'utilisation de rowid (SQLite uniquement).
+    Retourne la classe créée.
+    """
+    metadata = Base.metadata
+    if class_name is None:
+        class_name = "".join(part.capitalize()
+                             for part in table_name.split("_"))
+
+    try:
+        table = Table(table_name, metadata, autoload_with=engine)
+    except NoSuchTableError:
+        raise ValueError(f"La table '{table_name}' n'existe pas dans la base.")
+
+    # si la table a déjà une PK, on peut mapper directement
+    if not any(col.primary_key for col in table.columns):
+        # Option 1 : pk_columns fournis par l'utilisateur
+        if pk_columns:
+            missing = [c for c in pk_columns if c not in table.c]
+            if missing:
+                raise ValueError(
+                    f"Colonnes PK demandées introuvables dans la table : {missing}")
+            table.append_constraint(PrimaryKeyConstraint(
+                *[table.c[c] for c in pk_columns]))
+
+        # Option 2 : SQLite -> utiliser rowid comme clé primaire (mappage seulement, pas de DDL)
+        elif engine.dialect.name == "sqlite":
+            # ajouter une colonne 'rowid' au Table (mappée au pseudo-colonne sqlite)
+            if "rowid" not in table.c:
+                table.append_column(Column("rowid", Integer, primary_key=True))
+            else:
+                # si pour quelque raison rowid existait, on marque comme pk
+                table.c["rowid"].primary_key = True
+
+        # Option 3 : autre SGBD ou refus de créer PK implicite
+        else:
+            raise ValueError(
+                f"La table '{table_name}' n'a pas de clé primaire. "
+                "Fournis pk_columns=['col1', ...] ou mappe en SQLAlchemy Core (Table) sans ORM."
+            )
+
+    # Création dynamique de la classe ORM rattachée à la table (et enregistrement dans Base)
+    cls = type(class_name, (Base,), {"__table__": table})
+    return cls

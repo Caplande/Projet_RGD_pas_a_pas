@@ -1,7 +1,8 @@
 from typing import Optional
 
-from sqlalchemy import BigInteger, Boolean, Float, Index, Integer, REAL, Text
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, Index, Integer, REAL, Table, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
 
 class Base(DeclarativeBase):
     pass
@@ -22,7 +23,7 @@ class TAgregation(Base):
     typ_tit: Mapped[Optional[str]] = mapped_column(Text(3))
     libelle: Mapped[Optional[str]] = mapped_column(Text(50))
     reference: Mapped[Optional[str]] = mapped_column(Text(50))
-    montant_a_repartir: Mapped[Optional[float]] = mapped_column(Float)
+    montant: Mapped[Optional[float]] = mapped_column(Float)
     nom_fournisseur: Mapped[Optional[str]] = mapped_column(Text(50))
     debut_periode: Mapped[Optional[float]] = mapped_column(REAL)
     fin_periode: Mapped[Optional[float]] = mapped_column(REAL)
@@ -59,7 +60,7 @@ class TData(Base):
     typ_tit: Mapped[Optional[str]] = mapped_column(Text(50))
     libelle: Mapped[Optional[str]] = mapped_column(Text(50))
     reference: Mapped[Optional[str]] = mapped_column(Text(50))
-    montant_a_repartir: Mapped[Optional[float]] = mapped_column(Float)
+    montant: Mapped[Optional[float]] = mapped_column(Float)
     nom_fournisseur: Mapped[Optional[str]] = mapped_column(Text(50))
     debut_periode: Mapped[Optional[float]] = mapped_column(REAL)
     fin_periode: Mapped[Optional[float]] = mapped_column(REAL)
@@ -142,3 +143,35 @@ class TParametres(Base):
     id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
     indicateur: Mapped[Optional[str]] = mapped_column(Text(50))
     valeur: Mapped[Optional[str]] = mapped_column(Text(50))
+
+
+t_tampon_data = Table(
+    'tampon_data', Base.metadata,
+    Column('id', BigInteger),
+    Column("Type d'appel", Text),
+    Column('Libelle', Text),
+    Column('Debut de periode', DateTime),
+    Column('Fin de periode', DateTime),
+    Column('Periode Cloturee', Text),
+    Column('Num�ro du batiment', BigInteger),
+    Column('Nom du batiment', Text),
+    Column('Num�ro de la rubrique', BigInteger),
+    Column('Nom de la rubrique', Text),
+    Column('Num type charge', BigInteger),
+    Column('Nom du type de charge', Text),
+    Column('Date', Text),
+    Column('Libelle.1', Text),
+    Column('Reference', Text),
+    Column('Montant � repartir', Float),
+    Column('Nom du fournisseur', Text),
+    Index('ix_tampon_data_id', 'id')
+)
+
+
+t_tampon_parametres = Table(
+    'tampon_parametres', Base.metadata,
+    Column('id', BigInteger),
+    Column('indicateur', Text),
+    Column('valeur', Text),
+    Index('ix_tampon_parametres_id', 'id')
+)

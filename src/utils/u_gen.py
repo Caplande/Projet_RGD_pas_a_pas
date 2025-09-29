@@ -34,9 +34,10 @@ def convertir_feuilles_en_table(classeur, nom_feuille):
 
         # Transformer la feuille en table SQL
         try:
-            nom_table = vc.d_feuille_table[nom_feuille]
+            nom_table = "tampon_" + nom_feuille.lower()
             df.to_sql(nom_table, con=vc.engine, index=True,
                       index_label='id', if_exists="replace")
+            u_sql.mettre_a_jour_Base()
         except:
             pass
     except Exception as e:
