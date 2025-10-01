@@ -590,21 +590,21 @@ def identifier_colonnes(nom_table):
         return []
 
 
-def attach_table_to_base_with_pk(Base, engine, table_name, class_name=None, pk_columns=None):
+def attach_table_to_base_with_pk(table_name, class_name=None, pk_columns=None):
     """
-    Rattache (mappe) une table existante à Base en créant dynamiquement une classe ORM.
+    Rattache (mappe) une table existante à vc.Base en créant dynamiquement une classe ORM.
     Si la table n'a pas de PK, on peut :
       - fournir pk_columns=['col1', 'col2'], ou
       - laisser pk_columns=None et accepter l'utilisation de rowid (SQLite uniquement).
     Retourne la classe créée.
     """
-    metadata = Base.metadata
+    metadata = vc.Base.metadata
     if class_name is None:
         class_name = "".join(part.capitalize()
                              for part in table_name.split("_"))
 
     try:
-        table = Table(table_name, metadata, autoload_with=engine)
+        table = Table(table_name, metadata, autoload_with=vc.engine)
     except NoSuchTableError:
         raise ValueError(f"La table '{table_name}' n'existe pas dans la base.")
 
@@ -620,7 +620,7 @@ def attach_table_to_base_with_pk(Base, engine, table_name, class_name=None, pk_c
                 *[table.c[c] for c in pk_columns]))
 
         # Option 2 : SQLite -> utiliser rowid comme clé primaire (mappage seulement, pas de DDL)
-        elif engine.dialect.name == "sqlite":
+        elif vc.engine.dialect.name == "sqlite":
             # ajouter une colonne 'rowid' au Table (mappée au pseudo-colonne sqlite)
             if "rowid" not in table.c:
                 table.append_column(Column("rowid", Integer, primary_key=True))
@@ -636,5 +636,5 @@ def attach_table_to_base_with_pk(Base, engine, table_name, class_name=None, pk_c
             )
 
     # Création dynamique de la classe ORM rattachée à la table (et enregistrement dans Base)
-    cls = type(class_name, (Base,), {"__table__": table})
+    cls = type(class_name, (vc.Base,), {"__table__": table})
     return cls
