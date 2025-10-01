@@ -12,6 +12,9 @@ import variables_communes as vc
 
 # ad.mettre_en_forme_bdd()
 
-print(u_sql.attach_all_tables())
+# print(u_sql.attach_all_tables())
 
+# print(u_sql.extraire_classe_depuis_nom_table("tampon_parametres"))
+print(vc.Base.metadata.tables)
+# u_sql.attach_table_to_base_with_pk("tampon_parametres")
 # print(u_sql.extraire_classe_depuis_nom_table("tampon_parametres"))
