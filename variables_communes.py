@@ -49,19 +49,22 @@ nom_originel_nom_pep8 = {"id": "id", "Type d'appel": "type_appel", "Libelle": "l
                          "Nom de la rubrique": "rub_tit", "Num type charge": "typ", "Nom du type de charge": "typ_tit", "Date": "date_a", "Libelle.1": "libelle",
                          "Reference": "reference", "Montant à repartir": "montant", "Nom du fournisseur": "nom_fournisseur"}
 
-tampon_data_types = {'id': ['BIGINT', 0, None, 0], "Type d'appel": ['TEXT', 0, None, 0], 'Libelle': ['TEXT', 0, None, 0],
-                     'Debut de periode': ['DATETIME', 0, None, 0], 'Fin de periode': ['DATETIME', 0, None, 0], 'Periode Cloturee': ['TEXT', 0, None, 0],
-                     'Numéro du batiment': ['BIGINT', 0, None, 0], 'Nom du batiment': ['TEXT', 0, None, 0], 'Numéro de la rubrique': ['BIGINT', 0, None, 0],
-                     'Nom de la rubrique': ['TEXT', 0, None, 0], 'Num type charge': ['BIGINT', 0, None, 0], 'Nom du type de charge': ['TEXT', 0, None, 0],
-                     'Date': ['TEXT', 0, None, 0], 'Libelle.1': ['TEXT', 0, None, 0], 'Reference': ['TEXT', 0, None, 0],
-                     'Montant à repartir': ['FLOAT', 0, None, 0], 'Nom du fournisseur': ['TEXT', 0, None, 0]}
+mapping_t_agregation = {"type_appel": "type_appel", "libelle1": "libelle1", "debut_periode": "debut_periode", "fin_periode": "fin_periode",
+                        "periode_cloturee": "periode_cloturee", "bat": "bat", "bat_tit": "bat_tit", "rub": "rub", "rub_tit": "rub_tit", "typ": "typ",
+                        "typ_tit": "typ_tit", "date_a": "date_a", "libelle": "libelle", "reference": "reference", "montant": "montant", "nom_fournisseur": "nom_fournisseur"}
 
-t_data_types = {'id': ['INTEGER', 0, None, 1], 'type_appel': ['TEXT (2)', 0, None, 0], 'libelle1': ['TEXT', 0, None, 0], 'periode_cloturee': ['TEXT', 0, None, 0],
-                'bat': ['TEXT (3)', 0, None, 0], 'bat_tit': ['TEXT (50)', 0, None, 0], 'rub': ['TEXT (2)', 0, None, 0], 'rub_tit': ['TEXT (50)', 0, None, 0],
-                'typ': ['TEXT (3)', 0, None, 0], 'typ_tit': ['TEXT (50)', 0, None, 0], 'libelle': ['TEXT (50)', 0, None, 0], 'reference': ['TEXT (50)', 0, None, 0],
-                'montant': ['FLOAT', 0, None, 0], 'nom_fournisseur': ['TEXT (50)', 0, None, 0], 'debut_periode': ['REAL', 0, None, 0],
-                'fin_periode': ['REAL', 0, None, 0], 'date_a': ['REAL', 0, None, 0]}
+mapping_tampon_t_data = {"Type d'appel": "type_appel", "Libelle": "libelle1", "Debut de periode": "debut_periode", "Fin de periode": "fin_periode",
+                         "Periode Cloturee": "periode_cloturee", "Numéro du batiment": "bat", "Nom du batiment": "bat_tit", "Numéro de la rubrique": "rub",
+                         "Nom de la rubrique": "rub_tit", "Num type charge": "typ", "Nom du type de charge": "typ_tit", "Date": "date_a", "Libelle.1": "libelle",
+                         "Reference": "reference", "Montant à repartir": "montant", "Nom du fournisseur": "nom_fournisseur"}
 
+mapping_tampon_t_parametres = {"Indicateur": "indicateur", "Valeur": "valeur"}
+
+t_data_types = {'type_appel': 'TEXT (2)', 'libelle1': 'TEXT', 'periode_cloturee': 'TEXT', 'bat': 'TEXT (3)', 'bat_tit': 'TEXT (50)', 'rub': 'TEXT (2)', 'rub_tit': 'TEXT (50)',
+                'typ': 'TEXT (3)', 'typ_tit': 'TEXT (50)', 'libelle': 'TEXT (50)', 'reference': 'TEXT (50)', 'montant': 'FLOAT', 'nom_fournisseur': 'TEXT (50)',
+                'debut_periode': 'REAL', 'fin_periode': 'REAL', 'date_a': 'REAL'}
+
+t_parametres_types = {'indicateur': 'TEXT (50)', 'valeur': 'TEXT (50)'}
 
 # Colonnes composantes de la cle
 ccc = "bat  ||  rub  ||  typ  ||  date  ||  libelle  ||  reference  ||  montant  ||  nom_fournisseur || rang_doublon"

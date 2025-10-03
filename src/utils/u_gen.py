@@ -1,6 +1,7 @@
 import pandas as pd
+import re
 import variables_communes as vc
-from src.utils import u_sql as u_sql
+from src.utils import u_sql_1 as u_sql_1
 
 print("Module u_gen chargé avec succès.")
 
@@ -37,7 +38,7 @@ def convertir_feuilles_en_table(classeur, nom_feuille):
             nom_table = "tampon_" + nom_feuille.lower()
             df.to_sql(nom_table, con=vc.engine, index=True,
                       index_label='id', if_exists="replace")
-            u_sql.mettre_a_jour_Base()
+            u_sql_1.mettre_a_jour_metadata()
         except:
             pass
     except Exception as e:
@@ -56,3 +57,15 @@ def calculer_clef_ligne(ligne):
     # Calculer le hachage SHA256 de la chaîne concaténée
     sha256_hash = hashlib.sha256(concat_str.encode()).hexdigest()
     return sha256_hash
+
+
+def purifier_sql(sql: str) -> str:
+    if sql is None:
+        return None
+    # 1. Supprimer les caractères de contrôle (ASCII 0-31, 127)
+    sql = re.sub(r'[\x00-\x1F\x7F]', ' ', sql)
+    # 2. Supprimer ou normaliser les retours ligne/tabs
+    # compresse tous les blancs (\n, \t, etc.) en un seul espace
+    sql = re.sub(r'\s+', ' ', sql)
+    # 3. Supprimer espaces inutiles en début/fin
+    return sql.strip()

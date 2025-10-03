@@ -1,6 +1,7 @@
 from sqlalchemy import Table, MetaData, Column, Integer, PrimaryKeyConstraint
 from sqlalchemy.exc import NoSuchTableError
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.automap import automap_base
 import sqlite3
 import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session, declarative_base, mapper, class_mapper, sess
 import variables_communes as vc
 from src import modeles as modl
 
-print("Module u_sql chargé avec succès.")
+print("Module u_sql_1 chargé avec succès.")
 
 
 def supprimer_table(nom_table):
@@ -481,7 +482,7 @@ def introspecter_table_non_mappee(nom_table):
 
 
 def extraire_table_depuis_nom_table(nom_table):
-    mettre_a_jour_Base()
+    mettre_a_jour_metadata()
     metadata = vc.Base.metadata
     # Récupérer la table par son nom
     return metadata.tables[nom_table]
@@ -493,21 +494,35 @@ def vider_table(nom_table):
         session.commit()
 
 
+def mettre_a_jour_mappers(classname_for_table=None):
+    """
+    Reconstruit un nouvel automap Base et met à jour les mappers
+    en fonction de l'état actuel de la base de données.
+
+    Args:
+        engine : l'engine SQLAlchemy connecté à ta BDD
+        classname_for_table : fonction optionnelle pour transformer 
+                              les noms de table en noms de classes
+    Returns:
+        Base : un nouveau Base automap avec registry.mappers à jour
+    """
+    Base = automap_base()
+    Base.prepare(autoload_with=vc.engine,
+                 classname_for_table=classname_for_table)
+    return Base
+
+
 def extraire_classe_depuis_nom_table(nom_table):
-    mettre_a_jour_Base()
-    for mapper in vc.Base.registry.mappers:
+    Base = mettre_a_jour_mappers()
+    for mapper in Base.registry.mappers:
         if mapper.local_table.name == nom_table:
             return mapper.class_
     return None
 
 
-def mettre_a_jour_Base_old():
+def mettre_a_jour_metadata():
     metadata = vc.Base.metadata  # celui attaché à ton declarative_base()
     metadata.reflect(bind=vc.engine)
-
-
-def mettre_a_jour_Base():
-    from sqlalchemy import inspect, Table
 
 
 def attach_all_tables():
@@ -577,7 +592,7 @@ def check_engine(engine, check_tables: bool = True):
 
 
 def identifier_colonnes(nom_table):
-    mettre_a_jour_Base()
+    mettre_a_jour_metadata()
     table = extraire_table_depuis_nom_table(nom_table)
     if table is not None:
         req = f"PRAGMA table_info({nom_table});"

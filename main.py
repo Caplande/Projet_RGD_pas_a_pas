@@ -1,5 +1,5 @@
-from src.utils import initialiser_bdd
-from src.utils import actualiser_donnees as ad, u_sql  # ,essai
+from src.utils import initialiser_bdd, u_sql_1
+from src.utils import actualiser_donnees as ad  # ,essai
 import variables_communes as vc
 
 # Initialiser la base de données
@@ -10,7 +10,7 @@ import variables_communes as vc
 # ad.actualiser_donnees("F_agregation")
 # u_sql.introspecter_table_non_mappee("tampon_data")
 
-# ad.mettre_en_forme_bdd()
+ad.peupler_donnees_courantes_bdd()
 
 # print(u_sql.attach_all_tables())
 
