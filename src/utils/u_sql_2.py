@@ -1,4 +1,6 @@
+import sys
 import sqlite3
+import hashlib
 from sqlalchemy import MetaData, delete, inspect, Table, Column, Integer, String
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.ext.automap import automap_base
@@ -7,6 +9,8 @@ import variables_communes as vc
 from src.utils import u_gen as u_gen
 
 print("Module u_sql_2 chargé avec succès.")
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 def synoptique_1(engine, Base):
@@ -326,20 +330,25 @@ def a_une_pk(db_path, table_name):
         return False, []
 
 
-def promouvoir_id_en_pk(db_path, table_name):
-    conn = sqlite3.connect(db_path)
+def promouvoir_ou_ajouter_id_en_pk(table_name):
+    conn = sqlite3.connect(vc.rep_bdd)
     cursor = conn.cursor()
 
     # Récupérer la structure de la table
     cursor.execute(f"PRAGMA table_info({table_name});")
     columns_info = cursor.fetchall()
 
-    # Colonnes existantes
-    cols = [(c[1], c[2]) for c in columns_info]  # (nom, type)
+    # Colonnes existantes : [(nom, type)]
+    cols = [(c[1], c[2]) for c in columns_info]
     col_names = [c[0] for c in cols]
 
+    # Ajouter la colonne id si elle n’existe pas
     if "id" not in col_names:
-        raise ValueError("La table n'a pas de colonne 'id'")
+        print(
+            f"ℹ️  La table '{table_name}' n’a pas de colonne 'id' — elle sera ajoutée.")
+        # on met id au début, mais c’est facultatif
+        cols.insert(0, ("id", "INTEGER"))
+        col_names.insert(0, "id")
 
     # 1. Renommer l'ancienne table
     cursor.execute(f"ALTER TABLE {table_name} RENAME TO {table_name}_old;")
@@ -348,17 +357,25 @@ def promouvoir_id_en_pk(db_path, table_name):
     cols_def = []
     for name, ctype in cols:
         if name == "id":
-            cols_def.append("id INTEGER PRIMARY KEY")  # promotion en PK
+            cols_def.append("id INTEGER PRIMARY KEY AUTOINCREMENT")
         else:
-            cols_def.append(f"{name} {ctype}")
-    create_sql = f"CREATE TABLE {table_name} ({', '.join(cols_def)});"
+            cols_def.append(f""""{name}" {ctype}""")
+    create_sql = f"""CREATE TABLE {table_name} ({', '.join(cols_def)});"""
     cursor.execute(create_sql)
 
     # 3. Copier les données
-    insert_sql = f"""
-        INSERT INTO {table_name} ({', '.join(col_names)})
-        SELECT {', '.join(col_names)} FROM {table_name}_old;
-    """
+    # Si id n'existait pas, on ne le copie pas (SQLite l'auto-remplira)
+    if "id" in [c[0] for c in columns_info]:
+        insert_sql = f"""
+            INSERT INTO {table_name} ({', '.join(col_names)})
+            SELECT {', '.join(col_names)} FROM {table_name}_old;
+        """
+    else:
+        cols_sans_id = [c for c in col_names if c != "id"]
+        insert_sql = f"""
+            INSERT INTO {table_name} ({', '.join(cols_sans_id)})
+            SELECT {', '.join(cols_sans_id)} FROM {table_name}_old;
+        """
     cursor.execute(insert_sql)
 
     # 4. Supprimer l'ancienne table
@@ -366,7 +383,8 @@ def promouvoir_id_en_pk(db_path, table_name):
 
     conn.commit()
     conn.close()
-    print(f"✅ Colonne 'id' promue en PRIMARY KEY dans {table_name}")
+    print(
+        f"✅ Colonne 'id' présente et promue en PRIMARY KEY dans '{table_name}'.")
 
 
 def creer_classes_manquantes():
@@ -453,12 +471,17 @@ def copier_donnees_sql(table_src, table_dst, mapping, conversions=None):
         conversions = {"age": "INTEGER"}
     """
 
-    def cast_expression(src_col, dest_col, dest_type):
-        if "REAL" in dest_type:
+    def cast_and_format(src_col, dest_col, dest_type):
+        """Retourne l'expression SQL pour CAST + printf si besoin"""
+        if dest_col == 'bat':
+            return f"printf('%03d', CAST(\"{src_col}\" AS INTEGER)) AS {dest_col}"
+        elif dest_col == 'rub':
+            return f"printf('%02d', CAST(\"{src_col}\" AS INTEGER)) AS {dest_col}"
+        elif 'REAL' in dest_type:
             return f'CAST("{src_col}" AS REAL) AS {dest_col}'
-        elif "TEXT" in dest_type:
+        elif 'TEXT' in dest_type:
             return f'CAST("{src_col}" AS TEXT) AS {dest_col}'
-        elif "FLOAT" in dest_type:
+        elif 'FLOAT' in dest_type:
             return f'CAST("{src_col}" AS FLOAT) AS {dest_col}'
         else:
             return f'"{src_col}" AS {dest_col}'
@@ -469,7 +492,7 @@ def copier_donnees_sql(table_src, table_dst, mapping, conversions=None):
     if conversions:
         for src_col, dest_col in mapping.items():
             cols_dest.append(dest_col)
-            cols_src.append(cast_expression(
+            cols_src.append(cast_and_format(
                 src_col, dest_col, conversions[dest_col]))
     else:
         for src_col, dest_col in mapping.items():
@@ -493,3 +516,246 @@ def copier_donnees_sql(table_src, table_dst, mapping, conversions=None):
     # Suppression de la table source
     conn.execute(f"DROP TABLE IF EXISTS {table_src};")
     conn.commit()
+
+
+def normer_noms_colonnes():
+    """
+    Norme les noms des colonnes de la table data dans la table "tampon_data"
+    """
+
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    # Récupérer la structure de la table tampon_data
+    cur.execute(f"PRAGMA table_info(tampon_data);")
+    columns_info = cur.fetchall()
+
+    # Colonnes existantes : [(nom, type)]
+    cols = [(c[1]) for c in columns_info]
+
+    # Créer une nouvelle liste de colonnes normalisées
+    new_cols = []
+    for name in cols:
+        new_cols.append(vc.mapping_tampon_t_data[name])
+
+    for old, new in zip(cols, new_cols):
+        # les anciens noms non conformes doivent être entourés de guillemets doubles
+        cur.execute(f'ALTER TABLE tampon_data RENAME COLUMN "{old}" TO {new};')
+
+    conn.commit()
+    conn.close()
+
+    print(f"✅ Noms des colonnes normalisés dans data'.")
+
+
+def normer_types_colonnes(dry_run=False):
+    """
+    Normalise les types de colonnes de toutes les tables SQLite selon le lexique fourni.
+    Si dry_run=True, affiche les modifications sans toucher à la base.
+    """
+    lexique = vc.lexique_colonnes_types
+
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+    tables = [row[0] for row in cursor.fetchall()]
+
+    print(f"🔍 {len(tables)} tables détectées dans la base.")
+
+    for table in tables:
+        cursor.execute(f"PRAGMA table_info({table});")
+        colonnes_info = cursor.fetchall()
+
+        cols_def, cols_noms = [], []
+        besoin_recreer = False
+        changements = []
+
+        for cid, nom, type_col, notnull, default, pk in colonnes_info:
+            type_ref = lexique.get(nom, type_col)
+            if type_ref != type_col:
+                besoin_recreer = True
+                changements.append((nom, type_col, type_ref))
+            cols_def.append(f"{nom} {type_ref}")
+            cols_noms.append(nom)
+
+        if besoin_recreer:
+            print(f"\n⚙️ Table {table} : types divergents détectés")
+            for nom, avant, apres in changements:
+                print(f"   - {nom}: {avant} → {apres}")
+
+            if not dry_run:
+                temp_table = f"{table}_old"
+                try:
+                    cursor.execute(
+                        f"ALTER TABLE {table} RENAME TO {temp_table};")
+                    cursor.execute(
+                        f"CREATE TABLE {table} ({', '.join(cols_def)});")
+                    cursor.execute(
+                        f"INSERT INTO {table} ({', '.join(cols_noms)}) "
+                        f"SELECT {', '.join(cols_noms)} FROM {temp_table};"
+                    )
+                    cursor.execute(f"DROP TABLE {temp_table};")
+                    conn.commit()
+                    print(f"✅ Table {table} normalisée.")
+                except Exception as e:
+                    print(f"❌ Erreur sur {table}: {e}")
+                    conn.rollback()
+            else:
+                print("   (Simulation : aucune modification appliquée)")
+
+    conn.close()
+    print("\n🎯 Normalisation des types terminée.")
+
+
+def adjoindre_pk():
+    """
+    Pour chaque table de l_tables_source :
+      - ajoute une colonne 'id' si elle n'existe pas
+      - crée une clé primaire sur 'id' si la table n'en a pas déjà
+      - conserve les types et contraintes des autres colonnes
+    """
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+
+    for table in vc.l_tables_source:
+        # --- structure initiale ---
+        cursor.execute(f"PRAGMA table_info({table});")
+        infos = cursor.fetchall()
+        noms_cols = [col[1] for col in infos]
+        pk_existante = any(col[5] for col in infos)
+
+        # --- ajouter id si absent ---
+        if "id" not in noms_cols:
+            print(f"🆕 Ajout de la colonne 'id' dans {table}")
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN id INTEGER;")
+
+            # recharger infos après modification
+            cursor.execute(f"PRAGMA table_info({table});")
+            infos = cursor.fetchall()
+            noms_cols = [col[1] for col in infos]
+
+        # --- si pas encore de PK, la recréer proprement ---
+        if not pk_existante:
+            print(f"🔑 Création de la clé primaire sur 'id' dans {table}")
+
+            # Renommer l’ancienne
+            cursor.execute(f"ALTER TABLE {table} RENAME TO {table}_old;")
+
+            # Liste des colonnes autres que id
+            colonnes_autres = [col for col in infos if col[1] != "id"]
+
+            # Construire la définition SQL des colonnes
+            def fmt_col(col):
+                nom, type_col, notnull, dflt_value = col[1], col[2], col[3], col[4]
+                s = f"{nom} {type_col or ''}".strip()
+                if notnull:
+                    s += " NOT NULL"
+                if dflt_value is not None:
+                    s += f" DEFAULT {dflt_value}"
+                return s
+
+            colonnes_def = ", ".join(fmt_col(c) for c in colonnes_autres)
+
+            # Recréer la table avec id comme PK
+            cursor.execute(f"""
+                CREATE TABLE {table} (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {colonnes_def}
+                );
+            """)
+
+            # Copier les données
+            noms_autres = ", ".join(c[1] for c in colonnes_autres)
+            cursor.execute(f"""
+                INSERT INTO {table} ({noms_autres})
+                SELECT {noms_autres} FROM {table}_old;
+            """)
+
+            # Supprimer l’ancienne
+            cursor.execute(f"DROP TABLE {table}_old;")
+
+    conn.commit()
+
+
+def remplacer_nulls_toutes_tables():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    # Récupérer la liste des tables (hors tables système SQLite)
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+    tables = [row[0] for row in cur.fetchall()]
+
+    for table in tables:
+        print(f"🔧 Table : {table}")
+        # Récupérer les colonnes de la table
+        cur.execute(f"PRAGMA table_info({table})")
+        colonnes = [row[1] for row in cur.fetchall()]
+
+        # Pour chaque colonne, remplacer les NULL par ""
+        for col in colonnes:
+            try:
+                cur.execute(
+                    f"UPDATE {table} SET {col} = '' WHERE {col} IS NULL")
+            except Exception as e:
+                print(f"⚠️  Colonne {col} ignorée ({e})")
+
+    conn.commit()
+    conn.close()
+    print("✅ Tous les NULL ont été remplacés par des chaînes vides.")
+
+
+def creer_table_lexique_cles():
+    # Eliminer toutes les valeurs Null de toutes les table de la bdd
+    remplacer_nulls_toutes_tables()
+    # Supprimer la table si elle existe déjà
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+    cursor.execute("DROP TABLE IF EXISTS t_lexique_cles;")
+
+    # Création de la table t_lexique_cles
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS t_lexique_cles (
+        cle TEXT PRIMARY KEY,
+        groupe TEXT
+    )
+    """)
+
+    # Récupération des données sources
+    cols = ", ".join(vc.composantes_cle + ['groupe'])
+    cursor.execute(f"SELECT {cols} FROM t_roc_modifiee")
+    rows = cursor.fetchall()
+
+    # Insertion dans t_lexique_cles
+    for row in rows:
+        *vals, groupe = row
+        # Concaténation des valeurs composant la clé
+        concat = ''.join(str(v) if v is not None else '' for v in vals)
+        cle = hashlib.sha256(concat.encode('utf-8')).hexdigest()
+
+        cursor.execute("""
+        INSERT OR IGNORE INTO t_lexique_cles (cle, groupe)
+        VALUES (?, ?)
+        """, (cle, groupe))
+
+    conn.commit()
+    conn.close()
+    print("✅ Table 't_lexique_cles' créée avec succès.")
+
+
+if __name__ == "__main__":
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+    nom_table = "tampon_data"
+    cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (nom_table,))
+    table_existe = cursor.fetchone()
+
+    if not table_existe:
+        print(
+            f"⚠️  La table '{nom_table}' n'existe pas dans la base {vc.rep_bdd}")
+        conn.close()
+
+    normer_noms_colonnes("nom_table")

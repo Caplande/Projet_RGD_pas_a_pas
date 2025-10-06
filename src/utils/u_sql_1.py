@@ -24,17 +24,28 @@ def supprimer_toutes_tables(l_tables=None):
     Si l_tables est None, supprime toutes les tables de la base.
     """
     with vc.engine.begin() as conn:
+        l_tot_tables = lister_tables()
         if l_tables:  # si une liste de tables est fournie
             for table_name in l_tables:
-                if table_name in vc.metadata.tables:
+                # sqlite_xxx sont des tables système
+                if table_name in l_tot_tables and not table_name.startswith("sqlite_"):
                     conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
                     # print(f"Table {table_name} supprimée.")
                 else:
                     print(f"Table {table_name} non trouvée.")
         else:  # si aucune liste -> supprimer toutes les tables
-            for table_name in vc.metadata.tables:
-                conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-                print(f"Table {table_name} supprimée.")
+            for table_name in lister_tables():
+                if not table_name.startswith("sqlite_"):
+                    conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                    print(f"Table {table_name} supprimée.")
+
+
+def lister_tables():
+    with vc.engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table';"))
+        tables = [row[0] for row in result.fetchall()]
+    return tables
 
 
 def supprimer_colonne_toutes_tables(nom_colonne):
@@ -653,3 +664,5 @@ def attach_table_to_base_with_pk(table_name, class_name=None, pk_columns=None):
     # Création dynamique de la classe ORM rattachée à la table (et enregistrement dans Base)
     cls = type(class_name, (vc.Base,), {"__table__": table})
     return cls
+
+# print(lister_tables())

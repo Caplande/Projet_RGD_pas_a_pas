@@ -1,12 +1,12 @@
 import pandas as pd
 import re
 import variables_communes as vc
-from src.utils import u_sql_1 as u_sql_1
+from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 
 print("Module u_gen chargé avec succès.")
 
 
-def traiter_classeur(classeur, l_sauf=[None]):
+def traiter_classeur(classeur):
     """
     Traite un classeur en effectuant des opérations spécifiques.
 
@@ -14,35 +14,46 @@ def traiter_classeur(classeur, l_sauf=[None]):
         classeur (classeur): Le classeur à traiter.
     """
     # Lister les feuilles
-    liste_feuilles = pd.ExcelFile(classeur).sheet_names
-    liste_feuilles = diff_entre_deux_listes(liste_feuilles, l_sauf)
-
+    l_feuilles = pd.ExcelFile(classeur).sheet_names
+    l_feuilles = [feuille for feuille in l_feuilles if feuille.startswith(
+        "F_") or feuille in ["data", "Parametres"]]
+    noms_tables = []
     try:
-        for nom_feuille in liste_feuilles:
+        for nom_feuille in l_feuilles:
             # Effectuer des opérations spécifiques sur chaque feuille
-            convertir_feuilles_en_table(classeur, nom_feuille)
+            noms_tables.append(
+                convertir_feuilles_en_table(classeur, nom_feuille))
+        return noms_tables
     except Exception as e:
-        pass
+        return None
 
 
 def convertir_feuilles_en_table(classeur, nom_feuille):
     """
     Convertit une feuille en table dans la base de données.
+    Toutes les feuilles du type F_* sont converties en tables du nom de t_*.
+    Les feuilles data et parametres sont converties en tables tampon_data et tampon_parametres.
     """
-    try:  # nom_feuille est-elle dans les clefs du dictionnaire vc.d_feuille_table ?
+    try:
         # Charger une feuille spécifique depuis Excel
         df = pd.read_excel(classeur, sheet_name=nom_feuille)
 
         # Transformer la feuille en table SQL
         try:
-            nom_table = "tampon_" + nom_feuille.lower()
+            nom_table = "tampon_" + nom_feuille.lower() if nom_feuille in [
+                "data", "Parametres"] else "t_" + nom_feuille.lower()[2:]
             df.to_sql(nom_table, con=vc.engine, index=True,
                       index_label='id', if_exists="replace")
-            u_sql_1.mettre_a_jour_metadata()
-        except:
-            pass
+            return nom_table
+        except Exception as e:
+            print(
+                "Erreur lors de la création de la table pour la feuille:", nom_feuille, e)
+            raise
+            return None
     except Exception as e:
-        pass
+        print("Erreur lors du chargement de la feuille:", nom_feuille, e)
+        raise
+        return None
 
 
 def diff_entre_deux_listes(l1, moins_l2):
