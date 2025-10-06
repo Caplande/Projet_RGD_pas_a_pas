@@ -710,7 +710,9 @@ def remplacer_nulls_toutes_tables():
 def creer_table_lexique_cles():
     # Eliminer toutes les valeurs Null de toutes les table de la bdd
     remplacer_nulls_toutes_tables()
-    # Supprimer la table si elle existe déjà
+    # Formater les colonnes bat,rub,typ de t_roc_modifiee
+    formater_bat_rub_typ(["t_roc_modifiee"])
+    # Supprimer la table t_lexique_cles si elle existe déjà
     conn = sqlite3.connect(vc.rep_bdd)
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS t_lexique_cles;")
@@ -743,6 +745,28 @@ def creer_table_lexique_cles():
     conn.commit()
     conn.close()
     print("✅ Table 't_lexique_cles' créée avec succès.")
+
+
+def formater_bat_rub_typ(l_toutes_tables):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+    for table in l_toutes_tables:
+        # Vérifier que la table contient bien les colonnes à formater
+        cursor.execute(f"PRAGMA table_info({table})")
+        colonnes = [col[1] for col in cursor.fetchall()]
+
+        for col, fmt in [('bat', '000'), ('rub', '00'), ('typ', '000')]:
+            if col in colonnes:
+                longueur = len(fmt)
+                # Mettre à jour la colonne en la formatant à la bonne longueur avec des zéros à gauche
+                cursor.execute(f"""
+                    UPDATE {table}
+                    SET {col} = printf('%0{longueur}d', CAST({col} AS INTEGER))
+                    WHERE {col} IS NOT NULL AND TRIM({col}) <> '';
+                """)
+                print(
+                    f"✅ Colonne '{col}' formatée dans la table '{table}' ({fmt})")
+    conn.commit()
 
 
 if __name__ == "__main__":
