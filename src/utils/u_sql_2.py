@@ -216,7 +216,7 @@ def inventaire_complet(engine, Base):
 
 
 def lister_tables_reelles():
-    insp = inspect(engine)
+    insp = inspect(vc.engine)
     # Tables réelles
     return set(insp.get_table_names())
 
@@ -228,7 +228,7 @@ def lister_classes_mappees(Base):
     }
 
 
-def lister_tables_python():
+def lister_tables_python(Base):
     """Attention, ces tables python existent dès que la classe ORM est définie, même si elles ne sont pas encore créées en base."""
     return {
         mapper.class_.__name__: mapper.local_table.name
@@ -279,7 +279,7 @@ def inventaire_1(engine, Base):
 def maj_metadata():
     global metadata
     metadata = MetaData()
-    metadata.reflect(bind=engine)
+    metadata.reflect(bind=vc.engine)
     print("Metadata mis à jour")
     return metadata
 
@@ -287,7 +287,7 @@ def maj_metadata():
 def vider_table(nom_table):
     if nom_table in lister_tables_reelles():
         table = metadata.tables[nom_table]
-        with engine.begin() as conn:
+        with vc.engine.begin() as conn:
             conn.execute(delete(table))  # supprime toutes les lignes
         print(f"La table '{nom_table}' a été vidée.")
     else:
@@ -299,19 +299,11 @@ def supprimer_table(nom_table):
     maj_metadata()
     if nom_table in metadata.tables:
         table = metadata.tables[nom_table]
-        table.drop(engine, checkfirst=True)
+        table.drop(vc.engine, checkfirst=True)
         metadata = maj_metadata()
         print(f"La table '{nom_table}' a été supprimée.")
     else:
         print(f"La table '{nom_table}' n'existe pas.")
-
-
-def supprimer_toutes_tables():
-    global metadata
-    maj_metadata()
-    metadata.drop_all(engine)
-    metadata = maj_metadata()
-    print("Toutes les tables ont été supprimées.")
 
 
 def a_une_pk(db_path, table_name):
@@ -396,7 +388,8 @@ def creer_classes_manquantes():
 
     # Préparer l'automap AVANT d'accéder à Base.classes
     # surcharge de la fonction de nommage
-    Base.prepare(autoload_with=engine, classname_for_table=classname_for_table)
+    Base.prepare(autoload_with=vc.engine,
+                 classname_for_table=classname_for_table)
 
     # Extraire les classes mappées
     print("Classes ORM disponibles :", list(Base.classes.keys()))
@@ -712,39 +705,37 @@ def creer_table_lexique_cles():
     remplacer_nulls_toutes_tables()
     # Formater les colonnes bat,rub,typ de t_roc_modifiee
     formater_bat_rub_typ(["t_roc_modifiee"])
-    # Supprimer la table t_lexique_cles si elle existe déjà
-    conn = sqlite3.connect(vc.rep_bdd)
-    cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS t_lexique_cles;")
-
-    # Création de la table t_lexique_cles
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS t_lexique_cles (
-        cle TEXT PRIMARY KEY,
-        groupe TEXT
-    )
-    """)
-
-    # Récupération des données sources
-    cols = ", ".join(vc.composantes_cle + ['groupe'])
-    cursor.execute(f"SELECT {cols} FROM t_roc_modifiee")
-    rows = cursor.fetchall()
-
-    # Insertion dans t_lexique_cles
-    for row in rows:
-        *vals, groupe = row
-        # Concaténation des valeurs composant la clé
-        concat = ''.join(str(v) if v is not None else '' for v in vals)
-        cle = hashlib.sha256(concat.encode('utf-8')).hexdigest()
-
+    if not table_existe("t_lexique_cles"):
+        # Création de la table t_lexique_cles
         cursor.execute("""
-        INSERT OR IGNORE INTO t_lexique_cles (cle, groupe)
-        VALUES (?, ?)
-        """, (cle, groupe))
+        CREATE TABLE IF NOT EXISTS t_lexique_cles (
+            cle TEXT PRIMARY KEY,
+            groupe TEXT
+        )
+        """)
 
-    conn.commit()
-    conn.close()
-    print("✅ Table 't_lexique_cles' créée avec succès.")
+        # Récupération des données sources
+        cols = ", ".join(vc.composantes_cle + ['groupe'])
+        cursor.execute(f"SELECT {cols} FROM t_roc_modifiee")
+        rows = cursor.fetchall()
+
+        # Insertion dans t_lexique_cles
+        for row in rows:
+            *vals, groupe = row
+            # Concaténation des valeurs composant la clé
+            concat = ''.join(str(v) if v is not None else '' for v in vals)
+            cle = hashlib.sha256(concat.encode('utf-8')).hexdigest()
+
+            cursor.execute("""
+            INSERT OR IGNORE INTO t_lexique_cles (cle, groupe)
+            VALUES (?, ?)
+            """, (cle, groupe))
+
+        conn.commit()
+        conn.close()
+        print("✅ Table 't_lexique_cles' créée avec succès.")
+    else:
+        print("✅ Table 't_lexique_cles' a été conservée")
 
 
 def formater_bat_rub_typ(l_toutes_tables):
@@ -767,6 +758,15 @@ def formater_bat_rub_typ(l_toutes_tables):
                 print(
                     f"✅ Colonne '{col}' formatée dans la table '{table}' ({fmt})")
     conn.commit()
+
+
+def table_existe(nom_table):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?;",
+        (nom_table,)
+    )
+    return cur.fetchone() is not None
 
 
 if __name__ == "__main__":

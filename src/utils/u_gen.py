@@ -1,31 +1,28 @@
+import sys
+import os
 import pandas as pd
 import re
 import variables_communes as vc
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
+import tkinter as tk
+from tkinter import messagebox
 
 print("Module u_gen chargé avec succès.")
 
 
-def traiter_classeur(classeur):
+def fermer_projet(root=None):
     """
-    Traite un classeur en effectuant des opérations spécifiques.
-
-    Args:
-        classeur (classeur): Le classeur à traiter.
+    Ferme complètement l’application, y compris dans VS Code.
     """
-    # Lister les feuilles
-    l_feuilles = pd.ExcelFile(classeur).sheet_names
-    l_feuilles = [feuille for feuille in l_feuilles if feuille.startswith(
-        "F_") or feuille in ["data", "Parametres"]]
-    noms_tables = []
-    try:
-        for nom_feuille in l_feuilles:
-            # Effectuer des opérations spécifiques sur chaque feuille
-            noms_tables.append(
-                convertir_feuilles_en_table(classeur, nom_feuille))
-        return noms_tables
-    except Exception as e:
-        return None
+    if messagebox.askokcancel("Quitter", "Fermer le projet ?"):
+        try:
+            if root:
+                root.quit()
+                root.destroy()
+        except:
+            pass
+        # Forcer la terminaison du processus Python
+        os._exit(0)
 
 
 def convertir_feuilles_en_table(classeur, nom_feuille):
@@ -80,3 +77,41 @@ def purifier_sql(sql: str) -> str:
     sql = re.sub(r'\s+', ' ', sql)
     # 3. Supprimer espaces inutiles en début/fin
     return sql.strip()
+
+
+def fermer_projet(root=None):
+    """
+    Ferme proprement l'application Tkinter.
+    """
+    if messagebox.askokcancel("Quitter", "Fermer le projet ?"):
+        try:
+            if root is not None:
+                root.quit()
+                root.destroy()
+            # Force la terminaison du processus
+            os._exit(0)
+        except Exception as e:
+            print(f"Erreur à la fermeture : {e}")
+            os._exit(1)
+
+
+def traiter_classeur(classeur):
+    """
+    Traite un classeur en effectuant des opérations spécifiques.
+
+    Args:
+        classeur (classeur): Le classeur à traiter.
+    """
+    # Lister les feuilles
+    l_feuilles = pd.ExcelFile(classeur).sheet_names
+    l_feuilles = [feuille for feuille in l_feuilles if feuille.startswith(
+        "F_") or feuille in ["data", "Parametres"]]
+    noms_tables = []
+    try:
+        for nom_feuille in l_feuilles:
+            # Effectuer des opérations spécifiques sur chaque feuille
+            noms_tables.append(
+                convertir_feuilles_en_table(classeur, nom_feuille))
+        return noms_tables
+    except Exception as e:
+        return None

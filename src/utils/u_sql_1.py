@@ -18,13 +18,15 @@ def supprimer_table(nom_table):
         conn.commit()
 
 
-def supprimer_toutes_tables(l_tables=None):
+def supprimer_toutes_tables(l_tables=None, l_excepte=None):
     """
-    Supprime les tables SQLite contenues dans l_tables.
-    Si l_tables est None, supprime toutes les tables de la base.
+    Supprime les tables SQLite contenues dans l_tables à l'exception de celles contenues dans l_excepte
+    Si l_tables est None, supprime toutes les tables de la base à l'exception de celles contenues dans l_excepte
     """
     with vc.engine.begin() as conn:
         l_tot_tables = lister_tables()
+        l_tot_tables = [
+            table for table in l_tot_tables if table not in l_excepte]
         if l_tables:  # si une liste de tables est fournie
             for table_name in l_tables:
                 # sqlite_xxx sont des tables système
@@ -33,17 +35,16 @@ def supprimer_toutes_tables(l_tables=None):
                     # print(f"Table {table_name} supprimée.")
                 else:
                     print(f"Table {table_name} non trouvée.")
-        else:  # si aucune liste -> supprimer toutes les tables
-            for table_name in lister_tables():
-                if not table_name.startswith("sqlite_"):
-                    conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
-                    print(f"Table {table_name} supprimée.")
+        else:  # si aucune liste -> supprimer toutes les tables autres que celles contenues dans l_excepte
+            for table_name in l_tot_tables:
+                conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+                print(f"Table {table_name} supprimée.")
 
 
 def lister_tables():
     with vc.engine.connect() as conn:
         result = conn.execute(
-            text("SELECT name FROM sqlite_master WHERE type='table';"))
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"))
         tables = [row[0] for row in result.fetchall()]
     return tables
 
