@@ -25,12 +25,12 @@
                 "PYTHONPATH": "${workspaceFolder}"}
         },
         {
-            "name": "Débogueur Python : u_sql_1",
+            "name": "Débogueur Python : menu",
             "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.u_sql_1",
+            "module": "src.utils.menu",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         }

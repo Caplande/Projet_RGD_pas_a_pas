@@ -6,7 +6,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import registry, declarative_base
 from src import modeles as modls
 
-print("Importation de variables_communes.py réussie")
+print("Module variables_communes chargé avec succès.")
 
 rep_defaut = Path.cwd()
 print(f"VC_1 ---> Répertoire par défaut {rep_defaut}")
@@ -31,7 +31,7 @@ composantes_bdd = {
     "feuilles_roc": {"nom_fichier": "rgd_originel_completee_modifiee.xlsx", "feuilles": ["F_roc_modifiee"]},
     "feuilles_lexiques": {"nom_fichier": "lexiques.xlsx", "feuilles": ["F_definition_cles_repartitions", "F_lexique_batrub", "F_lexique_bat", "F_lexique_rub", "F_lexique_typ",
                           "F_liste_groupes", "F_liste_group_a_etudier"]},
-    "feuilles_source_active": {"nom_fichier": "source_active.xlsm", "feuilles": ["data", "F_Agregation", "Parametres"]}
+    "feuilles_source_active": {"nom_fichier": "source_active.xlsm", "feuilles": ["data", "F_agregation", "Parametres"]}
 }
 l_tables_source = ["t_agregation", "t_definition_cles_repartitions", "t_lexique_batrub", "t_lexique_bat", "t_lexique_rub", "t_lexique_typ", "t_liste_groupes", "t_liste_groupes_a_etudier",
                    "t_roc_modifiee", "tampon_data", "tampon_parametres"]

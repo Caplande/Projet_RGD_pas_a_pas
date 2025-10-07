@@ -541,7 +541,7 @@ def normer_noms_colonnes():
     print(f"✅ Noms des colonnes normalisés dans data'.")
 
 
-def normer_types_colonnes(dry_run=False):
+def normer_types_colonnes(dry_run=False, l_tables=None):
     """
     Normalise les types de colonnes de toutes les tables SQLite selon le lexique fourni.
     Si dry_run=True, affiche les modifications sans toucher à la base.
@@ -551,13 +551,14 @@ def normer_types_colonnes(dry_run=False):
     conn = sqlite3.connect(vc.rep_bdd)
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
-    tables = [row[0] for row in cursor.fetchall()]
+    if not l_tables:
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+        l_tables = [row[0] for row in cursor.fetchall()]
 
-    print(f"🔍 {len(tables)} tables détectées dans la base.")
+        print(f"🔍 {len(l_tables)} l_tables détectées dans la base.")
 
-    for table in tables:
+    for table in l_tables:
         cursor.execute(f"PRAGMA table_info({table});")
         colonnes_info = cursor.fetchall()
 
@@ -602,17 +603,18 @@ def normer_types_colonnes(dry_run=False):
     print("\n🎯 Normalisation des types terminée.")
 
 
-def adjoindre_pk():
+def adjoindre_pk(l_tables=None):
     """
     Pour chaque table de l_tables_source :
       - ajoute une colonne 'id' si elle n'existe pas
       - crée une clé primaire sur 'id' si la table n'en a pas déjà
       - conserve les types et contraintes des autres colonnes
     """
+    l_tables = l_tables if l_tables else vc.l_tables_source
     conn = sqlite3.connect(vc.rep_bdd)
     cursor = conn.cursor()
 
-    for table in vc.l_tables_source:
+    for table in l_tables:
         # --- structure initiale ---
         cursor.execute(f"PRAGMA table_info({table});")
         infos = cursor.fetchall()
@@ -704,7 +706,7 @@ def creer_table_lexique_cles():
     # Eliminer toutes les valeurs Null de toutes les table de la bdd
     remplacer_nulls_toutes_tables()
     # Formater les colonnes bat,rub,typ de t_roc_modifiee
-    formater_bat_rub_typ(["t_roc_modifiee"])
+    formater_bat_rub_typ(["t_roc_modifiee", "tampon_data"])
     if not table_existe("t_lexique_cles"):
         # Création de la table t_lexique_cles
         cursor.execute("""
@@ -738,10 +740,10 @@ def creer_table_lexique_cles():
         print("✅ Table 't_lexique_cles' a été conservée")
 
 
-def formater_bat_rub_typ(l_toutes_tables):
+def formater_bat_rub_typ(l_tables):
     conn = sqlite3.connect(vc.rep_bdd)
     cursor = conn.cursor()
-    for table in l_toutes_tables:
+    for table in l_tables:
         # Vérifier que la table contient bien les colonnes à formater
         cursor.execute(f"PRAGMA table_info({table})")
         colonnes = [col[1] for col in cursor.fetchall()]

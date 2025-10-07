@@ -10,8 +10,9 @@ print("Module reinitialiser_bdd chargé avec succès.")
 
 def reinitialiser_bdd_executer():
     # 1) Supprimer toutes les tables
-    # Supprime toutes les tables excepté t_lexique_cles
-    u_sql_1.supprimer_toutes_tables(l_excepte="t_lexique_cles")
+    # Supprime toutes les tables excepté t_lexique_cles et t_agregation
+    u_sql_1.supprimer_toutes_tables(
+        l_excepte=["t_lexique_cles", "t_agregation"])
 
     # 2) Initialiser les tables fondatrices
     for feuilles, tac in vc.composantes_bdd.items():  # tac = tâches à accomplir

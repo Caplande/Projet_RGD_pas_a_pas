@@ -24,6 +24,7 @@ def supprimer_toutes_tables(l_tables=None, l_excepte=None):
     Si l_tables est None, supprime toutes les tables de la base à l'exception de celles contenues dans l_excepte
     """
     with vc.engine.begin() as conn:
+        l_excepte = [] if l_excepte is None else l_excepte
         l_tot_tables = lister_tables()
         l_tot_tables = [
             table for table in l_tot_tables if table not in l_excepte]
@@ -35,7 +36,7 @@ def supprimer_toutes_tables(l_tables=None, l_excepte=None):
                     # print(f"Table {table_name} supprimée.")
                 else:
                     print(f"Table {table_name} non trouvée.")
-        else:  # si aucune liste -> supprimer toutes les tables autres que celles contenues dans l_excepte
+        else:  # Si aucune liste -> supprimer toutes les tables autres que celles contenues dans l_excepte
             for table_name in l_tot_tables:
                 conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
                 print(f"Table {table_name} supprimée.")
