@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, MetaData, update, inspect, text
 from sqlalchemy.orm import Session
 import variables_communes as vc
-import src.modeles as modl
+import src.utils.modeles as modl
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 
 print("Module actualiser_donnees chargé avec succès.")
@@ -23,4 +23,5 @@ def actualiser_donnees():
     u_sql_2.normer_types_colonnes(l_tables=l_noms_tables)
     # 2.4) Ajouter 'id' en clé primaire
     u_sql_2.adjoindre_pk(l_tables=l_noms_tables)
+    
     u_sql_2.formater_bat_rub_typ(["tampon_data"])

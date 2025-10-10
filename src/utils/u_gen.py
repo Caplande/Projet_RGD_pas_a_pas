@@ -106,7 +106,7 @@ def traiter_classeur(classeur, l_sauf=None):
     # Lister les feuilles
     l_feuilles = pd.ExcelFile(classeur).sheet_names
     l_feuilles = [feuille for feuille in l_feuilles if (feuille.startswith(
-        "F_") or feuille in ["data", "Parametres"]) and (feuille not in l_sauf)]
+        "F_") or feuille in ["data"]) and (feuille not in l_sauf)]
     l_noms_tables = []
     try:
         for nom_feuille in l_feuilles:

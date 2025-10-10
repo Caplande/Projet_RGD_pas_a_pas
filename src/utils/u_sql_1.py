@@ -7,7 +7,7 @@ import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
 from sqlalchemy.orm import Session, declarative_base, mapper, class_mapper, sessionmaker
 import variables_communes as vc
-from src import modeles as modl
+from src.utils import modeles as modl
 
 print("Module u_sql_1 chargé avec succès.")
 
@@ -667,4 +667,39 @@ def attach_table_to_base_with_pk(table_name, class_name=None, pk_columns=None):
     cls = type(class_name, (vc.Base,), {"__table__": table})
     return cls
 
+
+def creer_colonnes(nom_table, d_noms_colonnes):
+    """
+    Crée dans nom_table les colonnes listées dans d_noms_colonne si elles n'existent pas déjà.
+    d_noms_colonne : dict {nom_colonne: type_sql}
+    """
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    # Vérifie que la table existe
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (nom_table,))
+    if not cur.fetchone():
+        print(f"⚠️ Table '{nom_table}' introuvable.")
+        conn.close()
+        return
+
+    # Colonnes existantes
+    cur.execute(f"PRAGMA table_info({nom_table})")
+    colonnes_existantes = [row[1] for row in cur.fetchall()]
+
+    for nom_col, type_col in d_noms_colonnes.items():
+        if nom_col not in colonnes_existantes:
+            print(f"➕ Création de la colonne '{nom_col}' ({type_col})...")
+            cur.execute(
+                f'ALTER TABLE {nom_table} ADD COLUMN "{nom_col}" {type_col}')
+        else:
+            print(f"✅ Colonne '{nom_col}' existe déjà, rien à faire.")
+
+    conn.commit()
+    conn.close()
+
+
 # print(lister_tables())
+if __name__ == "__main__":
+    creer_colonnes("t_data", {"cle": "TEXT"})

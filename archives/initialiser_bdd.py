@@ -1,5 +1,5 @@
 import variables_communes as vc
-import src.modeles as modl
+import src.utils.modeles as modl
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1
 from sqlalchemy import create_engine, MetaData, update, inspect
 

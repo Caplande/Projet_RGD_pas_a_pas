@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Débogueur Python : V1",
+            "name": "Débogueur Python : essai_requete",
             "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
@@ -31,6 +31,36 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "module": "src.utils.menu",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : controle_importation",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.controle_importation",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : u_sql_1",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.u_sql_1",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : reinitialiser_bdd",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.reinitialiser_bdd",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         }
