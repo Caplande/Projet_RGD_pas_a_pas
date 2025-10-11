@@ -720,4 +720,4 @@ def compter_par_exercice():
 
 # print(lister_tables())
 if __name__ == "__main__":
-    creer_colonnes("t_base_data", {"cle": "TEXT"})
+    print(lister_doublons("t_base_data","cle"))

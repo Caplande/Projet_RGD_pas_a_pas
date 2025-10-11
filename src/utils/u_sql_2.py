@@ -1137,9 +1137,8 @@ def generer_modeles(fichier_sortie):
     Introspecte la base et génère un module Python contenant
     les classes SQLAlchemy correspondant aux tables existantes.
     """
-    engine = create_engine("sqlite:///" + str(vc.rep_bdd))
     metadata = MetaData()
-    metadata.reflect(bind=engine)
+    metadata.reflect(bind=vc.engine)
 
     lignes = [
         "from sqlalchemy import Column, Integer, Text, Float, Boolean, Date, DateTime, Numeric",
@@ -1169,6 +1168,27 @@ def generer_modeles(fichier_sortie):
     print(f"✅ Modèles générés dans {fichier_sortie}")
 
 
+def numeroter_doublons_par_cle():
+    # Ajout de la colonne si elle n’existe pas
+
+    conn = sqlite3.connect(vc.rep_bdd)
+
+    conn.execute("""
+        WITH numerotes AS (
+            SELECT
+                rowid AS rid,
+                cle,
+                ROW_NUMBER() OVER (PARTITION BY cle ORDER BY rowid) AS rn
+            FROM t_base_data
+        )
+        UPDATE t_base_data
+        SET rang_doublon = (
+            SELECT rn FROM numerotes n WHERE n.rid = t_base_data.rowid
+        );
+    """)
+    conn.commit()
+
+
 # Exemple d'utilisation
 if __name__ == "__main__":
-    generer_modeles("src/utils/modeles.py")
+    numeroter_doublons_par_cle()
