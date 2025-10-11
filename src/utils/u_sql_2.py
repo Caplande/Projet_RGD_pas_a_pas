@@ -4,12 +4,12 @@ import hashlib
 from sqlalchemy import MetaData, delete, inspect, Table, Column, Integer, String, Text, Float, REAL, create_engine
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, Session
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 import pandas as pd
 from src.utils import modeles as mdl
 import variables_communes as vc
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, modeles as mdls
-
 
 print("Module u_sql_2 chargé avec succès.")
 
@@ -532,7 +532,7 @@ def normer_noms_colonnes():
     # Créer une nouvelle liste de colonnes normalisées
     new_cols = []
     for name in cols:
-        new_cols.append(vc.mapping_tampon_t_data[name])
+        new_cols.append(vc.mapping_tampon_data[name])
 
     for old, new in zip(cols, new_cols):
         # les anciens noms non conformes doivent être entourés de guillemets doubles
@@ -541,7 +541,7 @@ def normer_noms_colonnes():
     conn.commit()
     conn.close()
 
-    print(f"✅ Noms des colonnes normalisés dans data'.")
+    print(f"✅ Noms des colonnes normalisés dans tampon_data'.")
 
 
 def normer_types_colonnes(dry_run=False, l_tables=None):
@@ -677,16 +677,17 @@ def adjoindre_pk(l_tables=None):
     conn.commit()
 
 
-def remplacer_nulls_toutes_tables():
+def remplacer_nulls_toutes_tables(l_tables=None):
     conn = sqlite3.connect(vc.rep_bdd)
     cur = conn.cursor()
 
-    # Récupérer la liste des tables (hors tables système SQLite)
-    cur.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    tables = [row[0] for row in cur.fetchall()]
+    if not l_tables:
+        # Récupérer la liste des tables (hors tables système SQLite)
+        cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+        l_tables = [row[0] for row in cur.fetchall()]
 
-    for table in tables:
+    for table in l_tables:
         print(f"🔧 Table : {table}")
         # Récupérer les colonnes de la table
         cur.execute(f"PRAGMA table_info({table})")
@@ -712,16 +713,17 @@ def maj_cle_et_creer_lexique():
     # récupération des noms de colonnes composant la clé
     colonnes_cle = vc.composantes_cle
 
-    # Vérifier que les colonnes existent dans t_data
-    cur.execute("PRAGMA table_info(t_data)")
+    # Vérifier que les colonnes existent dans t_base_data
+    cur.execute("PRAGMA table_info(t_base_data)")
     colonnes_existantes = [row[1] for row in cur.fetchall()]
     manquantes = [c for c in colonnes_cle if c not in colonnes_existantes]
     if manquantes:
-        raise ValueError(f"Colonnes manquantes dans t_data : {manquantes}")
+        raise ValueError(
+            f"Colonnes manquantes dans t_base_data : {manquantes}")
 
     # Récupérer les données pour calculer les SHA256
     cols_str = ", ".join(colonnes_cle)
-    cur.execute(f"SELECT id, {cols_str} FROM t_data")
+    cur.execute(f"SELECT id, {cols_str} FROM t_base_data")
     lignes = cur.fetchall()
 
     for ligne in lignes:
@@ -729,24 +731,31 @@ def maj_cle_et_creer_lexique():
         valeurs_concat = "".join("" if v is None else str(v)
                                  for v in ligne[1:])
         cle_sha = hashlib.sha256(valeurs_concat.encode("utf-8")).hexdigest()
-        cur.execute("UPDATE t_data SET cle=? WHERE id=?", (cle_sha, id_val))
-
+        cur.execute("UPDATE t_base_data SET cle=? WHERE id=?",
+                    (cle_sha, id_val))
     conn.commit()
 
-    # Création (ou remplacement) de t_lexique_cles
-    cur.execute("DROP TABLE IF EXISTS t_lexique_cles")
+    # Création (ou remplacement) et peuplement de t_lexique_cles
     cur.execute("""
-        CREATE TABLE t_lexique_cles AS
-        SELECT DISTINCT cle, groupe
-        FROM t_data
-        WHERE cle IS NOT NULL AND groupe IS NOT NULL
-    """)
+        DROP TABLE IF EXISTS t_lexique_cles;""")
+    cur.execute("""
+        CREATE TABLE t_lexique_cles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cle TEXT,
+            groupe TEXT(30)
+        );""")
+    cur.execute("""
+        INSERT INTO t_lexique_cles (cle, groupe)
+        SELECT cle, groupe
+        FROM t_base_data
+        WHERE cle IS NOT NULL AND groupe IS NOT NULL;
+        """)
 
     conn.commit()
     conn.close()
 
     print(
-        f"✅ Tables t_data et t_lexique_cles: colonnes 'cle' et 'groupe' mises à jour pour {len(lignes)} lignes.")
+        f"✅ Table t_lexique_cles: colonnes 'cle' et 'groupe' mises à jour pour {len(lignes)} lignes.")
 
 
 def formater_bat_rub_typ(l_tables):
@@ -819,62 +828,75 @@ def compter_lignes(nom_table, cdtn=None, annee=None):
 
 def creer_peupler_table_fusion(table_source1, table_source2):
     """
-    Copie dans t_data la totalité contenus de table_source1 et table_source2
-    Toutes les colonnes de table_source1 et table_source2 doivent être présentes dans t_data
-    Toutes les colonnes de t_data ne doivent pas être présentes dans table_source1 et table_source2
+    Copie dans t_base_data la totalité contenus de table_source1 et table_source2
+    Toutes les colonnes de table_source1 et table_source2 doivent être présentes dans t_base_data
+    Toutes les colonnes de t_base_data ne doivent pas être présentes dans table_source1 et table_source2
     Args:
         table_source1 (_type_): _description_
         table_source2 (_type_): _description_
-        t_data (_type_): _description_
+        t_base_data (_type_): _description_
 
     Returns:
         _type_: _description_
     """
     conn = sqlite3.connect(vc.rep_bdd)
-    cur = conn.cursor()
+    cursor = conn.cursor()
 
-    # Supprimer et recréer la table t_data
-    def recreer_table_t_data():
-        # Supprimer la table si elle existe
-        mdls.TData.__table__.drop(vc.engine, checkfirst=True)
-        # Créer uniquement t_data
-        mdls.TData.__table__.create(vc.engine, checkfirst=False)
-        metadata = MetaData()
-        return Table("t_data", metadata, autoload_with=vc.engine)
-        print("Table t_data supprimée puis recréée.")
+    # 1. Supprimer si déjà existante
+    cursor.execute("DROP TABLE IF EXISTS t_base_data")
 
-    t_data = recreer_table_t_data()
+    # 2. Créer la table cible selon le dictionnaire
+    colonnes_def = ", ".join(
+        [f"{col} {typ}" for col, typ in vc.colonnes_t_base_data.items()])
+    cursor.execute(f"CREATE TABLE t_base_data ({colonnes_def})")
 
-    # Récupérer les colonnes de chaque table
-    def get_cols(nom_table):
-        cur.execute(f"PRAGMA table_info({nom_table})")
-        return [row[1] for row in cur.fetchall()]
+    # 3. Fonction pour récupérer les colonnes d'une table
+    def colonnes_table(table):
+        cursor.execute(f"PRAGMA table_info({table})")
+        return [row[1] for row in cursor.fetchall()]
 
-    cols_cible = get_cols(t_data)
-    cols_t1 = get_cols(table_source1)
-    cols_t2 = get_cols(table_source2)
+    # 4. Identifier les types numériques
+    types_numeriques = ("INT", "REAL", "FLOAT", "BIGINT")
 
-    # Colonnes communes à chaque table source et la cible (hors id)
-    cols_communes_t1 = [c for c in cols_t1 if c in cols_cible and c != "id"]
-    cols_communes_t2 = [c for c in cols_t2 if c in cols_cible and c != "id"]
+    # 5. Copier les données depuis chaque table
+    lignes_par_source = {}
+    for table_source in [table_source1, table_source2]:
+        cols_src = colonnes_table(table_source)
+        colonnes_cibles = list(vc.colonnes_t_base_data.keys())
 
-    # Générer et exécuter les requêtes d’insertion
-    def inserer(table_source, cols_communes):
-        if not cols_communes:
-            return
-        cols_str = ", ".join(cols_communes)
-        placeholders = ", ".join(["?"] * len(cols_communes))
-        sql = f"INSERT INTO {t_data} ({cols_str}) SELECT {cols_str} FROM {table_source}"
-        cur.execute(sql)
+        select_expr = []
+        for col in colonnes_cibles:
+            if col in cols_src:
+                select_expr.append(col)
+            else:
+                type_col = vc.colonnes_t_base_data[col].upper()
+                if any(t in type_col for t in types_numeriques):
+                    select_expr.append(f"0 AS {col}")
+                else:
+                    select_expr.append(f"'' AS {col}")
 
-    inserer(table_source1, cols_communes_t1)
-    inserer(table_source2, cols_communes_t2)
+        select_sql = f"SELECT {', '.join(select_expr)} FROM {table_source}"
+        insert_sql = f"INSERT INTO t_base_data ({', '.join(colonnes_cibles)}) {select_sql}"
+        cursor.execute(insert_sql)
+
+        # Compter les lignes copiées
+        cursor.execute(f"SELECT COUNT(*) FROM {table_source}")
+        lignes_par_source[table_source] = cursor.fetchone()[0]
 
     conn.commit()
-    conn.close()
 
+    # 6. Vérification finale
+    cursor.execute("SELECT COUNT(*) FROM t_base_data")
+    total = cursor.fetchone()[0]
+
+    print("✅ Table t_base_data créée et peuplée avec succès.")
     print(
-        f"✅ Table '{t_data}' créée avec les données de '{table_source1}' et '{table_source2}'.")
+        f" - {table_source1} : {lignes_par_source[table_source1]} lignes copiées")
+    print(
+        f" - {table_source2} : {lignes_par_source[table_source2]} lignes copiées")
+    print(f" - Total final dans t_base_data : {total} lignes\n")
+
+    return lignes_par_source, total
 
 
 def maj_cle_sha256(nom_table, l_colonnes_a_concaten):
@@ -961,7 +983,7 @@ def maj_cle_avec_lexique_cles(nom_table):
     print(f"🔄 Colonne 'groupe' mise à jour depuis t_lexique_cles.")
 
 
-def mettre_a_niveau_t_data():
+def mettre_a_niveau_t_base_data():
     """Il s'agit de creer une colonne exercice - supprimer les colonnes debut_periode et fin_periode - 
     creer et valoriser colonne clé - creer et valoriser colonne groupe - ajouter les colonnes bat_tit_yp, rub_tit_yp, typ_tit_yp
     """
@@ -970,31 +992,31 @@ def mettre_a_niveau_t_data():
 
     # 1) Creer colonne exercice
     # Vérifie la présence de la colonne
-    cursor.execute("PRAGMA table_info(t_data)")
+    cursor.execute("PRAGMA table_info(t_base_data)")
     colonnes = [row[1] for row in cursor.fetchall()]
 
     if "exercice" not in colonnes:
         print("➕ Ajout de la colonne 'exercice'...")
-        cursor.execute("ALTER TABLE t_data ADD COLUMN exercice TEXT(4)")
+        cursor.execute("ALTER TABLE t_base_data ADD COLUMN exercice TEXT(4)")
         conn.commit()
     else:
         print("⚠️ Colonne 'exercice' existe déjà, aucune modification effectuée.")
-        sql = "UPDATE t_data SET exercice = strftime('%Y', debut_periode);"
+        sql = "UPDATE t_base_data SET exercice = strftime('%Y', debut_periode);"
         cursor.execute(sql)
         conn.commit()
     conn.close()
-    print(f"✅ t_data: colonne exercice créée et valorisée.")
+    print(f"✅ t_base_data: colonne exercice créée et valorisée.")
 
     # 2) Suppression colonnes debut_periode et fin_periode
-    # supprimer_colonnes("t_data", ["debut_periode", "fin_periode"])
+    # supprimer_colonnes("t_base_data", ["debut_periode", "fin_periode"])
 
     # 3) Creer et valoriser colonne cle
-    u_sql_1.creer_colonnes("t_data", {"cle": "TEXT"})
+    u_sql_1.creer_colonnes("t_base_data", {"cle": "TEXT"})
     u_sql_1
-    maj_cle_sha256("t_data", vc.composantes_cle)
+    maj_cle_sha256("t_base_data", vc.composantes_cle)
 
     # 4) Créer et valoriser colonne groupe
-    maj_cle_avec_lexique_cles("t_data")
+    maj_cle_avec_lexique_cles("t_base_data")
 
 
 def verifier_tables_existent(liste_tables):
@@ -1064,11 +1086,83 @@ def modifier_types_colonnes(nom_table):
     conn.close()
 
 
+def renommer_table(nom_old, nom_new):
+    """
+    Renomme une table SQLite de nom_old vers nom_new.
+    Crée une erreur si la table d'origine n'existe pas ou si la nouvelle existe déjà.
+    """
+    conn = sqlite3.connect(vc.rep_bdd)
+    cursor = conn.cursor()
+
+    # Vérifie que la table d’origine existe
+    cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (nom_old,))
+    if not cursor.fetchone():
+        print(f"La table '{nom_old}' n'existe pas dans la base.")
+        conn.close()
+        return
+    # Vérifie qu’il n’existe pas déjà une table avec le nouveau nom
+    cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (nom_new,))
+    if cursor.fetchone():
+        print(f"Une table '{nom_new}' existe déjà.")
+        conn.close()
+        return
+    # Renommage
+    cursor.execute(f"ALTER TABLE {nom_old} RENAME TO {nom_new};")
+    conn.commit()
+    conn.close()
+
+
+def verifier_integrite_bdd():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    cur.execute("PRAGMA integrity_check;")
+    resultat = cur.fetchone()[0]
+    conn.close()
+    if resultat == "ok":
+        print("Base saine.")
+    else:
+        print("Base corrompue :", resultat)
+
+
+def generer_modeles(fichier_sortie):
+    """
+    Introspecte la base et génère un module Python contenant
+    les classes SQLAlchemy correspondant aux tables existantes.
+    """
+    engine = create_engine("sqlite:///" + str(vc.rep_bdd))
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+
+    lignes = [
+        "from sqlalchemy import Column, Integer, Text, Float, Boolean, Date, DateTime, Numeric",
+        "from sqlalchemy.ext.declarative import declarative_base",
+        "",
+        "Base = declarative_base()",
+        "",
+    ]
+
+    for nom_table, table in metadata.tables.items():
+        class_name = "".join(part.capitalize()
+                             for part in nom_table.split("_"))
+        lignes.append(f"class {class_name}(Base):")
+        lignes.append(f"    __tablename__ = '{nom_table}'")
+        for colonne in table.columns:
+            type_col = str(colonne.type)
+            nullable = "" if colonne.nullable else ", nullable=False"
+            primary_key = ", primary_key=True" if colonne.primary_key else ""
+            lignes.append(
+                f"    {colonne.name} = Column({type_col}{primary_key}{nullable})"
+            )
+        lignes.append("")  # ligne vide entre classes
+
+    with open(fichier_sortie, "w", encoding="utf-8") as f:
+        f.write("\n".join(lignes))
+
+    print(f"✅ Modèles générés dans {fichier_sortie}")
+
+
+# Exemple d'utilisation
 if __name__ == "__main__":
-    # print(compter_lignes("t_agregation",annee))
-    # creer_table_fusion(table_source1="t_agregation",
-    #                   table_source2="tampon_data", t_data="t_data")
-    # mettre_a_niveau_t_data()
-    # print(verifier_tables_existent(vc.l_tables_source))
-    for nom_table in vc.l_tables_source:
-        modifier_types_colonnes(nom_table)
+    generer_modeles("src/utils/modeles.py")

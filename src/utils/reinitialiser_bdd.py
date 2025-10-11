@@ -30,10 +30,12 @@ def reinitialiser_bdd_executer():
     u_sql_2.remplacer_nulls_toutes_tables()
     # 2.6) Ajouter PK à chacune des tables de la BDD
     u_sql_2.adjoindre_pk()
-    # 2.7) Fusionner dans t_data (table à créer) les deux tables t_roc_modifiee et t_agregation
+    # 2.7) Fusionner dans t_base_data (table à créer) les deux tables t_roc_modifiee et t_agregation
     u_sql_2.creer_peupler_table_fusion(
         table_source1="t_agregation", table_source2="t_roc_modifiee")
-    # 2.8) Créer la table t_lexique_cles et mettre à jour colonne clé de t_data
+    # 2.8) Créer la table t_lexique_cles et mettre à jour colonne clé de t_base_data
+    #      Après exécution de cette procédure, les colonnes cle et groupe de t_lexique_cles et t_base_data
+    #      sont à jour des groupes identifiés dans t_roc_modifiee
     u_sql_2.maj_cle_et_creer_lexique()
 
 
@@ -58,8 +60,8 @@ def reinitialiser_bdd(methode, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    # reinitialiser_bdd_executer()
+    reinitialiser_bdd_executer()
     # u_sql_2.adjoindre_pk()
     # u_sql_2.creer_peupler_table_fusion(
     #    table_source1="t_agregation", table_source2="t_roc_modifiee")
-    u_sql_2.maj_cle_et_creer_lexique()
+    # u_sql_2.maj_cle_et_creer_lexique()

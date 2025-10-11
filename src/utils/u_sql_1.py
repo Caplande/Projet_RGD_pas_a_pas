@@ -23,7 +23,7 @@ def supprimer_toutes_tables(l_tables=None, l_excepte=None):
     Supprime les tables SQLite contenues dans l_tables à l'exception de celles contenues dans l_excepte
     Si l_tables est None, supprime toutes les tables de la base à l'exception de celles contenues dans l_excepte
     """
-    with vc.engine.begin() as conn:
+    with vc.engine.connect() as conn:
         l_excepte = [] if l_excepte is None else l_excepte
         l_tot_tables = lister_tables()
         l_tot_tables = [
@@ -40,6 +40,7 @@ def supprimer_toutes_tables(l_tables=None, l_excepte=None):
             for table_name in l_tot_tables:
                 conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
                 print(f"Table {table_name} supprimée.")
+        conn.commit()
 
 
 def lister_tables():
@@ -296,30 +297,6 @@ def formater_champ(nom_table, nom_champ):
     stmt = f"UPDATE {nom_table} SET date = substr(replace(date, '.0', ''), 1, 2) || '.' || substr(replace(date, '.0', ''), 3, 2) || '.' || substr(replace(date, '.0', ''), 5, 2);"
     with sessionlocal() as session:
         session.execute(text(stmt))
-        session.commit()
-
-
-def remplacer_null_par_vide(nom_table):
-    """
-    Remplace toutes les valeurs NULL de chaque colonne listée dans l_cols
-    par "" si la colonne est de type texte, sinon par 0.
-    """
-    model_cls = extraire_model_cls(
-        nom_table)  # Classe modèle correspondant à nom_table
-    # Liste des colonnes de la table
-    l_cols = [c.name for c in model_cls.__table__.columns]
-    # Session active
-    sessionlocal = sessionmaker(vc.engine)
-    with sessionlocal() as session:
-        for nom_col in l_cols:
-            col = getattr(model_cls, nom_col)
-            default_value = "" if isinstance(col.type, String) else 0
-            stmt = (
-                update(model_cls)
-                .where(col.is_(None))
-                .values({nom_col: default_value})
-            )
-            session.execute(stmt)
         session.commit()
 
 
@@ -702,4 +679,4 @@ def creer_colonnes(nom_table, d_noms_colonnes):
 
 # print(lister_tables())
 if __name__ == "__main__":
-    creer_colonnes("t_data", {"cle": "TEXT"})
+    creer_colonnes("t_base_data", {"cle": "TEXT"})

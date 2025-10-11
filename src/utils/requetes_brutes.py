@@ -11,7 +11,8 @@ def formater_julien(table):
     u_sql_1.convertir_colonne_en_date_julien(table, "fin_periode")
     u_sql_1.convertir_colonne_en_date_julien(table, "date_a")
 
+
 table = "t_agregation"
 formater_julien(table)
-table = "t_data"
+table = "t_base_data"
 formater_julien(table)

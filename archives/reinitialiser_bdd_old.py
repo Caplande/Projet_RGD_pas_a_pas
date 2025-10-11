@@ -28,13 +28,13 @@ def reinitialiser_bdd_executer():
     u_sql_2.adjoindre_pk()
     # 2.5) Créer la table t_lexique_cles
     u_sql_2.creer_table_lexique_cles()
-    # 2.6) Composer la table t_data: fusion de t_agregation-tampon_data 
+    # 2.6) Composer la table t_base_data: fusion de t_agregation-tampon_data
     u_sql_2.creer_table_fusion(
-        table_source1="t_agregation", table_source2="tampon_data", table_cible="t_data")
-    # 2.7) Mettre à niveau t_data:Creer et valoriser une colonne exercice - supprimer les colonnes debut_periode et fin_periode - 
+        table_source1="t_agregation", table_source2="tampon_data", table_cible="t_base_data")
+    # 2.7) Mettre à niveau t_base_data:Creer et valoriser une colonne exercice - supprimer les colonnes debut_periode et fin_periode -
     #                             creer et valoriser colonne cle - creer et valoriser colonne groupe - créer et valoriser
     #                             les colonnes bat_tit_yp, rub_tit_yp, typ_tit_yp
-    u_sql_2.mettre_a_niveau_t_data()
+    u_sql_2.mettre_a_niveau_t_base_data()
 
 
 def reinitialiser_bdd(methode, *args, **kwargs):
