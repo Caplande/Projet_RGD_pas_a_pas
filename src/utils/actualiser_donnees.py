@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, MetaData, update, inspect, text
 from sqlalchemy.orm import Session
 import variables_communes as vc
-import src.utils.modeles as modl
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 
 print("Module actualiser_donnees chargé avec succès.")

@@ -7,9 +7,8 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 import pandas as pd
-from src.utils import modeles as mdl
 import variables_communes as vc
-from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, modeles as mdls
+from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1
 
 print("Module u_sql_2 chargé avec succès.")
 
@@ -845,12 +844,15 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     # 1. Supprimer si déjà existante
     cursor.execute("DROP TABLE IF EXISTS t_base_data")
 
-    # 2. Créer la table cible selon le dictionnaire
+    # 2. Créer la table cible selon le dictionnaire avec id en PK
     colonnes_def = ", ".join(
-        [f"{col} {typ}" for col, typ in vc.colonnes_t_base_data.items()])
+        [f"{col} {typ} PRIMARY KEY" if col == "id" else f"{col} {typ}"
+         for col, typ in vc.colonnes_t_base_data.items()]
+    )
     cursor.execute(f"CREATE TABLE t_base_data ({colonnes_def})")
 
     # 3. Fonction pour récupérer les colonnes d'une table
+
     def colonnes_table(table):
         cursor.execute(f"PRAGMA table_info({table})")
         return [row[1] for row in cursor.fetchall()]
@@ -865,7 +867,11 @@ def creer_peupler_table_fusion(table_source1, table_source2):
         colonnes_cibles = list(vc.colonnes_t_base_data.keys())
 
         select_expr = []
-        for col in colonnes_cibles:
+        # on retire 'id' des colonnes cibles
+        colonnes_sans_id = [c for c in colonnes_cibles if c != "id"]
+
+        select_expr = []
+        for col in colonnes_sans_id:
             if col in cols_src:
                 select_expr.append(col)
             else:
@@ -876,7 +882,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
                     select_expr.append(f"'' AS {col}")
 
         select_sql = f"SELECT {', '.join(select_expr)} FROM {table_source}"
-        insert_sql = f"INSERT INTO t_base_data ({', '.join(colonnes_cibles)}) {select_sql}"
+        insert_sql = f"INSERT INTO t_base_data ({', '.join(colonnes_sans_id)}) {select_sql}"
         cursor.execute(insert_sql)
 
         # Compter les lignes copiées

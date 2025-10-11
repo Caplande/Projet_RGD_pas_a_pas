@@ -7,7 +7,7 @@ import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
 from sqlalchemy.orm import Session, declarative_base, mapper, class_mapper, sessionmaker
 import variables_communes as vc
-from src.utils import modeles as modl
+
 
 print("Module u_sql_1 chargé avec succès.")
 
@@ -183,9 +183,9 @@ def lister_doublons(nom_table, nom_colonne):
 
     sessionlocal = sessionmaker(vc.engine)
     with sessionlocal() as session:
-        lignes_doublons = session.execute(stmt_all).fetchall()
+        l_lignes_doublons = session.execute(stmt_all).fetchall()
 
-    return lignes_doublons
+    return {"lignes": l_lignes_doublons, "nb_doublons": len(l_lignes_doublons)}
 
 
 def creer_classes_mappees():
@@ -479,9 +479,10 @@ def extraire_table_depuis_nom_table(nom_table):
 
 
 def vider_table(nom_table):
-    with Session(vc.engine) as session:
-        session.query(extraire_classe_depuis_nom_table(nom_table)).delete()
-        session.commit()
+    conn = sqlite3.connect(vc.rep_bdd)
+    conn.execute(f"DELETE FROM {nom_table};")
+    conn.commit()
+    conn.close()
 
 
 def mettre_a_jour_mappers(classname_for_table=None):
@@ -676,6 +677,46 @@ def creer_colonnes(nom_table, d_noms_colonnes):
     conn.commit()
     conn.close()
 
+
+def nb_lig(table):
+    conn = sqlite3.connect(vc.rep_bdd)
+    try:
+        cur = conn.execute(f"SELECT COUNT(*) FROM {table}")
+        return str(cur.fetchone()[0])
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e).lower():
+            return f"Table '{table}' absente"
+        return f"Erreur SQL: {e}"
+    finally:
+        conn.close()
+
+
+def nb_avec_colonne_vide(table, nom_colonne):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.execute(f"""
+        SELECT COUNT(*) 
+        FROM {table}
+        WHERE {nom_colonne} IS NULL 
+              OR TRIM({nom_colonne}) = ''
+    """)
+    return cur.fetchone()[0]
+
+
+def compter_par_exercice():
+    """
+    Retourne un dictionnaire {exercice: nombre_de_lignes} pour t_base_data.
+    """
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT exercice, COUNT(*) 
+        FROM t_base_data
+        GROUP BY exercice
+    """)
+    result = cur.fetchall()
+    conn.close()
+    # Construire le dictionnaire
+    return {str(exercice): count for exercice, count in result}
 
 # print(lister_tables())
 if __name__ == "__main__":
