@@ -706,6 +706,11 @@ def remplacer_nulls_toutes_tables(l_tables=None):
 
 
 def maj_cle_et_creer_lexique():
+    """
+    Si les colonnes composantes de la clé dans t_base_data existent, alors la colonne cle de t_base_data est peuplée.
+    Les deux colonnes groupe et cle de t_base_data sont ensuite copiées dans les colonnes du même nom de t_lexique_cles
+    Cet enchainenemnt signifie qu'il ne faut jamais mettre à jour directement t_lexique_cles mais passer par l'intermédiaire de t_base_data
+    """
     conn = sqlite3.connect(vc.rep_bdd)
     cur = conn.cursor()
 
@@ -905,48 +910,56 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     return lignes_par_source, total
 
 
-def maj_cle_sha256(nom_table, l_colonnes_a_concaten):
+def maj_cle_sha256(nom_table, l_colonnes_composantes):
     """
-    Met à jour la colonne 'cle' de nom_table avec le SHA256 de la concaténation
-    des colonnes listées dans colonnes_a_concaten.
+    Met à jour la colonne 'cle' dans la table `nom_table`
+    en calculant un SHA256 basé sur la concaténation des valeurs
+    des colonnes listées dans `l_colonnes_composantes`.
+
+    Args:
+        nom_table (str): nom de la table à modifier.
+        l_colonnes_composantes (list[str]): liste des noms de colonnes à concaténer.
+        chemin_bdd (str): chemin du fichier SQLite.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
-    cur = conn.cursor()
+    if not l_colonnes_composantes:
+        print("⚠️  Liste de colonnes vide — aucune mise à jour effectuée.")
+        return
 
-    # Vérifie que la table existe
-    cur.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (nom_table,))
-    if not cur.fetchone():
-        print(f"⚠️ Table '{nom_table}' introuvable.")
-    conn.close()
-    return
+    try:
+        conn = sqlite3.connect(vc.rep_bdd)
+        cur = conn.cursor()
 
-    # Colonnes existantes
-    cur.execute(f"PRAGMA table_info({nom_table})")
-    colonnes_existantes = [row[1] for row in cur.fetchall()]
-    for c in l_colonnes_a_concaten:
-        if c not in colonnes_existantes:
-            print(f"⚠️ Colonne '{c}' inexistante dans {nom_table}.")
-        conn.close()
-    return
+        # Vérifie si la colonne 'cle' existe, sinon la crée
+        cur.execute(f"PRAGMA table_info({nom_table})")
+        colonnes_existantes = [info[1] for info in cur.fetchall()]
+        if "cle" not in colonnes_existantes:
+            cur.execute(f"ALTER TABLE {nom_table} ADD COLUMN cle TEXT")
 
-    # Récupère toutes les lignes et leurs colonnes
-    colonnes_txt = ", ".join(f'"{c}"' for c in l_colonnes_a_concaten)
-    cur.execute(f"SELECT rowid, {colonnes_txt} FROM {nom_table}")
-    lignes = cur.fetchall()
+        # Concaténation SQL des colonnes
+        expr_concat = " || '' || ".join(l_colonnes_composantes)
 
-    # Met à jour chaque ligne
-    for row in lignes:
-        rowid = row[0]
-        valeurs = [str(v) if v is not None else "" for v in row[1:]]
-        concatenation = "|".join(valeurs)  # séparateur pour éviter ambiguïté
-        sha256 = hashlib.sha256(concatenation.encode("utf-8")).hexdigest()
+        # Récupère les lignes à traiter
         cur.execute(
-            f"UPDATE {nom_table} SET cle = ? WHERE rowid = ?", (sha256, rowid))
+            f"SELECT rowid, {expr_concat} AS concat_val FROM {nom_table}")
+        lignes = cur.fetchall()
 
-    conn.commit()
-    conn.close()
-    print(f"🔑 Colonne 'cle' mise à jour pour {len(lignes)} lignes.")
+        nb_maj = 0
+        for rowid, concat_val in lignes:
+            if concat_val is None:
+                concat_val = ""
+            cle_sha = hashlib.sha256(concat_val.encode("utf-8")).hexdigest()
+            cur.execute(
+                f"UPDATE {nom_table} SET cle = ? WHERE rowid = ?", (cle_sha, rowid))
+            nb_maj += 1
+
+        conn.commit()
+        print(f"✅ {nb_maj} clé(s) mise(s) à jour dans la table '{nom_table}'.")
+    except Exception as e:
+        print(
+            f"❌ Échec de la mise à jour des clés SHA256 dans '{nom_table}': {e}")
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 
 def maj_cle_avec_lexique_cles(nom_table):
@@ -1169,26 +1182,60 @@ def generer_modeles(fichier_sortie):
 
 
 def numeroter_doublons_par_cle():
-    # Ajout de la colonne si elle n’existe pas
-
+    """
+    S'adresse à la table t_base_data
+       Numérote les lignes de t_base_data par 'cle'.
+    - Si plusieurs lignes ont la même cle : 1, 2, 3, ...
+    - Si une seule ligne a cette cle : 1
+    """
     conn = sqlite3.connect(vc.rep_bdd)
+    conn.execute("UPDATE t_base_data SET rang_doublon = '';")
 
+    # 1. Réinitialiser la colonne
+    conn.execute("UPDATE t_base_data SET rang_doublon = 1;")
+
+    # 2. Mettre à jour les doublons
     conn.execute("""
-        WITH numerotes AS (
+        WITH cles_doublons AS (
+            SELECT cle
+            FROM t_base_data
+            GROUP BY cle
+            HAVING COUNT(*) > 1
+        ),
+        numerotes AS (
             SELECT
                 rowid AS rid,
-                cle,
                 ROW_NUMBER() OVER (PARTITION BY cle ORDER BY rowid) AS rn
             FROM t_base_data
+            WHERE cle IN (SELECT cle FROM cles_doublons)
         )
         UPDATE t_base_data
         SET rang_doublon = (
             SELECT rn FROM numerotes n WHERE n.rid = t_base_data.rowid
-        );
+        )
+        WHERE cle IN (SELECT cle FROM cles_doublons);
     """)
+
     conn.commit()
+    conn.close()
+
+
+def ajouter_calculer_colonne_exercice_tampon_data():
+    conn = sqlite3.connect(vc.rep_bdd)
+    conn.execute("""
+    ALTER TABLE tampon_data
+    ADD COLUMN exercice TEXT(4);
+""")
+    conn.execute("""
+    UPDATE tampon_data
+    SET exercice = SUBSTR(CAST(debut_periode AS TEXT), 1, 4)
+    WHERE debut_periode IS NOT NULL
+""")
+    conn.commit()
+    conn.close()
 
 
 # Exemple d'utilisation
 if __name__ == "__main__":
-    numeroter_doublons_par_cle()
+    # numeroter_doublons_par_cle()
+    maj_cle_sha256("t_base_data", vc.composantes_cle)

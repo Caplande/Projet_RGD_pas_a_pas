@@ -46,9 +46,10 @@ l_tables_source = ["t_agregation", "t_definition_cles_repartitions", "t_lexique_
                    "t_roc_modifiee", "t_parametres"]
 mapping_tampon_data = {"id": "id", "Type d'appel": "type_appel", 'Libelle': 'libelle1', 'Debut de periode': 'debut_periode', 'Fin de periode': 'fin_periode', 'Periode Cloturee': 'periode_cloturee',
                        'Numéro du batiment': 'bat', 'Nom du batiment': 'bat_tit', 'Numéro de la rubrique': 'rub', 'Nom de la rubrique': 'rub_tit', 'Num type charge': 'typ',
-                       'Nom du type de charge': 'typ_tit', 'Date': 'date_a', 'Libelle.1': 'libelle', 'Reference': 'reference', 'Montant à repartir': 'montant', 'Nom du fournisseur': 'nom_fournisseur'}
+                       'Nom du type de charge': 'typ_tit', 'Date': 'date_a', 'Libelle.1': 'libelle', 'Reference': 'reference', 'Montant à repartir': 'montant', 'Nom du fournisseur': 'nom_fournisseur',
+                       "exercice": "exercice"}
 
-lexique_colonnes_types = {'id': 'INTEGER', 'type_appel': 'TEXT (2)', 'libelle1': 'TEXT', 'periode_cloturee': 'TEXT (1)', 'bat': 'TEXT (3)', 'bat_tit': 'TEXT (50)', 'rub': 'TEXT (2)', 'rub_tit': 'TEXT (50)',
+lexique_colonnes_types = {'id': 'INTEGER', 'exercice': 'TEXT (4)', 'type_appel': 'TEXT (2)', 'libelle1': 'TEXT', 'periode_cloturee': 'TEXT (1)', 'bat': 'TEXT (3)', 'bat_tit': 'TEXT (50)', 'rub': 'TEXT (2)', 'rub_tit': 'TEXT (50)',
                           'typ': 'TEXT (3)', 'typ_tit': 'TEXT (50)', 'batrub': 'TEXT (6)', 'libelle': 'TEXT (50)', 'reference': 'TEXT (50)', 'montant': 'FLOAT', 'nom_fournisseur': 'TEXT (50)',
                           'debut_periode': 'REAL', 'fin_periode': 'REAL', 'date_a': 'REAL', 'indicateur': 'TEXT (50)', 'valeur': 'TEXT (50)', 'bat_tit_yp': 'TEXT (50)',
                           'rub_tit_yp': 'TEXT (50)', "typ_tit_yp": 'TEXT (50)', 'batrub_tit_yp': 'TEXT (50)', 'entites': 'TEXT (30)', 'rgpt_entites': 'TEXT (30)', 'groupe': 'TEXT (30)'}
