@@ -2,6 +2,7 @@ import sys
 import os
 import pandas as pd
 import re
+from datetime import datetime
 import variables_communes as vc
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 import tkinter as tk
@@ -116,3 +117,10 @@ def traiter_classeur(classeur, l_sauf=None):
         return l_noms_tables
     except Exception as e:
         return None
+
+
+def convertir_date(date_texte):
+    dt = datetime.strptime(date_texte, "%Y-%m-%d %H:%M:%S")
+    # format "jour semaine jour mois année"
+    resultat = dt.strftime("%A %d %B %Y")
+    return resultat

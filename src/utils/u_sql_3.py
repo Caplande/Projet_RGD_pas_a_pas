@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import variables_communes as vc
-from src.utils import u_sql_1 as u_sql_1
+from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 
 def maj_etat_bdd():
@@ -24,6 +24,7 @@ def creer_table_etat_bdd_vide():
 def alimenter_etat_bdd():
     conn = sqlite3.connect(vc.rep_bdd)
     donnees = [
+        ("Date dernière mise à jour", get_date_importation_site()),
         ("Nombre de lignes t_base_data", u_sql_1.nb_lig("t_base_data")),
         ("Nombre de lignes t_base_data_ante", u_sql_1.nb_lig("t_base_data_ante")),
         ("Nombre de lignes t_roc_modifiee", u_sql_1.nb_lig("t_roc_modifiee")),
@@ -43,5 +44,26 @@ def alimenter_etat_bdd():
     conn.close()
 
 
+def get_date_importation_site():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            SELECT valeur 
+            FROM t_parametres 
+            WHERE indicateur = 'Date importation site'
+            LIMIT 1
+        """)
+        row = cur.fetchone()
+        return u_gen.convertir_date(row[0]) if row else None
+    except Exception as e:
+        print("❌ Erreur pendant la lecture :", e)
+        return None
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     maj_etat_bdd()
+    # get_date_importation_site()

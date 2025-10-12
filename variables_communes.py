@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ig
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import registry, declarative_base
 # from src.utils import modeles as modls
+import locale
 
 print("Module variables_communes chargé avec succès.")
 
@@ -16,6 +17,9 @@ rep_source = rep_defaut / "sources"
 rep_bdd = rep_defaut / "bdd" / "bdd.sqlite"
 
 print(f"VC_2 ---> Version SQLAlchemy {__version__}")
+
+# Mettre la locale française pour les noms de mois/jours
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 try:
     DATABASE_URL = "sqlite:///./bdd/bdd.sqlite"
