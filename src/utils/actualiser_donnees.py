@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, MetaData, update, inspect, text
 from sqlalchemy.orm import Session
 import variables_communes as vc
-from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
+from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 print("Module actualiser_donnees chargé avec succès.")
 
@@ -13,7 +13,9 @@ def actualiser_bdd_executer():
         2.4) Norme tampon_data sur les noms de colonnes, les types, les valeurs Null, PK, les valeurs bat,rub,typ.
         2.5) Créer et calculer la colonne exercice dans tampon_data
         2.6) Merger tampon_data et t_agregation dans t_base_data (à creer)
-        2.7) Valorisaer la colonne groupe de t_base_data et traiter les doublons
+        2.7) Créer colonne batrub
+        2.8) Valorisaer la colonne groupe de t_base_data et traiter les doublons
+        2.9) Mettre à jour la table des indicateurs maj_etat_bdd
 """
 
     # 2.1) Supprimer toutes les tables "t_roc_modifiee" et "t_parametres"
@@ -44,17 +46,23 @@ def actualiser_bdd_executer():
     u_sql_2.ajouter_calculer_colonne_exercice_tampon_data()
     # 2.6) Merger tampon_data et t_agregation dans t_base_data (tablee à creer)
     u_sql_2.creer_peupler_table_fusion("t_agregation", "tampon_data")
-    # 2.7) Valorisation de la colonne groupe de t_base_data
-    # 2.7.1) Calcul de la colonne cle de la table t_base_data
+    # 2.7) Créer la colonne batrub
+    u_sql_2.ajouter_colonne_batrub()
+    # 2.8) Valorisation de la colonne groupe de t_base_data
+    # 2.8.1) Calcul de la colonne cle de la table t_base_data
     u_sql_2.maj_cle_sha256("t_base_data", vc.composantes_cle)
-    # 2.7.2) Affectation d'une valeur à la colonne groupe de t_base_data
-    u_sql_2.maj_cle_avec_lexique_cles("t_base_data")
-    # 2.7.3) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
+    # 2.8.2) Affectation d'une valeur à la colonne groupe de t_base_data
+    u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")
+    # 2.8.3) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
     u_sql_2.numeroter_doublons_par_cle()
-    # 2.7.4) Recalcul de la cle pour supprimer les doublons
+    # 2.8.4) Recalcul de la cle pour supprimer les doublons
     u_sql_2.maj_cle_et_creer_lexique()
     print(
         f"Il reste {u_sql_1.lister_doublons("t_base_data", "cle")['nb_doublons']} doublon(s) dans t_base_data")
+    # 2.8) Mise à jour de la colonne groupe de t_base_data à partir de t_lexique_cles
+    u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")
+    # 2.9) Mise à jour de la table des indicateurs
+    u_sql_3.maj_etat_bdd()
 
 
 if __name__ == "__main__":

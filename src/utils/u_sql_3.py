@@ -42,6 +42,7 @@ def alimenter_etat_bdd():
         "INSERT INTO t_etat_bdd (intitule, valeur) VALUES (?, ?)", donnees)
     conn.commit()
     conn.close()
+    print(f"✅ La table des indicateurs t_etat_bdd a été mise à jour")
 
 
 def get_date_importation_site():

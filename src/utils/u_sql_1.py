@@ -696,8 +696,7 @@ def nb_avec_colonne_vide(table, nom_colonne):
     cur = conn.execute(f"""
         SELECT COUNT(*) 
         FROM {table}
-        WHERE {nom_colonne} IS NULL 
-              OR TRIM({nom_colonne}) = ''
+        WHERE {nom_colonne} IS NULL OR LENGTH(TRIM({nom_colonne})) = 0
     """)
     return cur.fetchone()[0]
 
@@ -718,6 +717,7 @@ def compter_par_exercice():
     # Construire le dictionnaire
     return {str(exercice): count for exercice, count in result}
 
+
 # print(lister_tables())
 if __name__ == "__main__":
-    print(lister_doublons("t_base_data","cle"))
+    print(nb_avec_colonne_vide("t_base_data", "groupe"))

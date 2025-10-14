@@ -83,6 +83,16 @@
             "module": "src.utils.u_sql_3",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : resultats",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.resultats",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
         }
     ]
 }

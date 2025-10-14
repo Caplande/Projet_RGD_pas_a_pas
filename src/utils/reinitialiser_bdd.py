@@ -33,13 +33,15 @@ def reinitialiser_bdd_executer():
     # 2.7) Fusionner dans t_base_data (table à créer) les deux tables t_roc_modifiee et t_agregation
     u_sql_2.creer_peupler_table_fusion(
         table_source1="t_agregation", table_source2="t_roc_modifiee")
-    # 2.8) Créer la table t_lexique_cles et mettre à jour colonne cle de t_base_data
+    # 2.8) Créer et calculer la colonne batrub dans t_base_data
+    u_sql_2.ajouter_colonne_batrub()
+    # 2.9) Créer la table t_lexique_cles et mettre à jour colonne cle de t_base_data
     #      Après exécution de cette procédure, les colonnes cle et groupe de t_lexique_cles et t_base_data
     #      sont à jour des groupes identifiés dans t_roc_modifiee
     u_sql_2.maj_cle_et_creer_lexique()
-    # 2.9) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
+    # 2.10) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
     u_sql_2.numeroter_doublons_par_cle()
-    # 2.10) Recalcul de la cle pour supprimer les doublons
+    # 2.11) Recalcul de la cle pour supprimer les doublons
     u_sql_2.maj_cle_et_creer_lexique()
     print(
         f"Il reste {u_sql_1.lister_doublons("t_base_data", "cle")['nb_doublons']} doublon(s) dans t_base_data")

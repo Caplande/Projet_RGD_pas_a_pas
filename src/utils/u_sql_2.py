@@ -759,7 +759,7 @@ def maj_cle_et_creer_lexique():
     conn.close()
 
     print(
-        f"✅ Table t_lexique_cles: colonnes 'cle' et 'groupe' mises à jour pour {len(lignes)} lignes.")
+        f"✅ Table t_lexique_cles: colonne 'cle' mise à jour pour {len(lignes)} lignes.")
 
 
 def formater_bat_rub_typ(l_tables):
@@ -962,7 +962,7 @@ def maj_cle_sha256(nom_table, l_colonnes_composantes):
             conn.close()
 
 
-def maj_cle_avec_lexique_cles(nom_table):
+def maj_groupe_avec_lexique_cles(nom_table):
     """
     Met à jour la colonne 'groupe' de nom_table à partir de t_lexique_cles.
     La colonne 'groupe' est créée si elle n'existe pas.
@@ -1035,7 +1035,7 @@ def mettre_a_niveau_t_base_data():
     maj_cle_sha256("t_base_data", vc.composantes_cle)
 
     # 4) Créer et valoriser colonne groupe
-    maj_cle_avec_lexique_cles("t_base_data")
+    maj_groupe_avec_lexique_cles("t_base_data")
 
 
 def verifier_tables_existent(liste_tables):
@@ -1235,7 +1235,32 @@ def ajouter_calculer_colonne_exercice_tampon_data():
     conn.close()
 
 
+def ajouter_colonne_batrub():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    try:
+        # ajoute la colonne si elle n'existe pas déjà
+        cur.execute("PRAGMA table_info(t_base_data)")
+        colonnes = [row[1] for row in cur.fetchall()]
+        if "batrub" not in colonnes:
+            cur.execute("ALTER TABLE t_base_data ADD COLUMN batrub TEXT")
+
+        # met à jour les valeurs
+        cur.execute("""
+            UPDATE t_base_data
+            SET batrub = COALESCE(bat, '') || '-' || COALESCE(rub, '')
+        """)
+        conn.commit()
+        print("✅ Colonne 'batrub' ajoutée à t_base_data et peuplée avec succès.")
+    except Exception as e:
+        print("⚠️ Erreur pendant l'opération :", e)
+    finally:
+        conn.close()
+
+
 # Exemple d'utilisation
 if __name__ == "__main__":
     # numeroter_doublons_par_cle()
-    maj_cle_sha256("t_base_data", vc.composantes_cle)
+    # maj_cle_sha256("t_base_data", vc.composantes_cle)
+    # maj_groupe_avec_lexique_cles("t_base_data")
+    ajouter_colonne_batrub()
