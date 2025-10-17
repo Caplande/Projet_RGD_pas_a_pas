@@ -85,12 +85,12 @@
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
         {
-            "name": "Débogueur Python : resultats",
+            "name": "Débogueur Python : requetes brutes",
             "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.resultats",
+            "module": "src.utils.requetes_brutes",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         }

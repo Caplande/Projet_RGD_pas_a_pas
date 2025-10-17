@@ -41,7 +41,7 @@ def reinitialiser_bdd_executer():
     u_sql_2.maj_cle_et_creer_lexique()
     # 2.10) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
     u_sql_2.numeroter_doublons_par_cle()
-    # 2.11) Recalcul de la cle pour supprimer les doublons
+    # 2.11) Recalcul de la cle pour prendre en compte la modification de la numérotation des doublons (rang_doublons) les doublons
     u_sql_2.maj_cle_et_creer_lexique()
     print(
         f"Il reste {u_sql_1.lister_doublons("t_base_data", "cle")['nb_doublons']} doublon(s) dans t_base_data")
