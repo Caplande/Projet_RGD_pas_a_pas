@@ -93,6 +93,16 @@
             "module": "src.utils.requetes_brutes",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : Affectation des groupes",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.affectation_des_groupes",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
         }
     ]
 }

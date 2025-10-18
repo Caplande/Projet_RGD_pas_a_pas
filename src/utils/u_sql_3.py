@@ -170,5 +170,5 @@ if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
     copier_table_avec_structure_et_donnees(
-        "t_lexique_cles", "t_lexique_cles_init_temp")
+        "t_lexique_cles", "t_lexique_cles_ante")
     # comparer_tables("t_lexique_cles", "t_lexique_cles_init_temp", "id")
