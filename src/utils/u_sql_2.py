@@ -746,11 +746,15 @@ def maj_cle_et_creer_lexique():
         CREATE TABLE t_lexique_cles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             cle TEXT,
-            groupe TEXT(30)
+            groupe TEXT(30),
+            id_source INTEGER,
+            libelle TEXT(50),
+            montant FLOAT,
+            date_a REAL
         );""")
     cur.execute("""
-        INSERT INTO t_lexique_cles (cle, groupe)
-        SELECT cle, groupe
+        INSERT INTO t_lexique_cles (cle, groupe, id_source,libelle,montant,date_a)
+        SELECT cle, groupe, id, libelle,montant, date_a
         FROM t_base_data
         WHERE cle IS NOT NULL AND groupe IS NOT NULL;
         """)
@@ -988,15 +992,21 @@ def maj_groupe_avec_lexique_cles(nom_table):
             cur.execute(f'ALTER TABLE {nom_table} ADD COLUMN groupe TEXT')
 
         # Mise à jour via sous-requête
-        cur.execute(f"""
-    UPDATE {nom_table}
-    SET groupe = (
-        SELECT t_lc.groupe
-        FROM t_lexique_cles t_lc
-        WHERE t_lc.cle = {nom_table}.cle
-    )
-    WHERE cle IN (SELECT cle FROM t_lexique_cles)
-""")
+    cur.execute(f"""
+        UPDATE {nom_table}
+        SET groupe = (
+            SELECT t_lc.groupe
+            FROM t_lexique_cles t_lc
+            -- Référence la colonne 'cle' de la ligne de la table en cours de MAJ
+            WHERE t_lc.cle = {nom_table}.cle 
+            )
+            -- S'assure de n'exécuter la MAJ que si une correspondance existe
+            WHERE EXISTS (
+                SELECT 1 
+                FROM t_lexique_cles t_lc_check 
+                WHERE t_lc_check.cle = {nom_table}.cle
+            )
+        """)
 
     conn.commit()
     conn.close()
@@ -1259,9 +1269,25 @@ def ajouter_colonne_batrub():
         conn.close()
 
 
+def correspondances():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    sql = """SELECT COUNT(*) 
+        FROM t_base_data tbd 
+        WHERE EXISTS (
+            SELECT 1 
+            FROM t_lexique_cles tlc 
+            WHERE tlc.cle = tbd.cle
+        );"""
+    cur.execute(sql)
+    print(cur.fetchone()[0])
+    conn.close()
+
+
 # Exemple d'utilisation
 if __name__ == "__main__":
     # numeroter_doublons_par_cle()
     # maj_cle_sha256("t_base_data", vc.composantes_cle)
     # maj_groupe_avec_lexique_cles("t_base_data")
-    ajouter_colonne_batrub()
+    # ajouter_colonne_batrub()
+    correspondances()

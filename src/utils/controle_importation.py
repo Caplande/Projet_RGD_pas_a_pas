@@ -11,7 +11,7 @@ def actualiser_controle():
     conn = sqlite3.connect(vc.rep_bdd)
 
     df_e = pd.read_sql_query(
-        "SELECT indicateur, valeur FROM tampon_parametres", conn)
+        "SELECT indicateur, valeur FROM t_parametres", conn)
     # print(df_e)
     df_b = pd.read_sql_query()
     rows = []
