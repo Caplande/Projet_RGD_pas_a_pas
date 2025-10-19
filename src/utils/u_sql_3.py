@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import re
 import variables_communes as vc
 from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
@@ -51,8 +52,8 @@ def get_date_importation_site():
 
     try:
         cur.execute("""
-            SELECT valeur 
-            FROM t_parametres 
+            SELECT valeur
+            FROM t_parametres
             WHERE indicateur = 'Date importation site'
             LIMIT 1
         """)
@@ -166,9 +167,94 @@ def comparer_tables(table1, table2, id_col):
         conn.close()
 
 
+def maj_t_lexique_cles():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    try:
+        # comptage initial
+        cur.execute("SELECT COUNT(*) FROM t_lexique_cles")
+        nb_avant = cur.fetchone()[0]
+
+        # raz complète
+        cur.execute("DELETE FROM t_lexique_cles")
+
+        # insertion depuis t_base_data
+        cur.execute("""
+            INSERT INTO t_lexique_cles (cle, groupe)
+            SELECT DISTINCT cle, SUBSTR(COALESCE(groupe, ''), 1, 30)
+            FROM t_base_data
+            WHERE (cle IS NOT NULL AND TRIM(cle) <> '') AND (groupe IS NOT NULL AND TRIM(groupe) <> '')
+        """)
+        conn.commit()
+
+        # comptage final
+        cur.execute("SELECT COUNT(*) FROM t_lexique_cles")
+        nb_apres = cur.fetchone()[0]
+
+        nb_mises_a_jour = nb_apres - nb_avant
+
+        print(f"Nombre de lignes mises à jour : {nb_mises_a_jour}")
+        print(f"Nombre total de lignes de t_lexique_cles : {nb_apres}")
+    except Exception as e:
+        print(f"⚠️ Erreur pendant la mise à jour : {e}")
+    finally:
+        conn.close()
+
+
+def nettoyer_colonne(t_base_data, nom_colonne):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+    try:
+        # récupération des valeurs distinctes
+        cur.execute(
+            f"SELECT DISTINCT {nom_colonne} FROM {t_base_data} WHERE {nom_colonne} IS NOT NULL")
+        colonnes = cur.fetchall()
+
+        print("🔍 Vérification des caractères invisibles...")
+        anomalies = []
+        for (nom,) in colonnes:
+            if re.search(r'[\u00A0\u200B\u202F\r\n\t]', nom):
+                anomalies.append(nom)
+
+        if anomalies:
+            print(
+                f"⚠️ {len(anomalies)} valeurs contiennent des caractères invisibles :")
+            for nom in anomalies:
+                print(f"→ «{nom}»")
+        else:
+            print("✅ Aucune anomalie détectée.")
+
+        # nettoyage sans changer la casse
+        cur.execute(f"""
+            UPDATE {t_base_data}
+            SET {nom_colonne} = TRIM(
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(
+                                REPLACE({nom_colonne}, CHAR(160), ' '),  -- espace insécable
+                            CHAR(9), ' '),   -- tabulation
+                        CHAR(10), ' '),     -- saut de ligne
+                    CHAR(13), ' '),        -- retour chariot
+                '\u200B', ''               -- espace zéro largeur (attention : peut ne pas être interprété)
+                )
+            );
+        """)
+
+        conn.commit()
+
+        print("🧹 Nettoyage effectué : caractères invisibles supprimés, espaces nettoyés.")
+    except Exception as e:
+        print(f"⚠️ Erreur pendant le nettoyage : {e}")
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
-    copier_table_avec_structure_et_donnees(
-        "t_lexique_cles", "t_lexique_cles_ante")
+    # copier_table_avec_structure_et_donnees(
+    #    "t_lexique_cles", "t_lexique_cles_ante")
     # comparer_tables("t_lexique_cles", "t_lexique_cles_init_temp", "id")
+    # maj_t_lexique_cles()
+    nettoyer_colonne('t_base_data', 'nom_fournisseur')

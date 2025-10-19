@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 import variables_communes as vc
+from src.utils import u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 # --- Configuration de la Base de Données ---
 CHEMIN_BDD = vc.rep_bdd
@@ -439,6 +440,7 @@ def mise_a_jour_groupe_par_criteres(table_data, table_criteres, colonne_groupe):
         conn.commit()
         print(
             f"\nFIN DU TRAITEMENT : {total_lignes_modifiees} lignes mises à jour au total.")
+        u_sql_3.maj_t_lexique_cles()
 
     except sqlite3.Error as e:
         print(f"❌ Erreur générale de connexion/exécution : {e}")
@@ -447,6 +449,8 @@ def mise_a_jour_groupe_par_criteres(table_data, table_criteres, colonne_groupe):
     finally:
         if conn:
             conn.close()
+        print(
+            f"""Nombre de lignes dont le groupe n'est pas valorisé: {u_sql_2.compter_lignes("t_base_data", cdtn="groupe IS NULL OR groupe = ''")}""")
 
 # ----------------------------------------------------------------------
 # --- Bloc de Test et Initialisation (Démo) ---
