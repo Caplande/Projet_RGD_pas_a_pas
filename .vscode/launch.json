@@ -113,6 +113,26 @@
             "module": "src.utils.resultats",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : Menu",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.menu",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : Synoptique",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.synoptique",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
         }
     ]
 }

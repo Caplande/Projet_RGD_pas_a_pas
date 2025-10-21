@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, MetaData, update, inspect, text
 from sqlalchemy.orm import Session
+import tkinter as tk
+from tkinter import messagebox
 import variables_communes as vc
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
@@ -71,5 +73,25 @@ def actualiser_bdd_executer():
     u_sql_3.maj_etat_bdd()
 
 
+def actualiser_bdd(methode, *args, **kwargs):
+    """
+    Demande confirmation avant d'exécuter une méthode.
+    """
+    reponse = messagebox.askquestion(
+        "Confirmation",
+        # f"Exécuter {methode.__name__} ?",
+        "Actualiser la base avec les données importées du classeur source_active.xlsm ?",
+        icon='warning'
+    )
+    if reponse == "yes":
+        try:
+            return methode(*args, **kwargs)
+        except Exception as e:
+            messagebox.showerror(
+                "Erreur", f"Erreur lors de l'exécution de {methode.__name__} : {e}")
+    else:
+        print(f"Exécution de {methode.__name__} annulée.")
+
+
 if __name__ == "__main__":
-    actualiser_bdd_executer()
+    actualiser_bdd('actualiser_bdd_executer')
