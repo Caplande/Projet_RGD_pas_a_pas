@@ -252,11 +252,15 @@ def nettoyer_colonne(t_base_data, nom_colonne):
         conn.close()
 
 
-def creer_vue_v_t_base_data():
+def creer_vue_v_t_base_data(cdtn):
+    """
+    Donner à cdtn la valeur: 1=1 pour avoir tous les enregistrements
+    Autre exemplepour cdtn: groupe = 'Honoraires Syndic'
+    """
     conn = sqlite3.connect(vc.rep_bdd)
     cur = conn.cursor()
 
-    cur.executescript("""
+    cur.executescript(f"""
         DROP VIEW IF EXISTS v_t_base_data;
 
         CREATE VIEW v_t_base_data AS
@@ -275,6 +279,7 @@ def creer_vue_v_t_base_data():
         LEFT JOIN t_lexique_bat AS lb ON b.bat = lb.bat
         LEFT JOIN t_lexique_batrub AS lbr ON b.batrub = lbr.batrub
         LEFT JOIN t_lexique_typ AS lt ON b.typ = lt.typ
+        WHERE {cdtn} 
         ORDER BY b.bat || b.batrub || b.typ;
     """)
 

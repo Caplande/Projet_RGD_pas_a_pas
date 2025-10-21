@@ -565,10 +565,10 @@ def creer_pdf_pivot_hierarchique_par_groupe(fichier_pdf="Resultats/Historique (p
 
 
 if __name__ == "__main__":
-    # u_sql_3.creer_vue_v_t_base_data()
+    u_sql_3.creer_vue_v_t_base_data("groupe='Honoraires Syndic'")
     # calculs = pivot_cumuls()
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
-    # creer_pdf_pivot_hierarchique_par_typ()
+    creer_pdf_pivot_hierarchique_par_typ()
     creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")
