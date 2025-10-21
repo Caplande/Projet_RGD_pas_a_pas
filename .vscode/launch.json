@@ -103,6 +103,16 @@
             "module": "src.utils.affectation_des_groupes",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : Résultats",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.resultats",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
         }
     ]
 }

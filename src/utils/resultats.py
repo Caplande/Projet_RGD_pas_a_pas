@@ -6,6 +6,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.units import cm
 import variables_communes as vc
+from src.utils import u_sql_3 as u_sql_3
 
 
 def creer_pdf_pivot_hierarchique_par_typ(fichier_pdf="Resultats/Historique (par TYP).pdf"):
@@ -564,10 +565,10 @@ def creer_pdf_pivot_hierarchique_par_groupe(fichier_pdf="Resultats/Historique (p
 
 
 if __name__ == "__main__":
+    # u_sql_3.creer_vue_v_t_base_data()
     # calculs = pivot_cumuls()
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
     # creer_pdf_pivot_hierarchique_par_typ()
     creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")
-    # creer_vue("v_t_base_data")

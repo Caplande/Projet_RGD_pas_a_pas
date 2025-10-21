@@ -252,6 +252,36 @@ def nettoyer_colonne(t_base_data, nom_colonne):
         conn.close()
 
 
+def creer_vue_v_t_base_data():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    cur.executescript("""
+        DROP VIEW IF EXISTS v_t_base_data;
+
+        CREATE VIEW v_t_base_data AS
+        SELECT
+            b.exercice,
+            b.groupe,
+            b.montant,
+            b.bat,
+            lb.bat_tit_yp,
+            b.batrub,
+            lbr.batrub_tit_yp,
+            lbr.base_rep,
+            b.typ,
+            lt.typ_tit_yp
+        FROM t_base_data AS b
+        LEFT JOIN t_lexique_bat AS lb ON b.bat = lb.bat
+        LEFT JOIN t_lexique_batrub AS lbr ON b.batrub = lbr.batrub
+        LEFT JOIN t_lexique_typ AS lt ON b.typ = lt.typ
+        ORDER BY b.bat || b.batrub || b.typ;
+    """)
+
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
@@ -259,4 +289,6 @@ if __name__ == "__main__":
     #    "t_lexique_cles", "t_lexique_cles_ante")
     # comparer_tables("t_lexique_cles", "t_lexique_cles_init_temp", "id")
     # maj_t_lexique_cles()
-    nettoyer_colonne('t_base_data', 'nom_fournisseur')
+    # nettoyer_colonne('t_base_data', 'nom_fournisseur')
+    # creer_vue_v_t_base_data()
+    pass
