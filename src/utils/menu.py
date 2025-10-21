@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from src.utils import u_gen as u_gen
-from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad
+from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy
 
 
 print("Module menu chargé avec succès.")
@@ -58,7 +58,7 @@ class MonMenu:
             label="Document partiel par groupe", command=lambda: self.executer_action("Actualiser données...", "33"))
 
         self.menu_v4.add_command(
-            label="Qualité de la base", command=lambda: self.executer_action("Qualité de la base de données...", "40"))
+            label="Statistiques de la base", command=lambda: self.executer_action("Statistiques de la base...", "40"))
 
     def executer_action(self, message, index_menu):
         match index_menu:
@@ -77,7 +77,7 @@ class MonMenu:
             case "33":
                 rb.reinitialiser_bdd()
             case "40":
-
+                sy.afficher_table()
             case _:
                 messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 

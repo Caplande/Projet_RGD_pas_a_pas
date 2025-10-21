@@ -60,7 +60,7 @@ def alimenter_etat_bdd():
     ]
 
 
-def show_table_tree(parent):
+def preparer_table_tree(parent):
     box = ttk.LabelFrame(parent, text="t_etat_bdd")
     box.pack(fill="both", expand=True, padx=8, pady=8)
 
@@ -110,9 +110,13 @@ def show_table_tree(parent):
     btn.pack(pady=4)
 
 
-# Exemple d'utilisation
-if __name__ == "__main__":
+def afficher_table():
     root = tk.Tk()
     root.title("Vue t_etat_bdd")
-    show_table_tree(root)
+    preparer_table_tree(root)
     root.mainloop()
+
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    afficher_table()
