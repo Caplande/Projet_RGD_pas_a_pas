@@ -458,6 +458,7 @@ def mise_a_jour_groupe_par_criteres(table_data, table_criteres, colonne_groupe):
 
 
 if __name__ == '__main__':
+    # u_sql_2.nettoyer_table('t_base_data')
     print("\n--- Début de la Mise à Jour ---")
     mise_a_jour_groupe_par_criteres(
         NOM_TABLE_DATA,

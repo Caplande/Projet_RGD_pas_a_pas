@@ -1,3 +1,4 @@
+import re
 import sys
 import sqlite3
 import hashlib
@@ -829,7 +830,14 @@ def compter_lignes(nom_table, cdtn=None, annee=None):
     cursor.execute(requete, tuple(params))
     nb_lignes = cursor.fetchone()[0]
 
-    print(f"La table '{nom_table}' contient {nb_lignes} lignes.")
+    message = f"La table '{nom_table}' contient {nb_lignes} lignes"
+    if cdtn:
+        message += f" répondant à la condition: {cdtn}"
+    if annee:
+        message += f" pour l'exercice: {annee}"
+    message += "."
+    print(message)
+
     conn.close()
     return nb_lignes
 
@@ -1282,6 +1290,44 @@ def correspondances():
     cur.execute(sql)
     print(cur.fetchone()[0])
     conn.close()
+
+
+def nettoyer_table(nom_table):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    # Récupérer les colonnes de type TEXT
+    cur.execute(f"PRAGMA table_info({nom_table})")
+    colonnes_text = [row[1]
+                     for row in cur.fetchall() if row[2].upper() == "TEXT"]
+
+    if not colonnes_text:
+        print(f"⚠️ Aucune colonne TEXT trouvée dans {nom_table}.")
+        conn.close()
+        return
+
+    nb_total = 0
+    for col in colonnes_text:
+        cur.execute(f"SELECT id, {col} FROM {nom_table}")
+        lignes = cur.fetchall()
+        for id_, val in lignes:
+            if isinstance(val, str):
+                # 1️⃣ Remplacer explicitement les espaces insécables (CHAR(160) ou \u00A0) par un espace normal
+                val = val.replace('\u00A0', ' ').replace(chr(160), ' ')
+
+                # 2️⃣ Supprimer les caractères invisibles et espaces multiples
+                val_nettoyee = re.sub(r"[\s\u200B]+", " ", val.strip())
+
+                if val_nettoyee != val:
+                    cur.execute(
+                        f"UPDATE {nom_table} SET {col}=? WHERE id=?",
+                        (val_nettoyee, id_)
+                    )
+                    nb_total += 1
+
+    conn.commit()
+    conn.close()
+    print(f"✅ {nb_total} valeurs nettoyées dans {nom_table}.")
 
 
 # Exemple d'utilisation

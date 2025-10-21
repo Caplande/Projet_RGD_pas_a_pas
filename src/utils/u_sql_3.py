@@ -193,8 +193,10 @@ def maj_t_lexique_cles():
 
         nb_mises_a_jour = nb_apres - nb_avant
 
-        print(f"Nombre de lignes mises à jour : {nb_mises_a_jour}")
-        print(f"Nombre total de lignes de t_lexique_cles : {nb_apres}")
+        print(
+            f"t_lexique_cles: nombre de lignes mises à jour : {nb_mises_a_jour}")
+        print(
+            f"t_lexique_cles: total de lignes de t_lexique_cles : {nb_apres}")
     except Exception as e:
         print(f"⚠️ Erreur pendant la mise à jour : {e}")
     finally:
