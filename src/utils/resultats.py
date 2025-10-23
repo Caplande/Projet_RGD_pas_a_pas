@@ -22,7 +22,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
 
     # --- Largeur des colonnes ---
     # 🔑 AJUSTEMENT: Remis à des largeurs plus grandes pour éviter que les titres (taille 8pt) ne wrappent
-    col_widths_titres = [0.5*cm, 0.5*cm, 0.5*cm]
+    col_widths_titres = [2.0*cm, 2.5*cm, 3.0*cm]
 
     # Largeur restante pour les colonnes de valeurs
     espace_disponible = landscape(A4)[0] - 1.0*cm - sum(col_widths_titres)
@@ -307,7 +307,12 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     if not os.path.exists(os.path.dirname(fichier_pdf)):
         os.makedirs(os.path.dirname(fichier_pdf))
 
-    doc.build([table, Spacer(1, 0.2*cm)])
+    try:
+        doc.build([table, Spacer(1, 0.2*cm)])
+    except Exception as e:
+        print("Erreur PDF :", e)
+
+    # doc.build([table, Spacer(1, 0.2*cm)])
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
