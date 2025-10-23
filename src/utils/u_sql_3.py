@@ -191,7 +191,32 @@ def nettoyer_colonne(t_base_data, nom_colonne):
         conn.close()
 
 
-def creer_vue_v_t_base_data(cdtn):
+def analyse_couple_typ_groupe():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    cur.executescript(f"""
+        DROP VIEW IF EXISTS v_t_base_data;
+
+        CREATE VIEW v_t_base_data AS
+        SELECT
+            b.typ,
+            b.id,
+            b.batrub,
+            lbr.batrub_tit_yp,
+            b.typ_tit,
+            b.libelle,
+            b.nom_fournisseur,
+            b.groupe
+        FROM t_base_data AS b
+        LEFT JOIN t_lexique_bat AS lb ON b.bat = lb.bat
+        LEFT JOIN t_lexique_batrub AS lbr ON b.batrub = lbr.batrub
+        LEFT JOIN t_lexique_typ AS lt ON b.typ = lt.typ
+        ORDER BY b.batrub || b.typ;
+        """)
+
+
+def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
     """
     Donner à cdtn la valeur: 1=1 pour avoir tous les enregistrements
     Autre exemplepour cdtn: groupe = 'Honoraires Syndic'
@@ -200,9 +225,9 @@ def creer_vue_v_t_base_data(cdtn):
     cur = conn.cursor()
 
     cur.executescript(f"""
-        DROP VIEW IF EXISTS v_t_base_data;
+        DROP VIEW IF EXISTS {nom_vue};
 
-        CREATE VIEW v_t_base_data AS
+        CREATE VIEW {nom_vue} AS
         SELECT
             b.exercice,
             b.groupe,
@@ -227,7 +252,7 @@ def creer_vue_v_t_base_data(cdtn):
 
 
 if __name__ == "__main__":
-    maj_etat_bdd()
+    # maj_etat_bdd()
     # get_date_importation_site()
     # copier_table_avec_structure_et_donnees(
     #    "t_lexique_cles", "t_lexique_cles_ante")
@@ -235,4 +260,5 @@ if __name__ == "__main__":
     # maj_t_lexique_cles()
     # nettoyer_colonne('t_base_data', 'nom_fournisseur')
     # creer_vue_v_t_base_data()
+    analyse_couple_typ_groupe()
     pass

@@ -9,7 +9,7 @@ import variables_communes as vc
 from src.utils import u_sql_3 as u_sql_3
 
 
-def creer_pdf_pivot_hierarchique_par_typ(fichier_pdf="Resultats/Historique (par TYP).pdf"):
+def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Historique (par TYP).pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -17,9 +17,12 @@ def creer_pdf_pivot_hierarchique_par_typ(fichier_pdf="Resultats/Historique (par 
     annee_fin = 2025
     exercices = [str(an) for an in range(int(annee_debut), int(annee_fin) + 1)]
 
+    # Créer la vue appropriée
+    u_sql_3.creer_vue(cdtn=cdtn)
+
     # --- Largeur des colonnes ---
     # 🔑 AJUSTEMENT: Remis à des largeurs plus grandes pour éviter que les titres (taille 8pt) ne wrappent
-    col_widths_titres = [2.0*cm, 2.5*cm, 3.0*cm]
+    col_widths_titres = [0.5*cm, 0.5*cm, 0.5*cm]
 
     # Largeur restante pour les colonnes de valeurs
     espace_disponible = landscape(A4)[0] - 1.0*cm - sum(col_widths_titres)
@@ -308,12 +311,15 @@ def creer_pdf_pivot_hierarchique_par_typ(fichier_pdf="Resultats/Historique (par 
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
-def creer_pdf_pivot_hierarchique_par_groupe(fichier_pdf="Resultats/Historique (par groupe).pdf"):
+def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/Historique (par groupe).pdf"):
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
     annee_debut = 2015
     annee_fin = 2025
     exercices = [str(an) for an in range(int(annee_debut), int(annee_fin) + 1)]
+
+    # Créer la vue appropriée
+    u_sql_3.creer_vue(cdtn=cdtn)
 
     # --- Largeur des colonnes ---
     col_widths_titres = [2.0*cm, 2.5*cm, 3.0*cm]  # Colonne 'Groupe' a 3.0cm
@@ -565,7 +571,8 @@ def creer_pdf_pivot_hierarchique_par_groupe(fichier_pdf="Resultats/Historique (p
 
 
 if __name__ == "__main__":
-    u_sql_3.creer_vue_v_t_base_data("groupe='Honoraires Syndic'")
+    # u_sql_3.creer_vue_v_t_base_data(cdtn="groupe='Honoraires Syndic'")
+    # u_sql_3.creer_vue_v_t_base_data()
     # calculs = pivot_cumuls()
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
