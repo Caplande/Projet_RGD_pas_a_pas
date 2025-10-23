@@ -43,11 +43,22 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
         conn = sqlite3.connect(vc.rep_bdd)
         cur = conn.cursor()
         # 🔑 MODIFICATION: Ajout de 'base_rep' à la sélection
+        # cur.execute(f"""
+        #    SELECT bat, batrub, typ, base_rep, bat_tit_yp, batrub_tit_yp, typ_tit_yp, exercice, montant
+        #     FROM {vue_name}
+        #     ORDER BY batrub, typ, exercice;
+        # """)
+
         cur.execute(f"""
-            SELECT bat, batrub, typ, base_rep, bat_tit_yp, batrub_tit_yp, typ_tit_yp, exercice, montant
+            SELECT bat,batrub,typ,base_rep,bat_tit_yp,batrub_tit_yp,typ_tit_yp,exercice, 
+                    SUM(montant) AS montant_total -- Calcule la somme des montants
             FROM {vue_name}
-            ORDER BY bat, batrub, typ, exercice
-        """)
+            GROUP BY bat,batrub,typ,exercice -- Grouper par toutes les colonnes à conserver
+            ORDER BY
+                batrub,
+                typ,
+                exercice;
+            """)
         rows = cur.fetchall()
     finally:
         if 'conn' in locals() and conn:
@@ -132,7 +143,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     # 🔑 SUPPRESSION : style_valeur_grand_total est retiré car nous utilisons maintenant des chaînes simples
 
     # --- Remplissage du Tableau 'data' ---
-    data = [["Bâtiment", "Bâtrub", "Type"] + exercices]
+    data = [["Bâtiment", "BATRUB", "Type"] + exercices]
 
     for bat_key, rubs in data_hier.items():
         # 🔑 MODIFICATION: Utiliser prefix_map pour le titre Bâtiment
@@ -143,7 +154,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
         total_bat = {ex: 0.0 for ex in exercices}
 
         for rub_key, typs in rubs.items():
-            # 🔑 MODIFICATION: Utiliser prefix_map pour le titre Bâtrub
+            # 🔑 MODIFICATION: Utiliser prefix_map pour le titre batrub
             display_rub_title = prefix_map.get(rub_key, rub_key)
             data.append(["", Paragraph(display_rub_title, style_batrub)] +
                         [""] * (1 + len(exercices)))
@@ -248,7 +259,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
         if isinstance(row[0], Paragraph) and row[1] == "" and row[2] == "" and not row[0].getPlainText().startswith("Total "):
             style_table.add('SPAN', (0, i), (-1, i))
 
-        # 2. Ligne Titre Bâtrub
+        # 2. Ligne Titre batrub
         elif row[0] == "" and isinstance(row[1], Paragraph) and row[2] == "" and not row[1].getPlainText().startswith("Total "):
             style_table.add('SPAN', (1, i), (-1, i))
 
@@ -377,7 +388,7 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
         if bat_key and bat_key not in prefix_map:
             prefix_map[bat_key] = f"{bat_code} - {rub_key}"
 
-        # 2. Titre Bâtrub
+        # 2. Titre batrub
         if rub_key and rub_key not in prefix_map:
             prefix_map[rub_key] = f"{batrub_code} - {rub_key} ({base_rep_code})"
 
@@ -420,7 +431,7 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
 
     # --- Remplissage du Tableau 'data' ---
     # Titre de colonne 'Groupe'
-    data = [["Bâtiment", "Bâtrub", "Groupe"] + exercices]
+    data = [["Bâtiment", "BATRUB", "Groupe"] + exercices]
 
     for bat_key, rubs in data_hier.items():
         display_bat_title = prefix_map.get(bat_key, bat_key)
@@ -518,7 +529,7 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
         if isinstance(row[0], Paragraph) and row[1] == "" and row[2] == "" and not row[0].getPlainText().startswith("Total "):
             style_table.add('SPAN', (0, i), (-1, i))
 
-        # Ligne Titre Bâtrub
+        # Ligne Titre batrub
         elif row[0] == "" and isinstance(row[1], Paragraph) and row[2] == "" and not row[1].getPlainText().startswith("Total "):
             style_table.add('SPAN', (1, i), (-1, i))
 
@@ -582,5 +593,5 @@ if __name__ == "__main__":
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
     creer_pdf_pivot_hierarchique_par_typ()
-    creer_pdf_pivot_hierarchique_par_groupe()
+    # creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")
