@@ -42,12 +42,6 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     try:
         conn = sqlite3.connect(vc.rep_bdd)
         cur = conn.cursor()
-        # 🔑 MODIFICATION: Ajout de 'base_rep' à la sélection
-        # cur.execute(f"""
-        #    SELECT bat, batrub, typ, base_rep, bat_tit_yp, batrub_tit_yp, typ_tit_yp, exercice, montant
-        #     FROM {vue_name}
-        #     ORDER BY batrub, typ, exercice;
-        # """)
 
         cur.execute(f"""
             SELECT bat,batrub,typ,base_rep,bat_tit_yp,batrub_tit_yp,typ_tit_yp,exercice, 
@@ -358,10 +352,16 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
         cur = conn.cursor()
         # MODIFICATION CRITIQUE 1 : Suppression de 'groupe_tit_yp'. Utilisation de la colonne 'groupe'.
         cur.execute(f"""
-            SELECT bat, batrub, groupe, base_rep, bat_tit_yp, batrub_tit_yp, exercice, montant
-            FROM {vue_name}
-            ORDER BY bat, batrub, groupe, exercice
+        SELECT bat,batrub,groupe,base_rep,bat_tit_yp,batrub_tit_yp,exercice, 
+                SUM(montant) AS montant_total -- Calcule la somme des montants
+        FROM {vue_name}
+        GROUP BY bat,batrub,groupe,exercice -- Grouper par toutes les colonnes à conserver
+        ORDER BY
+            batrub,
+            groupe,
+            exercice;
         """)
+
         rows = cur.fetchall()
     finally:
         if 'conn' in locals() and conn:
@@ -593,5 +593,5 @@ if __name__ == "__main__":
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
     creer_pdf_pivot_hierarchique_par_typ()
-    # creer_pdf_pivot_hierarchique_par_groupe()
+    creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")
