@@ -47,9 +47,14 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     # Traitement des entêtes et bas de page
     total_pages = {'n': 0}
 
+    designation_filtre = "Toutes les lignes" if cdtn == '1=1' else cdtn.split("=", 1)[
+        1].strip().strip("'\"")
+
     def entete(canvas, doc):
         canvas.saveState()
         canvas.setFont('Helvetica-Bold', 10)
+        canvas.drawCentredString(
+            50, 20.5 * cm, designation_filtre)
         canvas.drawCentredString(
             A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique Relevé général des dépenses")
         canvas.restoreState()
@@ -412,9 +417,14 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
     # Traitement des entêtes et bas de page
     total_pages = {'n': 0}
 
+    designation_filtre = "Toutes les lignes" if cdtn == '1=1' else cdtn.split("=", 1)[
+        1].strip().strip("'\"")
+
     def entete(canvas, doc):
         canvas.saveState()
         canvas.setFont('Helvetica-Bold', 10)
+        canvas.drawCentredString(
+            50, 20.5 * cm, designation_filtre)
         canvas.drawCentredString(
             A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique Relevé général des dépenses")
         canvas.restoreState()
