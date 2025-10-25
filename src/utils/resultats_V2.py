@@ -11,7 +11,7 @@ import variables_communes as vc
 from src.utils import u_sql_3 as u_sql_3
 
 
-def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Historique (par TYP) V2.pdf"):
+def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Historique (par TYP) vue_typ.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -376,7 +376,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
-def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/Historique (par groupe) V2.pdf"):
+def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/Historique (par groupe) vue_groupe.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -747,7 +747,7 @@ if __name__ == "__main__":
     # calculs = pivot_cumuls()
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
-    # creer_pdf_pivot_hierarchique_par_typ()
-    creer_pdf_pivot_hierarchique_par_groupe()
+    creer_pdf_pivot_hierarchique_vue_typ(cdtn="groupe='Honoraires Syndic'")
+    creer_pdf_pivot_hierarchique_vue_groupe(cdtn="groupe='Honoraires Syndic'")
     # creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")

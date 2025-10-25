@@ -224,6 +224,9 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
     conn = sqlite3.connect(vc.rep_bdd)
     cur = conn.cursor()
 
+    # Il faut adapter cdtn à la syntaxe SQLITE
+    cdtn = cdtn if cdtn == '1=1' else 'b.' + cdtn.lstrip()
+
     cur.executescript(f"""
         DROP VIEW IF EXISTS {nom_vue};
 
@@ -259,6 +262,6 @@ if __name__ == "__main__":
     # comparer_tables("t_lexique_cles", "t_lexique_cles_init_temp", "id")
     # maj_t_lexique_cles()
     # nettoyer_colonne('t_base_data', 'nom_fournisseur')
-    # creer_vue_v_t_base_data()
-    analyse_couple_typ_groupe()
+    creer_vue(cdtn='groupe="Honoraires Syndic"')
+    # analyse_couple_typ_groupe()
     pass
