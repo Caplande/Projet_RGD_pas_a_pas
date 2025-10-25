@@ -473,16 +473,16 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
             base_rep_code if base_rep_code is not None else "")
 
         # 1. Bat Title: bat - batrub_tit (prend la première combinaison trouvée pour ce bat_key)
-        if bat_key and bat_key not in prefix_map:
+        if bat_key not in prefix_map:
             prefix_map[bat_key] = f"{bat_code} - {rub_key}"
 
         # 2. Batrub Title: batrub - batrub_tit (base_rep)
-        if rub_key and rub_key not in prefix_map:
+        if rub_key not in prefix_map:
             prefix_map[rub_key] = f"{batrub_code} - {rub_key} ({base_rep_code})"
 
         # 3. Typ Title: groupe
         if groupe_key not in prefix_map:
-            prefix_map[groupe_key] = f"{groupe_code} - {groupe_key}"
+            prefix_map[groupe_key] = f"{groupe_code}"
 
         # Tenter de convertir le montant en float, sinon utiliser 0.0
         try:
