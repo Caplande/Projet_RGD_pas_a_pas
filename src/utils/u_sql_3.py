@@ -254,6 +254,24 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
     conn.close()
 
 
+def maj_t_lexique_cles_old():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    cur.executescript("""
+        DROP TABLE IF EXISTS t_lexique_cles;             
+                      
+        CREATE TABLE t_lexique_cles AS
+        SELECT DISTINCT cle, groupe
+        FROM t_base_data;
+        
+        CREATE INDEX id ON t_lexique_cles(cle, groupe);
+        """)
+
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
@@ -262,6 +280,7 @@ if __name__ == "__main__":
     # comparer_tables("t_lexique_cles", "t_lexique_cles_init_temp", "id")
     # maj_t_lexique_cles()
     # nettoyer_colonne('t_base_data', 'nom_fournisseur')
-    creer_vue(cdtn='groupe="Honoraires Syndic"')
+    # creer_vue(cdtn='groupe="Honoraires Syndic"')
     # analyse_couple_typ_groupe()
+    maj_t_lexique_cles()
     pass

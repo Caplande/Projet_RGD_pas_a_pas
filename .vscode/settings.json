@@ -7,5 +7,7 @@
 "terminal.integrated.defaultProfile.windows": "Command Prompt",
 "terminal.integrated.defaultEncoding": "utf8",
 "python.formatting.provider": "black",
-"editor.formatOnSave": true
+"editor.formatOnSave": true,
+"python.analysis.autoImportCompletions": true,
+"python.analysis.typeCheckingMode": "standard"
 }

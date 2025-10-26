@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import tkinter as tk
 from tkinter import messagebox
 import variables_communes as vc
-from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
+from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3, synoptique as synopt
 
 print("Module actualiser_donnees chargé avec succès.")
 
@@ -19,7 +19,8 @@ def actualiser_bdd_executer():
         2.5.2) Valoriser la colonne groupe de t_base_data et traiter les doublons
         2.9) Mettre à jour la table des indicateurs maj_etat_bdd
 """
-
+    # 2.0) Sauvegarde t_lexique_cles.
+    u_sql_3.maj_t_lexique_cles()
     # 2.1) Supprimer toutes les tables "t_roc_modifiee" et "t_parametres"
     u_sql_1.supprimer_toutes_tables(
         l_tables=["t_roc_modifiee", "t_parametres"])
@@ -62,15 +63,8 @@ def actualiser_bdd_executer():
     # 2.5.6) Affectation d'une valeur à la colonne groupe de t_base_data.
     #        A ce stade, t_lexique_cles est complet
     u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")
-    if False:
-        # 2.5.2.5) Recalcul de la cle pour supprimer les doublons
-        u_sql_2.maj_cle_et_creer_lexique()
-        print(
-            f"Il reste {u_sql_1.lister_doublons("t_base_data", "cle")['nb_doublons']} doublon(s) dans t_base_data")
-        # 2.5.2) Mise à jour de la colonne groupe de t_base_data à partir de t_lexique_cles
-        u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")
-    # 2.9) Mise à jour de la table des indicateurs
-    u_sql_3.maj_etat_bdd()
+    # 2.6) Mise à jour de la table des indicateurs
+    synopt.maj_etat_bdd()
 
 
 def actualiser_bdd(methode, *args, **kwargs):

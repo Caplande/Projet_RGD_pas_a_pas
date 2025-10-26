@@ -143,6 +143,16 @@
             "module": "src.utils.resultats_V2",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
+        },
+        {
+            "name": "Débogueur Python : Surveillance t_lexique_cles",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "src.utils.surveillance_t_lexique_cles",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"} 
         }
     ]
 }

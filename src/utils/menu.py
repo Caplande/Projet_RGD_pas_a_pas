@@ -85,8 +85,12 @@ class MonMenu:
         messagebox.showinfo("Action", "bidon...")
 
 
-if __name__ == "__main__":
+def afficher_menu():
     # --- Lancement
     root = tk.Tk()
     app = MonMenu(root)
     root.mainloop()
+
+
+if __name__ == "__main__":
+    afficher_menu()
