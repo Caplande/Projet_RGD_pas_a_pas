@@ -272,6 +272,26 @@ def maj_t_lexique_cles_old():
     conn.close()
 
 
+def extraire_un_parametre(indicateur):
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    # Utiliser '?' comme placeholder pour la valeur
+    sql = """SELECT valeur
+             FROM t_parametres
+             WHERE indicateur = ?
+          """
+
+    # Passer la variable 'indicateur' comme un tuple séparé
+    # C'est la MÉTHODE SÛRE et RECOMMANDÉE
+    cur.execute(sql, (indicateur,))
+
+    # Complétez la fonction (par exemple, cur.fetchone() pour récupérer le résultat)
+    res = cur.fetchone()
+    conn.close()
+    return res
+
+
 if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
@@ -282,5 +302,7 @@ if __name__ == "__main__":
     # nettoyer_colonne('t_base_data', 'nom_fournisseur')
     # creer_vue(cdtn='groupe="Honoraires Syndic"')
     # analyse_couple_typ_groupe()
-    maj_t_lexique_cles()
+    # maj_t_lexique_cles()
+    print(extraire_un_parametre("I_001")[0])
+
     pass
