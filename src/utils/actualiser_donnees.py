@@ -61,7 +61,7 @@ def actualiser_bdd_executer():
     # 2.5.4) La colonne rang_doublon vient d'être valorisée, elle est composante du SHA256 de la cle. Il faut donc recalculer la cle
     u_sql_2.maj_cle_sha256("t_base_data", vc.composantes_cle)
     # 2.5.6) Affectation d'une valeur à la colonne groupe de t_base_data.
-    #        A ce stade, t_lexique_cles est complet
+    # A ce stade, t_lexique_cles est complet
     u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")
     # 2.6) Mise à jour de la table des indicateurs
     synopt.maj_etat_bdd()
@@ -88,4 +88,4 @@ def actualiser_bdd(methode, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    actualiser_bdd('actualiser_bdd_executer')
+    actualiser_bdd(actualiser_bdd_executer)

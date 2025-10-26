@@ -1,25 +1,23 @@
 import tkinter as tk
 from tkinter import ttk
 import sqlite3
+import json
 import variables_communes as vc  # adapte si besoin
-from src.utils import u_sql_1 as u_sql_1
+from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 
-def maj_etat_bdd():
-    creer_table_etat_bdd_vide()
-    alimenter_etat_bdd()
-
-
-def creer_table_etat_bdd_vide():
-    conn = sqlite3.connect(vc.rep_bdd)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS t_etat_bdd (
-            intitule TEXT(30),
-            valeur TEXT
-        );
-    """)
-    u_sql_1.vider_table("t_etat_bdd")
-    conn.close()
+"""
+Configuration excel de F_parametres
+indicateur intitule
+   I_1	   Chemin source
+   I_2	   Date importation site
+   I_3	   Exercice clos ("AAAA")
+   I_4	   Nombre total de lignes
+   I_5	   Nombre lignes exercice clos
+   I_6	   Nombre lignes exercices antérieurs (hors F_agregation)
+   I_7	   Nombre de lignes exercice en cours
+   I_8	   Contrôle
+"""
 
 
 def get_date_importation_site():
@@ -30,7 +28,7 @@ def get_date_importation_site():
         cur.execute("""
             SELECT valeur
             FROM t_parametres
-            WHERE indicateur = 'Date importation site'
+            WHERE indicateur = 'I_2'
             LIMIT 1
         """)
         row = cur.fetchone()
@@ -42,8 +40,10 @@ def get_date_importation_site():
         conn.close()
 
 
-def alimenter_etat_bdd():
+def maj_etat_bdd():
     conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
     donnees = [
         ("Date dernière mise à jour", get_date_importation_site()),
         ("Nombre de lignes t_base_data", u_sql_1.nb_lig("t_base_data")),
@@ -56,8 +56,35 @@ def alimenter_etat_bdd():
         ("Nombre de lignes sans groupe dans t_base_data",
          u_sql_1.nb_avec_colonne_vide("t_base_data", "groupe")),
         ("Nombre de lignes par exercice dans t_base_data",
-         json.dumps(u_sql_1.compter_par_exercice()))
+         json.dumps(u_sql_1.compter_par_exercice())),
     ]
+
+    # Création si la table n'existe pas
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS t_etat_bdd (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            intitule TEXT(50),
+            valeur TEXT
+        )
+    """)
+
+    try:
+        # On vide la table
+        cur.execute("DELETE FROM t_etat_bdd")
+    except Exception as e:
+        print("Erreur lors du vidage de t_etat_bdd :", e)
+    try:
+        # Puis on insère les nouvelles données
+        cur.executemany(
+            "INSERT INTO t_etat_bdd (intitule, valeur) VALUES (?, ?)",
+            donnees
+        )
+        conn.commit()
+    except Exception as e:
+        print("Erreur lors du peuplement de t_etat_bdd :", e)
+        conn.rollback()
+    finally:
+        conn.close()
 
 
 def preparer_table_tree(parent):
@@ -119,4 +146,5 @@ def afficher_table():
 
 # Exemple d'utilisation
 if __name__ == "__main__":
+    maj_etat_bdd()
     afficher_table()

@@ -68,7 +68,7 @@ def reinitialiser_bdd(methode, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    reinitialiser_bdd_executer()
+    reinitialiser_bdd(reinitialiser_bdd_executer)
     # u_sql_2.adjoindre_pk()
     # u_sql_2.creer_peupler_table_fusion(
     #    table_source1="t_agregation", table_source2="t_roc_modifiee")
