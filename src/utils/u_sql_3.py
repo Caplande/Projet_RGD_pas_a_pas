@@ -285,11 +285,10 @@ def extraire_un_parametre(indicateur):
     # Passer la variable 'indicateur' comme un tuple séparé
     # C'est la MÉTHODE SÛRE et RECOMMANDÉE
     cur.execute(sql, (indicateur,))
-
+    row = cur.fetchone()
     # Complétez la fonction (par exemple, cur.fetchone() pour récupérer le résultat)
-    res = cur.fetchone()
     conn.close()
-    return res
+    return row[0]
 
 
 if __name__ == "__main__":

@@ -7,8 +7,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.units import cm
 from PyPDF2 import PdfReader
+from typing import Sequence, List, Union
 import variables_communes as vc
-from src.utils import u_sql_3 as u_sql_3
+from src.utils import u_sql_3 as u_sql_3, u_gen
 
 
 def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Historique (par TYP) vue_typ.pdf"):
@@ -25,6 +26,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     u_sql_3.creer_vue(cdtn=cdtn)  # Crée la vue "v_t_base_data"
 
     # --- Connexion SQLite ---
+    conn = None
     try:
         conn = sqlite3.connect(vc.rep_bdd)
         cur = conn.cursor()
@@ -52,11 +54,15 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
 
     def entete(canvas, doc):
         canvas.saveState()
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawString(
+            10, 20.5 * cm, designation_filtre)
         canvas.setFont('Helvetica-Bold', 10)
         canvas.drawCentredString(
-            50, 20.5 * cm, designation_filtre)
-        canvas.drawCentredString(
-            A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique Relevé général des dépenses")
+            A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique par TYP du Relevé général des dépenses")
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawString(
+            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_gen.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
         canvas.restoreState()
 
     def pied_de_page(canvas, doc):
@@ -171,8 +177,11 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     # 🔑 SUPPRESSION : style_valeur_grand_total est retiré car nous utilisons maintenant des chaînes simples
 
     # --- Remplissage du Tableau 'data' ---
-    data = [["Bâtiment", "BATRUB", "Type"] + exercices]
 
+    data: List[List[Union[str, Paragraph]]] = [
+        ["Bâtiment", "BATRUB", "Type"] + exercices]  # type: ignore
+
+    # data: List[List[Union[str, Paragraph]]] = [["Bâtiment", "BATRUB", "Type"] + exercices]
     for bat_key, rubs in data_hier.items():
         # 🔑 MODIFICATION: Utiliser prefix_map pour le titre Bâtiment
         display_bat_title = prefix_map.get(bat_key, bat_key)
@@ -207,11 +216,11 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
                         ",", " ").replace(".", ",")
                     # Encapsuler la valeur avec style_valeur (taille 7)
                     ligne_detail_typ.append(
-                        Paragraph(val_texte, style_valeur))
+                        Paragraph(val_texte, style_valeur))  # type: ignore
 
                     total_rub[ex] += val
                     total_bat[ex] += val
-                data.append(ligne_detail_typ)
+                data.append(ligne_detail_typ)  # type: ignore
 
             # Ligne sous-total batrub
             ligne_total_rub = ["", Paragraph(
@@ -255,7 +264,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
         # Ajout de la valeur en tant que simple chaîne
         ligne_grand_total.append(val_display_text)
 
-    data.append(ligne_grand_total)
+    data.append(ligne_grand_total)  # type: ignore
     # --- FIN MODIFICATION ---
 
     # --- Création et Styles du Tableau ---
@@ -338,7 +347,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
 
     table.setStyle(style_table)
 
-# Préaration de la création du pdf
+# Préparation de la création du pdf
 
     try:
         # --- Première passe pour compter le nombre total de pages ---
@@ -395,6 +404,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
     u_sql_3.creer_vue(cdtn=cdtn)  # Crée la vue "v_t_base_data"
 
     # --- Connexion SQLite ---
+    conn = None
     try:
         conn = sqlite3.connect(vc.rep_bdd)
         cur = conn.cursor()
@@ -422,11 +432,15 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
 
     def entete(canvas, doc):
         canvas.saveState()
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawString(
+            10, 20.5 * cm, designation_filtre)
         canvas.setFont('Helvetica-Bold', 10)
         canvas.drawCentredString(
-            50, 20.5 * cm, designation_filtre)
-        canvas.drawCentredString(
-            A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique Relevé général des dépenses")
+            A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique par GROUPE du Relevé général des dépenses")
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawString(
+            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_gen.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
         canvas.restoreState()
 
     def pied_de_page(canvas, doc):
@@ -547,7 +561,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
         # 🔑 MODIFICATION: Utiliser prefix_map pour le titre Bâtiment
         display_bat_title = prefix_map.get(bat_key, bat_key)
         data.append([Paragraph(display_bat_title, style_bat)] +
-                    [""] * (2 + len(exercices)))
+                    [""] * (2 + len(exercices)))  # type: ignore
 
         total_bat = {ex: 0.0 for ex in exercices}
 
@@ -577,7 +591,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
                         ",", " ").replace(".", ",")
                     # Encapsuler la valeur avec style_valeur (taille 7)
                     ligne_detail_groupe.append(
-                        Paragraph(val_texte, style_valeur))
+                        Paragraph(val_texte, style_valeur))  # type: ignore
 
                     total_rub[ex] += val
                     total_bat[ex] += val
