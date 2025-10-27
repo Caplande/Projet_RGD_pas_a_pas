@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from src.utils import u_gen as u_gen
-from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy
+from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy,resultats as res
 
 
 print("Module menu chargé avec succès.")
@@ -55,7 +55,7 @@ class MonMenu:
         self.menu_v3.add_command(
             label="Document partiel par typ", command=lambda: self.executer_action("Document partiel par typ...", "32"))
         self.menu_v3.add_command(
-            label="Document partiel par groupe", command=lambda: self.executer_action("Actualiser données...", "33"))
+            label="Document partiel par groupe", command=lambda: self.executer_action("Document partiel par groupe...", "33"))
 
         self.menu_v4.add_command(
             label="Statistiques de la base", command=lambda: self.executer_action("Statistiques de la base...", "40"))
@@ -69,9 +69,9 @@ class MonMenu:
             case "21":
                 rb.reinitialiser_bdd('reinitialiser_bdd_executer')
             case "30":
-                rb.reinitialiser_bdd()
+                res.creer_pdf_pivot_hierarchique_vue_typ()
             case "31":
-                rb.reinitialiser_bdd()
+                res.creer_pdf_pivot_hierarchique_vue_groupe()
             case "32":
                 rb.reinitialiser_bdd()
             case "33":

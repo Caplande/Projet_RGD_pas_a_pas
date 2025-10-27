@@ -1,1 +1,0 @@
-Voir dans t_parametres l'indicateur I001 tronqué
