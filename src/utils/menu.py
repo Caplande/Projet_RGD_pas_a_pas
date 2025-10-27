@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from src.utils import u_gen as u_gen
-from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy,resultats as res
+from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
 
 
 print("Module menu chargé avec succès.")
@@ -73,9 +73,9 @@ class MonMenu:
             case "31":
                 res.creer_pdf_pivot_hierarchique_vue_groupe()
             case "32":
-                rb.reinitialiser_bdd()
+                res.ed_spec_par_typ()
             case "33":
-                rb.reinitialiser_bdd()
+                res.ed_spec_par_groupe()
             case "40":
                 sy.afficher_table()
             case _:

@@ -8,6 +8,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.units import cm
 from PyPDF2 import PdfReader
 from typing import Sequence, List, Union
+import tkinter as tk
+from tkinter import ttk
 import variables_communes as vc
 from src.utils import u_sql_3 as u_sql_3, u_gen
 
@@ -765,13 +767,109 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
+def choisir_un_typ():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    u_sql_3.creer_vue()
+    cur.execute("""
+        SELECT DISTINCT typ, typ_tit_yp
+        FROM v_t_base_data
+        ORDER BY typ;
+    """)
+    types = cur.fetchall()
+    conn.close()
+
+    mapping = {t: f"{t} – {lib}" for t, lib in types}
+    affichages = list(mapping.values())
+
+    root = tk.Tk()
+    root.title("Choix du TYP")
+
+    selected_groupe = tk.StringVar()
+
+    combo = ttk.Combobox(root, values=affichages, state="readonly", width=40)
+    combo.pack(padx=10, pady=10)
+    combo.set("Sélectionner un TYP")
+
+    def on_select(event):
+        texte = combo.get()
+        for t, txt in mapping.items():
+            if txt == texte:
+                selected_groupe.set(t)
+                root.destroy()  # ferme la fenêtre
+                break
+
+    combo.bind("<<ComboboxSelected>>", on_select)
+
+    root.mainloop()
+    return selected_groupe.get()  # récupérable par la fonction appelante
+
+
+def choisir_un_groupe():
+    conn = sqlite3.connect(vc.rep_bdd)
+    cur = conn.cursor()
+
+    u_sql_3.creer_vue()
+    cur.execute("""
+        SELECT DISTINCT groupe
+        FROM v_t_base_data
+        ORDER BY groupe;
+    """)
+    groupes = cur.fetchall()
+    conn.close()
+
+    mapping = [groupe[0] for groupe in groupes]
+    affichages = mapping
+    # affichages = list(mapping.values())
+
+    root = tk.Tk()
+    root.title("Choix d'un groupe")
+
+    selected_typ = tk.StringVar()
+
+    combo = ttk.Combobox(root, values=affichages, state="readonly", width=50)
+    combo.pack(padx=10, pady=10)
+    combo.set("Sélectionner un groupe")
+
+    def on_select(event):
+        texte = combo.get()
+        selected_typ.set(texte)
+        root.destroy()  # ferme la fenêtre
+
+    combo.bind("<<ComboboxSelected>>", on_select)
+
+    root.mainloop()
+    return selected_typ.get()
+
+
+def ed_spec_par_typ():
+    typ = choisir_un_typ()
+    if typ:  # si un choix a été fait
+        creer_pdf_pivot_hierarchique_vue_typ(
+            cdtn=f"typ='{typ}'",
+            fichier_pdf=f"Resultats/Historique pour TYP {typ}.pdf"
+        )
+
+
+def ed_spec_par_groupe():
+    groupe = choisir_un_groupe()
+    if groupe:  # si un choix a été fait
+        groupe_safe = groupe.replace("'", "''")
+        creer_pdf_pivot_hierarchique_vue_groupe(
+            cdtn=f"groupe='{groupe_safe}'",
+            fichier_pdf=f"Resultats/Historique pour groupe {groupe}.pdf"
+        )
+
+
 if __name__ == "__main__":
     # u_sql_3.creer_vue_v_t_base_data(cdtn="groupe='Honoraires Syndic'")
     # u_sql_3.creer_vue_v_t_base_data()
     # calculs = pivot_cumuls()
     # resultats_sql = calculs["resultats"]
     # noms_colonnes = calculs["noms_colonnes"]
-    creer_pdf_pivot_hierarchique_vue_typ(cdtn="groupe='Honoraires Syndic'")
-    creer_pdf_pivot_hierarchique_vue_groupe(cdtn="groupe='Honoraires Syndic'")
+    # creer_pdf_pivot_hierarchique_vue_typ(cdtn="groupe='Honoraires Syndic'")
+    # creer_pdf_pivot_hierarchique_vue_groupe(cdtn="groupe='Honoraires Syndic'")
     # creer_pdf_pivot_hierarchique_par_groupe()
     # resultats_sql, noms_colonnes, nom_fichier="pivot_cumules_correct.pdf")
+    ed_spec_par_groupe()

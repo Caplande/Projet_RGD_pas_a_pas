@@ -225,11 +225,12 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
     cur = conn.cursor()
 
     # Il faut adapter cdtn à la syntaxe SQLITE
-    cdtn = cdtn if cdtn == '1=1' else 'b.' + cdtn.lstrip()
+    cdtn = cdtn if cdtn == '1=1' else 'b.' + cdtn
 
-    cur.executescript(f"""
-        DROP VIEW IF EXISTS {nom_vue};
+    cur.execute(f"""
+        DROP VIEW IF EXISTS {nom_vue};""")
 
+    sql = f"""
         CREATE VIEW {nom_vue} AS
         SELECT
             b.exercice,
@@ -248,7 +249,8 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
         LEFT JOIN t_lexique_typ AS lt ON b.typ = lt.typ
         WHERE {cdtn} 
         ORDER BY b.bat || b.batrub || b.typ;
-    """)
+    """
+    cur.execute(sql)
 
     conn.commit()
     conn.close()
