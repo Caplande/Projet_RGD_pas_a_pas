@@ -15,6 +15,4 @@ _Légende :_ ✅ fait · 🟡 en cours · ⬜ à faire · ❌ bloqué
 
 ## 🧠 Notes globales
 
-- Vérifier compatibilité avec **Python 3.12**
-- Prévoir un mode _simulation_ sans génération de fichiers
-- Documenter la structure SQL finale pour archivage
+-

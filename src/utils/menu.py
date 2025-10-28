@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 from src.utils import u_gen as u_gen
 from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
-
+import variables_communes as vc
 
 print("Module menu chargé avec succès.")
 
@@ -12,8 +12,6 @@ print("Module menu chargé avec succès.")
 class MonMenu:
     def __init__(self, root):
         self.root = root
-        self.root.title("Copropriété Monica - Analyse de l'historique RGD")
-        self.root.geometry("800x600")
         self.creer_menu()
 
     def creer_menu(self):
@@ -87,9 +85,7 @@ class MonMenu:
 
 def afficher_menu():
     # --- Lancement
-    root = tk.Tk()
-    app = MonMenu(root)
-    root.mainloop()
+    app = MonMenu(vc.cont_rac)
 
 
 if __name__ == "__main__":
