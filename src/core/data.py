@@ -8,22 +8,7 @@ from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 import tkinter as tk
 from tkinter import messagebox
 
-print("Module u_gen chargé avec succès.")
-
-
-def fermer_projet(root=None):
-    """
-    Ferme complètement l’application, y compris dans VS Code.
-    """
-    if messagebox.askokcancel("Quitter", "Fermer le projet ?"):
-        try:
-            if root:
-                root.quit()
-                root.destroy()
-        except:
-            pass
-        # Forcer la terminaison du processus Python
-        os._exit(0)
+print("Module data chargé avec succès.")
 
 
 def convertir_feuilles_en_table(classeur, nom_feuille):
@@ -117,10 +102,3 @@ def traiter_classeur(classeur, l_sauf=None):
         return l_noms_tables
     except Exception as e:
         return None
-
-
-def convertir_date(date_texte):
-    dt = datetime.strptime(date_texte, "%Y-%m-%d %H:%M:%S")
-    # format "jour semaine jour mois année"
-    resultat = dt.strftime("%A %d %B %Y")
-    return resultat

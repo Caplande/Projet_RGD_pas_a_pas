@@ -52,7 +52,7 @@ def lister_tables():
 
 
 def supprimer_colonne_toutes_tables(nom_colonne):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
     cursor.execute("PRAGMA foreign_keys = OFF;")
     cursor.execute(
@@ -67,7 +67,7 @@ def supprimer_colonne_toutes_tables(nom_colonne):
 
 
 def renommer_colonne_pk_toutes_tables(ancien_nom, nouveau_nom):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
     # Etablir la liste des tables
     cursor.execute("PRAGMA foreign_keys = OFF;")
@@ -83,7 +83,7 @@ def renommer_colonne_pk_toutes_tables(ancien_nom, nouveau_nom):
 
 
 def migrate_add_pk():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     # Récupération des tables
@@ -93,7 +93,7 @@ def migrate_add_pk():
     conn.close()
 
     for table in tables:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cursor = conn.cursor()
         # On récupère la définition de la table
         cursor.execute(f"PRAGMA table_info({table});")
@@ -128,7 +128,7 @@ def migrate_add_pk():
 
 
 def renommer_une_colonne(nom_table, ancien_nom, nouveau_nom):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     succes = True
     try:
@@ -222,7 +222,7 @@ def extraire_schema():
 
     # Récupérer toutes les tables
     tables = inspector.get_table_names()
-    print(f"Schéma général de {vc.rep_bdd} - Tables : {tables}")
+    print(f"Schéma général de {vc.REP_BDD} - Tables : {tables}")
 
     # Détails sur une table spécifique
     for table_name in tables:
@@ -454,9 +454,9 @@ def convertir_colonne_en_date_julien(nom_table, nom_colonne):
         f"ALTER TABLE {ancienne_table} RENAME COLUMN date_julien TO {col};"
     ]
 
-    run_sql_sequence(vc.rep_bdd, sql_statements1)
-    cloner_table(vc.rep_bdd, ancienne_table, "nouvelle_table")
-    run_sql_sequence(vc.rep_bdd, sql_statements2)
+    run_sql_sequence(vc.REP_BDD, sql_statements1)
+    cloner_table(vc.REP_BDD, ancienne_table, "nouvelle_table")
+    run_sql_sequence(vc.REP_BDD, sql_statements2)
 
 
 def introspecter_table_non_mappee(nom_table):
@@ -479,7 +479,7 @@ def extraire_table_depuis_nom_table(nom_table):
 
 
 def vider_table(nom_table):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     conn.execute(f"DELETE FROM {nom_table};")
     conn.commit()
     conn.close()
@@ -651,7 +651,7 @@ def creer_colonnes(nom_table, d_noms_colonnes):
     Crée dans nom_table les colonnes listées dans d_noms_colonne si elles n'existent pas déjà.
     d_noms_colonne : dict {nom_colonne: type_sql}
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Vérifie que la table existe
@@ -679,7 +679,7 @@ def creer_colonnes(nom_table, d_noms_colonnes):
 
 
 def nb_lig(table):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     try:
         cur = conn.execute(f"SELECT COUNT(*) FROM {table}")
         return str(cur.fetchone()[0])
@@ -692,7 +692,7 @@ def nb_lig(table):
 
 
 def nb_avec_colonne_vide(table, nom_colonne):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.execute(f"""
         SELECT COUNT(*) 
         FROM {table}
@@ -705,7 +705,7 @@ def compter_par_exercice():
     """
     Retourne un dictionnaire {exercice: nombre_de_lignes} pour t_base_data.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     cur.execute("""
         SELECT exercice, COUNT(*) 

@@ -13,7 +13,7 @@ def formater_julien(table):
 
 
 def controle_recherche_groupe():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     sql = """SELECT id, cle, groupe

@@ -6,7 +6,7 @@ from src.utils import actualiser_donnees as ad
 import os
 
 # Initialiser la base de données
-rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
+# rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
 
 # Actualiser données avec la plus récente importation de données B&D
 # ad.actualiser_donnees()

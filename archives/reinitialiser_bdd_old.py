@@ -19,7 +19,7 @@ def reinitialiser_bdd_executer():
         # 2.1) Convertir les données Excel en tables SQLite
         # ex tac = {"nom_fichier": "rgd_originel_completee_modifiee.xlsx", "feuilles": ["F_roc_modifiee"]}
         noms_tables = u_gen.traiter_classeur(
-            vc.rep_source / tac["nom_fichier"])
+            vc.REP_SOURCE / tac["nom_fichier"])
     # 2.2) Norme PEP8: Normer les noms des colonnes de tampon_data (les noms des colonnes de toutes les autres tables ont été normés à partir de Excel)
     u_sql_2.normer_noms_colonnes()
     # 2.3) Normer les types des colonnes de tampon_data et tampon_parametres (les types des colonnes de toutes les autres tables ont été normés à partir de Excel)

@@ -10,10 +10,10 @@ if False:
     u_sql_1.supprimer_toutes_tables()
 
     # 2) Importer les feuilles et les transformer en tables dans bdd.sqlite
-    u_gen.traiter_classeur(vc.rep_source / "source_active.xlsm")
-    u_gen.traiter_classeur(vc.rep_source / "lexiques.xlsx", ["Noms_champs"])
+    u_gen.traiter_classeur(vc.REP_SOURCE / "source_active.xlsm")
+    u_gen.traiter_classeur(vc.REP_SOURCE / "lexiques.xlsx", ["Noms_champs"])
     u_gen.traiter_classeur(
-        vc.rep_source / "RGD_Originel_completee.xlsx", ["Dates"])
+        vc.REP_SOURCE / "RGD_Originel_completee.xlsx", ["Dates"])
 
     # 3) Renommer les colonnes des tables importées
     u_sql_1.renommer_toutes_colonnes_toutes_tables()
@@ -41,7 +41,7 @@ if False:
 
     # **********************A EFFACER *********************
     u_gen.traiter_classeur(
-        vc.rep_source / "RGD_Originel_completee.xlsx", ["Dates"])
+        vc.REP_SOURCE / "RGD_Originel_completee.xlsx", ["Dates"])
     # ******************************************************
 
     # Suppression des valeurs NULL dans la table "t_originel_completee"

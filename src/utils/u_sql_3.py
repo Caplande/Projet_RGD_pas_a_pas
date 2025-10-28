@@ -1,13 +1,21 @@
 import sqlite3
 import json
 import re
+from datetime import datetime
 import tkinter as tk
 import variables_communes as vc
 from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 
+def convertir_date(date_texte):
+    dt = datetime.strptime(date_texte, "%Y-%m-%d %H:%M:%S")
+    # format "jour semaine jour mois année"
+    resultat = dt.strftime("%A %d %B %Y")
+    return resultat
+
+
 def copier_table_avec_structure_et_donnees(source, cible):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     try:
         # récupère la définition SQL de la table source
@@ -44,7 +52,7 @@ def comparer_tables(table1, table2, id_col):
     Compare le contenu de table1 et table2 et affiche les différences,
     en indiquant l'id de table1 et l'id de table2 pour chaque ligne.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     try:
@@ -108,7 +116,7 @@ def comparer_tables(table1, table2, id_col):
 
 
 def maj_t_lexique_cles():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     try:
         # comptage initial
@@ -144,7 +152,7 @@ def maj_t_lexique_cles():
 
 
 def nettoyer_colonne(t_base_data, nom_colonne):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     try:
         # récupération des valeurs distinctes
@@ -193,7 +201,7 @@ def nettoyer_colonne(t_base_data, nom_colonne):
 
 
 def analyse_couple_typ_groupe():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     cur.executescript(f"""
@@ -222,7 +230,7 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
     Donner à cdtn la valeur: 1=1 pour avoir tous les enregistrements
     Autre exemplepour cdtn: groupe = 'Honoraires Syndic'
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Il faut adapter cdtn à la syntaxe SQLITE
@@ -258,7 +266,7 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
 
 
 def maj_t_lexique_cles_old():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     cur.executescript("""
@@ -276,7 +284,7 @@ def maj_t_lexique_cles_old():
 
 
 def extraire_un_parametre(indicateur):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Utiliser '?' comme placeholder pour la valeur

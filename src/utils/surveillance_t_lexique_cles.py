@@ -6,7 +6,7 @@ from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 
 def creer_table_surveillance():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     script = """
         CREATE TABLE t_signaux (
@@ -32,7 +32,7 @@ def creer_table_surveillance():
 
 
 def controle_modif():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     rows = cur.execute("SELECT * FROM t_signaux").fetchall()
     if rows:

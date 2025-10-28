@@ -8,7 +8,7 @@ import variables_communes as vc
 def actualiser_controle():
     init(autoreset=True)
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
 
     df_e = pd.read_sql_query(
         "SELECT indicateur, valeur FROM t_parametres", conn)

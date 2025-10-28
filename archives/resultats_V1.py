@@ -40,7 +40,7 @@ def creer_pdf_pivot_hierarchique_par_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
 
     # --- Connexion SQLite ---
     try:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -348,7 +348,7 @@ def creer_pdf_pivot_hierarchique_par_groupe(cdtn='1=1', fichier_pdf="Resultats/H
 
     # --- Connexion SQLite ---
     try:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cur = conn.cursor()
         # MODIFICATION CRITIQUE 1 : Suppression de 'groupe_tit_yp'. Utilisation de la colonne 'groupe'.
         cur.execute(f"""

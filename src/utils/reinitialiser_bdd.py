@@ -18,7 +18,7 @@ def reinitialiser_bdd_executer():
     # ex tac = {"nom_fichier": "rgd_originel_completee_modifiee.xlsm", "feuilles": ["F_roc_modifiee"]}
     for famille, fac in vc.composantes_bdd_initialisation.items():  # fac feuilles à convertir
         nom_classeur = fac["nom_fichier"]
-        u_gen.traiter_classeur(vc.rep_source / nom_classeur)
+        u_gen.traiter_classeur(vc.REP_SOURCE / nom_classeur)
     # 2.2) Recensement des tables nécessaires à l'initialisation
     u_sql_2.verifier_tables_existent(vc.l_tables_source)
     # 2.3) Normer les types des colonnes de toutes les tables

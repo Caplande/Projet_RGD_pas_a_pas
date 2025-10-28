@@ -6,7 +6,7 @@ import variables_communes as vc
 from src.utils import u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 # --- Configuration de la Base de Données ---
-CHEMIN_BDD = vc.rep_bdd
+CHEMIN_BDD = vc.REP_BDD
 NOM_TABLE = 't_base_data'
 NOM_TABLE_GROUPES = 't_liste_groupes'  # Nouvelle table de référence
 COLONNE_A_EDITER = 'groupe'

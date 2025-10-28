@@ -33,7 +33,7 @@ def actualiser_bdd_executer():
     # Cette étape conduit à la création des tables tampon_data (feuille data) et t_parametres (feuille parametre)
     for famille, fac in vc.composantes_bdd_actualisation.items():  # fac feuilles à convertir
         nom_classeur = fac["nom_fichier"]
-        u_gen.traiter_classeur(vc.rep_source / nom_classeur)
+        u_gen.traiter_classeur(vc.REP_SOURCE / nom_classeur)
 
     # 2.4) tampon_data: Normer tampon_data
     # 2.4.1) Normer les noms de colonnes de tampon_data

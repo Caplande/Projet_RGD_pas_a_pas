@@ -326,7 +326,7 @@ def a_une_pk(db_path, table_name):
 
 
 def promouvoir_ou_ajouter_id_en_pk(table_name):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     # Récupérer la structure de la table
@@ -506,7 +506,7 @@ def copier_donnees_sql(table_src, table_dst, mapping, conversions=None):
     sql = u_gen.purifier_sql(sql)
     print(f"SQL après purification: {sql}")
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     conn.execute(sql)
 
     # Suppression de la table source
@@ -519,7 +519,7 @@ def normer_noms_colonnes():
     Norme les noms des colonnes de la table data dans la table "tampon_data"
     """
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Récupérer la structure de la table tampon_data
@@ -551,7 +551,7 @@ def normer_types_colonnes(dry_run=False, l_tables=None):
     """
     lexique = vc.lexique_colonnes_types
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     if not l_tables:
@@ -614,7 +614,7 @@ def adjoindre_pk(l_tables=None):
       - conserve les types et contraintes des autres colonnes
     """
     l_tables = l_tables if l_tables else vc.l_tables_source
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     for table in l_tables:
@@ -678,7 +678,7 @@ def adjoindre_pk(l_tables=None):
 
 
 def remplacer_nulls_toutes_tables(l_tables=None):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     if not l_tables:
@@ -712,7 +712,7 @@ def maj_cle_et_creer_lexique():
     Les deux colonnes groupe et cle de t_base_data sont ensuite copiées dans les colonnes du même nom de t_lexique_cles
     Cet enchainenemnt signifie qu'il ne faut jamais mettre à jour directement t_lexique_cles mais passer par l'intermédiaire de t_base_data
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # récupération des noms de colonnes composant la clé
@@ -768,7 +768,7 @@ def maj_cle_et_creer_lexique():
 
 
 def formater_bat_rub_typ(l_tables):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
     for table in l_tables:
         # Vérifier que la table contient bien les colonnes à formater
@@ -790,7 +790,7 @@ def formater_bat_rub_typ(l_tables):
 
 
 def table_existe(nom_table):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.execute(
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?;",
         (nom_table,)
@@ -804,7 +804,7 @@ class TableInexistanteError(Exception):
 
 
 def compter_lignes(nom_table, cdtn=None, annee=None):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     cursor.execute(
@@ -856,7 +856,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     Returns:
         _type_: _description_
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     # 1. Supprimer si déjà existante
@@ -939,7 +939,7 @@ def maj_cle_sha256(nom_table, l_colonnes_composantes):
         return
 
     try:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cur = conn.cursor()
 
         # Vérifie si la colonne 'cle' existe, sinon la crée
@@ -981,7 +981,7 @@ def maj_groupe_avec_lexique_cles(nom_table):
     La colonne 'groupe' est créée si elle n'existe pas.
     Les tables sont liées par la colonne 'cle'.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Vérifie que la table existe
@@ -1025,7 +1025,7 @@ def mettre_a_niveau_t_base_data():
     """Il s'agit de creer une colonne exercice - supprimer les colonnes debut_periode et fin_periode - 
     creer et valoriser colonne clé - creer et valoriser colonne groupe - ajouter les colonnes bat_tit_yp, rub_tit_yp, typ_tit_yp
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     # 1) Creer colonne exercice
@@ -1062,7 +1062,7 @@ def verifier_tables_existent(liste_tables):
     Vérifie la présence de toutes les tables de liste_tables dans la base SQLite.
     Retourne un dictionnaire {nom_table: True/False}.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     resultat = {}
@@ -1087,7 +1087,7 @@ def modifier_types_colonnes(nom_table):
     Les colonnes non mentionnées dans le dictionnaire restent inchangées.
     """
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Récupération du schéma actuel
@@ -1129,7 +1129,7 @@ def renommer_table(nom_old, nom_new):
     Renomme une table SQLite de nom_old vers nom_new.
     Crée une erreur si la table d'origine n'existe pas ou si la nouvelle existe déjà.
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cursor = conn.cursor()
 
     # Vérifie que la table d’origine existe
@@ -1153,7 +1153,7 @@ def renommer_table(nom_old, nom_new):
 
 
 def verifier_integrite_bdd():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     cur.execute("PRAGMA integrity_check;")
     resultat = cur.fetchone()[0]
@@ -1207,7 +1207,7 @@ def numeroter_doublons_par_cle():
     - Si plusieurs lignes ont la même cle : 1, 2, 3, ...
     - Si une seule ligne a cette cle : 1
     """
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     conn.execute("UPDATE t_base_data SET rang_doublon = '';")
 
     # 1. Réinitialiser la colonne
@@ -1240,7 +1240,7 @@ def numeroter_doublons_par_cle():
 
 
 def ajouter_calculer_colonne_exercice_tampon_data():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     conn.execute("""
     ALTER TABLE tampon_data
     ADD COLUMN exercice TEXT(4);
@@ -1255,7 +1255,7 @@ def ajouter_calculer_colonne_exercice_tampon_data():
 
 
 def ajouter_colonne_batrub():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     try:
         # ajoute la colonne si elle n'existe pas déjà
@@ -1278,7 +1278,7 @@ def ajouter_colonne_batrub():
 
 
 def correspondances():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     sql = """SELECT COUNT(*) 
         FROM t_base_data tbd 
@@ -1293,7 +1293,7 @@ def correspondances():
 
 
 def nettoyer_table(nom_table):
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     # Récupérer les colonnes de type TEXT

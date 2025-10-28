@@ -21,7 +21,7 @@ indicateur intitule
 
 
 def get_date_importation_site():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     try:
@@ -41,7 +41,7 @@ def get_date_importation_site():
 
 
 def maj_etat_bdd():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     donnees = [
@@ -103,7 +103,7 @@ def preparer_table_tree(parent):
     vs.pack(side="right", fill="y")
     hs.pack(fill="x")
 
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
     try:
         cur.execute("SELECT * FROM t_etat_bdd")
@@ -124,7 +124,7 @@ def preparer_table_tree(parent):
     def refresh():
         for i in tree.get_children():
             tree.delete(i)
-        conn2 = sqlite3.connect(vc.rep_bdd)
+        conn2 = sqlite3.connect(vc.REP_BDD)
         cur2 = conn2.cursor()
         try:
             cur2.execute("SELECT * FROM t_etat_bdd")

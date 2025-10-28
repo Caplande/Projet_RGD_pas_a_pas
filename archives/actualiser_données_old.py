@@ -16,12 +16,12 @@ def actualiser_donnees():
     # 2.1) Convertir les données Excel en tables SQLite
     # ex tac = {"nom_fichier": "rgd_originel_completee_modifiee.xlsx", "feuilles": ["F_roc_modifiee"]}
     l_noms_tables = u_gen.traiter_classeur(
-        vc.rep_source / "source_active.xlsm", l_sauf=["F_agregation"])
+        vc.REP_SOURCE / "source_active.xlsm", l_sauf=["F_agregation"])
     # 2.2) Norme PEP8: Normer les noms des colonnes de tampon_data (les noms des colonnes de toutes les autres tables ont été normés à partir de Excel)
     u_sql_2.normer_noms_colonnes()
     # 2.3) Normer les types des colonnes de tampon_data (les types des colonnes de toutes les autres tables ont été normés à partir de Excel)
     u_sql_2.normer_types_colonnes(l_tables=l_noms_tables)
     # 2.4) Ajouter 'id' en clé primaire
     u_sql_2.adjoindre_pk(l_tables=l_noms_tables)
-    
+
     u_sql_2.formater_bat_rub_typ(["tampon_data"])

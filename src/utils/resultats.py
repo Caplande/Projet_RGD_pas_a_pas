@@ -14,7 +14,7 @@ import variables_communes as vc
 from src.utils import u_sql_3 as u_sql_3, u_gen
 
 
-def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Historique (par TYP) vue_typ.pdf"):
+def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Historique (par TYP) vue_typ.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -30,7 +30,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -392,7 +392,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="Resultats/Hist
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
-def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/Historique (par groupe) vue_groupe.pdf"):
+def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/Historique (par groupe) vue_groupe.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -408,7 +408,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(vc.rep_bdd)
+        conn = sqlite3.connect(vc.REP_BDD)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -768,7 +768,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="Resultats/H
 
 
 def choisir_un_typ():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()
@@ -807,7 +807,7 @@ def choisir_un_typ():
 
 
 def choisir_un_groupe():
-    conn = sqlite3.connect(vc.rep_bdd)
+    conn = sqlite3.connect(vc.REP_BDD)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()
@@ -848,7 +848,7 @@ def ed_spec_par_typ():
     if typ:  # si un choix a été fait
         creer_pdf_pivot_hierarchique_vue_typ(
             cdtn=f"typ='{typ}'",
-            fichier_pdf=f"Resultats/Historique pour TYP {typ}.pdf"
+            fichier_pdf=f"resultats/Historique pour TYP {typ}.pdf"
         )
 
 
@@ -858,7 +858,7 @@ def ed_spec_par_groupe():
         groupe_safe = groupe.replace("'", "''")
         creer_pdf_pivot_hierarchique_vue_groupe(
             cdtn=f"groupe='{groupe_safe}'",
-            fichier_pdf=f"Resultats/Historique pour groupe {groupe}.pdf"
+            fichier_pdf=f"resultats/Historique pour groupe {groupe}.pdf"
         )
 
 
