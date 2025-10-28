@@ -2,7 +2,7 @@ import sqlite3
 import pandas as pd
 from tabulate import tabulate
 from colorama import Fore, Style, init
-import variables_communes as vc
+import variables_path as vc
 
 
 def actualiser_controle():

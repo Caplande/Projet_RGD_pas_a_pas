@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy import text, inspect
 import sqlite3
-import variables_communes as vc
+import variables_path as vc
 
 sys.stdout.reconfigure(encoding='utf-8')
 

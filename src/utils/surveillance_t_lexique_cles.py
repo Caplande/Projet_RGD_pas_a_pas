@@ -1,7 +1,7 @@
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
-import variables_communes as vc
+import variables_path as vc
 from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 

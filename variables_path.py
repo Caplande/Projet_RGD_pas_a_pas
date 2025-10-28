@@ -1,13 +1,10 @@
 ﻿# %pip install sqlalchemy
 
 from pathlib import Path
-import locale
 from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
 
 print("Module variables_communes chargé avec succès.")
 
-# Mettre la locale française pour les noms de mois/jours
-locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 REP_DEFAUT = Path.cwd()
 print(f"VC_1 ---> Répertoire par défaut {REP_DEFAUT}")

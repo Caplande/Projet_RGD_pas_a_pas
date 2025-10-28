@@ -3,7 +3,7 @@ import json
 import re
 from datetime import datetime
 import tkinter as tk
-import variables_communes as vc
+import variables_path as vc
 from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
 
 

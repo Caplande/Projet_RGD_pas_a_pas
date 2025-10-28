@@ -1,48 +1,47 @@
 from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import registry, declarative_base
 import tkinter as tk
+import parametres
+import variables_path
+from src.core import data
 
 
-composantes_bdd = {
-    "feuilles_roc": {"nom_fichier": "rgd_originel_completee_modifiee.xlsm", "feuilles": ["F_roc_modifiee", "F_parametres", "F_agregation"]},
-    "feuilles_lexiques": {"nom_fichier": "lexiques.xlsx", "feuilles": ["F_definition_cles_repartitions", "F_lexique_batrub", "F_lexique_bat", "F_lexique_rub", "F_lexique_typ",
-                          "F_liste_groupes", "F_liste_group_a_etudier"]},
-    "feuilles_source_active": {"nom_fichier": "source_active.xlsm", "feuilles": ["data", "F_parametres"]}
-}
+from pathlib import Path
+from .data import Database  # ta classe qui gère SQLite
+# si variables_communes.py est à la racine
+from ... import variables_communes as config
 
-composantes_bdd_initialisation = {
-    "feuilles_roc": {"nom_fichier": "rgd_originel_completee_modifiee.xlsm", "feuilles": ["F_roc_modifiee", "F_parametres", "F_agregation"]},
-    "feuilles_lexiques": {"nom_fichier": "lexiques.xlsx", "feuilles": ["F_definition_cles_repartitions", "F_lexique_batrub", "F_lexique_bat", "F_lexique_rub", "F_lexique_typ",
-                          "F_liste_groupes", "F_liste_group_a_etudier"]}}
 
-composantes_bdd_actualisation = {
-    "feuilles_roc": {"nom_fichier": "source_active.xlsm", "feuilles": ["data", "F_parametres"]},
-}
+class AppContext:
+    """Contexte global de l'application :
+    - chemins
+    - connexion à la base
+    - configuration partagée
+    """
 
-l_tables_source = ["t_agregation", "t_definition_cles_repartitions", "t_lexique_batrub", "t_lexique_bat", "t_lexique_rub", "t_lexique_typ", "t_liste_groupes", "t_liste_groupes_a_etudier",
-                   "t_roc_modifiee", "t_parametres"]
-mapping_tampon_data = {"id": "id", "Type d'appel": "type_appel", 'Libelle': 'libelle1', 'Debut de periode': 'debut_periode', 'Fin de periode': 'fin_periode', 'Periode Cloturee': 'periode_cloturee',
-                       'Numéro du batiment': 'bat', 'Nom du batiment': 'bat_tit', 'Numéro de la rubrique': 'rub', 'Nom de la rubrique': 'rub_tit', 'Num type charge': 'typ',
-                       'Nom du type de charge': 'typ_tit', 'Date': 'date_a', 'Libelle.1': 'libelle', 'Reference': 'reference', 'Montant à repartir': 'montant', 'Nom du fournisseur': 'nom_fournisseur',
-                       "exercice": "exercice"}
+    def __init__(self):
+        # Racine du projet (un cran au-dessus de /src)
+        self.root_dir = Path(__file__).resolve().parents[2]
 
-lexique_colonnes_types = {'id': 'INTEGER', 'exercice': 'TEXT (4)', 'type_appel': 'TEXT (2)', 'libelle1': 'TEXT', 'periode_cloturee': 'TEXT (1)', 'bat': 'TEXT (3)', 'bat_tit': 'TEXT (50)', 'rub': 'TEXT (2)', 'rub_tit': 'TEXT (50)',
-                          'typ': 'TEXT (3)', 'typ_tit': 'TEXT (50)', 'batrub': 'TEXT (6)', 'libelle': 'TEXT (50)', 'reference': 'TEXT (50)', 'montant': 'FLOAT', 'nom_fournisseur': 'TEXT (50)',
-                          'debut_periode': 'REAL', 'fin_periode': 'REAL', 'date_a': 'REAL', 'indicateur': 'TEXT (50)', 'valeur': 'TEXT (50)', 'bat_tit_yp': 'TEXT (50)',
-                          'rub_tit_yp': 'TEXT (50)', "typ_tit_yp": 'TEXT (50)', 'batrub_tit_yp': 'TEXT (50)', 'entites': 'TEXT (30)', 'rgpt_entites': 'TEXT (30)', 'groupe': 'TEXT (30)'}
+        # Dossiers structurants
+        self.paths = {
+            "sources": self.root_dir / "sources",
+            "resultats": self.root_dir / "resultats",
+            "data": self.root_dir / "data",
+        }
 
-composantes_cle = ["exercice", "bat", "rub", "typ", "date_a",
-                   "libelle", "reference", "nom_fournisseur", "montant", "rang_doublon"]
+        # Fichier de base de données
+        self.db_path = self.paths["data"] / "bdd.sqlite"
 
-colonnes_t_base_data = {'id': 'INTEGER', 'type_appel': 'TEXT (2)', 'exercice': 'TEXT (4)',
-                        'periode_cloturee': 'TEXT (1)', 'bat': 'TEXT (3)', 'bat_tit': 'TEXT (50)', 'rub': 'TEXT (2)', 'rub_tit': 'TEXT (50)', 'typ': 'TEXT (3)',
-                        'typ_tit': 'TEXT (50)', 'date_a': 'REAL', 'libelle': 'TEXT (50)', 'reference': 'TEXT (50)', 'montant': 'FLOAT', 'nom_fournisseur': 'TEXT (50)',
-                        'rang_doublon': 'INTEGER', 'groupe': 'TEXT (30)', 'cle': 'TEXT'}
+        # Instance de base de données
+        self.db = Database(self.db_path)
 
-# Colonnes composantes de la cle
-ccc = "bat  ||  rub  ||  typ  ||  date  ||  libelle  ||  reference  ||  montant  ||  nom_fournisseur || rang_doublon"
-# ccc_v = "{bat} , {rub} , {typ} , {date} , {libelle} , {reference} , {montant} , {nom_fournisseur} , {rang_doublon}"
+        # Autres variables partagées (optionnelles)
+        self.mode_debug = getattr(config, "MODE_DEBUG", False)
+        self.version = getattr(config, "VERSION", "1.0.0")
+
+
+# Singleton : une seule instance réutilisable partout
+app_context = AppContext()
 
 if __name__ == '__main__':
     root = tk.Tk()

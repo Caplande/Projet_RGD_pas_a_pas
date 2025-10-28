@@ -1,6 +1,6 @@
 import sys
 import sqlite3
-import variables_communes as vc
+import variables_path as vc
 from src.utils import u_sql_1 as u_sql_1
 
 sys.stdout.reconfigure(encoding='utf-8')

@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 from src.utils import modeles
-from variables_communes import engine, metadata
+from variables_path import engine, metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -51,7 +51,9 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 target_metadata = metadata
+
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.

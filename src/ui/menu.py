@@ -2,13 +2,24 @@ import sys
 import os
 import tkinter as tk
 from tkinter import messagebox
-from src.utils import u_gen as u_gen
 from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
-import variables_communes as vc
+import variables_path as vc
 
 print("Module menu chargé avec succès.")
 
 
+def build_menu(root, context):
+    menubar = tk.Menu(root)
+
+    fichier_menu = tk.Menu(menubar, tearoff=0)
+    fichier_menu.add_command(label="Quitter", command=root.quit)
+    menubar.add_cascade(label="Fichier", menu=fichier_menu)
+
+    root.config(menu=menubar)
+    return menubar
+
+
+"""
 class MonMenu:
     def __init__(self, root):
         self.root = root
@@ -81,11 +92,7 @@ class MonMenu:
 
     def bidon(self):
         messagebox.showinfo("Action", "bidon...")
-
-
-def afficher_menu():
-    # --- Lancement
-    app = MonMenu(vc.cont_rac)
+"""
 
 
 if __name__ == "__main__":

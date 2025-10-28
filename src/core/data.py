@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import re
 from datetime import datetime
-import variables_communes as vc
+import variables_path as vc
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
 import tkinter as tk
 from tkinter import messagebox
