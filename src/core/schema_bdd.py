@@ -1,3 +1,5 @@
+print("Module schema_bdd chargé avec succès.")
+
 composantes_bdd = {
     "feuilles_roc": {"nom_fichier": "rgd_originel_completee_modifiee.xlsm", "feuilles": ["F_roc_modifiee", "F_parametres", "F_agregation"]},
     "feuilles_lexiques": {"nom_fichier": "lexiques.xlsx", "feuilles": ["F_definition_cles_repartitions", "F_lexique_batrub", "F_lexique_bat", "F_lexique_rub", "F_lexique_typ",

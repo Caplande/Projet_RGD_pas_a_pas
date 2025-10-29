@@ -9,11 +9,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 import pandas as pd
 import variables_path as vc
-from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1
+from src.utils import u_sql_1 as u1
 
 print("Module u_sql_2 chargé avec succès.")
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')  # type: ignore
 
 
 def synoptique_1(engine, Base):
@@ -1049,8 +1049,8 @@ def mettre_a_niveau_t_base_data():
     # supprimer_colonnes("t_base_data", ["debut_periode", "fin_periode"])
 
     # 3) Creer et valoriser colonne cle
-    u_sql_1.creer_colonnes("t_base_data", {"cle": "TEXT"})
-    u_sql_1
+    u1.creer_colonnes("t_base_data", {"cle": "TEXT"})
+    u1
     maj_cle_sha256("t_base_data", vc.composantes_cle)
 
     # 4) Créer et valoriser colonne groupe

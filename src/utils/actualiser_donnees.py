@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import tkinter as tk
 from tkinter import messagebox
 import variables_path as vc
-from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3, synoptique as synopt
+from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3, synoptique as synopt
 
 print("Module actualiser_donnees chargé avec succès.")
 

@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
-import variables_path as vc
+import variables_path as config
 
 print("Module menu chargé avec succès.")
 

@@ -11,7 +11,7 @@ from typing import Sequence, List, Union
 import tkinter as tk
 from tkinter import ttk
 import variables_path as vc
-from src.utils import u_sql_3 as u_sql_3, u_gen
+from src.utils import u_sql_3 as u_sql_3
 
 
 def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Historique (par TYP) vue_typ.pdf"):

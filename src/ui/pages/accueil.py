@@ -1,5 +1,7 @@
 from tkinter import ttk
 
+print("Module accueil chargé avec succès.")
+
 
 class AccueilPage:
     def __init__(self, parent, context):

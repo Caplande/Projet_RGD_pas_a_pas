@@ -3,7 +3,7 @@ from tkinter import ttk
 import sqlite3
 import json
 import variables_path as vc  # adapte si besoin
-from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
+from src.utils import u_sql_1 as u_sql_1
 
 
 """

@@ -3,7 +3,7 @@
 from pathlib import Path
 from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
 
-print("Module variables_communes chargé avec succès.")
+print("Module variables_path chargé avec succès.")
 
 
 REP_DEFAUT = Path.cwd()
@@ -16,6 +16,9 @@ REP_BDD = REP_DEFAUT / "data" / "bdd.sqlite"
 
 print(f"VC_3 ---> Version SQLAlchemy {__version__}")
 
+REP_RESULTATS = REP_DEFAUT / "resultats"
+
+REP_DATA = REP_DEFAUT / "data"
 
 try:
     DATABASE_URL = f"sqlite:///{REP_BDD.resolve()}"
