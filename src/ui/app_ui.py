@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from .menu import MonMenu
-from src.ui.pages.accueil import AccueilPage
+from src.ui.pages.accueil_page import AccueilPage
 import parametres as config
+from parametres import PALETTES
 
 print("Module app_ui chargé avec succès.")
 
@@ -17,11 +18,18 @@ class AppUi(tk.Tk):
         self.title(
             f"Copropriété Monica - Exploitation du relevé général des dépenses (version:{context.version})")
         self.geometry("1200x800")
-        self.configure(bg="white")
-
-        # Menu principal
-        monmenu = MonMenu(self, context)
-        self.config(menu=monmenu.menubar)
+        # self.configure(bg="white")
+        # Ajout des frames à l'intérieur de self (fenetre)
+        # 1) Menu principal
+        mon_menu = MonMenu(self, context)
+        self.config(menu=mon_menu.menubar)
+        # 2) Pages
+        self.page_accueil = AccueilPage(self, context)
+        self.page_general = GeneralPage(self, context)
+        self.page_maj = MiseAJourPage(self, context)
+        self.page_edition = EditionPage(self, context)
+        self.page_qualite = QualiteBasePage(self, context)
+        self.page_affichage = AffichagePage(self, context)
 
         # Contenu de base
         self.label_status = tk.Label(
@@ -98,6 +106,28 @@ class AppUi(tk.Tk):
         self.appliquer_palette(self, palette)
 
     # --- Transition douce ---
+    def changer_palette(self):
+        frame = tk.Frame(self)
+        frame.pack(padx=20, pady=20)
+
+        tk.Label(frame, text="Mode clair / sombre").pack(pady=10)
+        ttk.Entry(frame).pack(fill="x", pady=5)
+        ttk.Combobox(frame, values=["Option 1", "Option 2"]).pack(
+            fill="x", pady=5)
+        bouton_theme = ttk.Button(frame, text="Changer de thème")
+        bouton_theme.pack(pady=15)
+
+        # État
+        theme_actuel = {"palette": config.PALETTE_SOMBRE}
+        self.appliquer_theme(theme_actuel["palette"])
+
+        def toggle_theme():
+            if theme_actuel["palette"] == config.PALETTE_SOMBRE:
+                next_palette = config.PALETTE_CLAIRE
+            else:
+                next_palette = config.PALETTE_SOMBRE
+            self.transition_theme(theme_actuel["palette"], next_palette)
+            theme_actuel["palette"] = next_palette
 
     def transition_theme(self, start_palette, end_palette, steps=20, delay=20):
         """Fait un fondu de start_palette vers end_palette."""
@@ -125,35 +155,5 @@ def launch_ui(context):
 # --- Interface ---
 
 
-"""
-def main():
-    root = tk.Tk()
-    root.title("Bascule avec fondu")
-
-    frame = tk.Frame(root)
-    frame.pack(padx=20, pady=20)
-
-    tk.Label(frame, text="Mode clair / sombre").pack(pady=10)
-    ttk.Entry(frame).pack(fill="x", pady=5)
-    ttk.Combobox(frame, values=["Option 1", "Option 2"]).pack(fill="x", pady=5)
-    bouton_theme = ttk.Button(frame, text="Changer de thème")
-    bouton_theme.pack(pady=15)
-
-    # État
-    theme_actuel = {"palette": config.PALETTE_SOMBRE}
-    appliquer_theme(root, theme_actuel["palette"])
-
-    def toggle_theme():
-        if theme_actuel["palette"] == config.PALETTE_SOMBRE:
-            next_palette = config.PALETTE_CLAIRE
-        else:
-            next_palette = config.PALETTE_SOMBRE
-        transition_theme(root, theme_actuel["palette"], next_palette)
-        theme_actuel["palette"] = next_palette
-
-    bouton_theme.configure(command=toggle_theme)
-    root.mainloop()
-"""
-
 if __name__ == "__main__":
-    main()
+    pass

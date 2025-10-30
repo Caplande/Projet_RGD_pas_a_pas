@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import messagebox
 from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
 import variables_path as config
-
 print("Module menu chargé avec succès.")
 
 
@@ -28,6 +27,9 @@ class MonMenu:
 
         self.menu_v4 = tk.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Qualité de la base", menu=self.menu_v4)
+
+        self.menu_v5 = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Affichage", menu=self.menu_v5)
 
         # on garde les index de chaque item pour pouvoir les (dés)activer
         self.menu_v1.add_command(
@@ -57,6 +59,9 @@ class MonMenu:
         self.menu_v4.add_command(
             label="Statistiques de la base", command=lambda: self.executer_action("Statistiques de la base...", "40"))
 
+        self.menu_v5.add_command(
+            label="Affichage", command=lambda: self.executer_action("Affichage...", "50"))
+
     def executer_action(self, message, index_menu):
         match index_menu:
             case "10":
@@ -75,6 +80,8 @@ class MonMenu:
                 res.ed_spec_par_groupe()
             case "40":
                 sy.afficher_table()
+            case "50:
+                "    
             case _:
                 messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 
@@ -83,4 +90,4 @@ class MonMenu:
 
 
 if __name__ == "__main__":
-    afficher_menu()
+    pass
