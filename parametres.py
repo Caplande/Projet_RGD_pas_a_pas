@@ -6,7 +6,7 @@ print("Module parametres chargé avec succès.")
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 MODE_DEBUG = True
-VERSION = "1.2.0"
+VERSION = "1.0.0"
 
 # Ensemble de couleurs harmonieux
 # Option 1

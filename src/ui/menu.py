@@ -8,38 +8,26 @@ import variables_path as config
 print("Module menu chargé avec succès.")
 
 
-def build_menu(root, context):
-    menubar = tk.Menu(root)
-
-    fichier_menu = tk.Menu(menubar, tearoff=0)
-    fichier_menu.add_command(label="Quitter", command=root.quit)
-    menubar.add_cascade(label="Fichier", menu=fichier_menu)
-
-    root.config(menu=menubar)
-    return menubar
-
-
-"""
 class MonMenu:
-    def __init__(self, root):
+    def __init__(self, root, context):
         self.root = root
+        self.context = context
+        self.menubar = tk.Menu(self.root)
+        self.root.config(menu=self.menubar)
         self.creer_menu()
 
     def creer_menu(self):
-        menubar = tk.Menu(self.root)
-        self.root.config(menu=menubar)
+        self.menu_v1 = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Général", menu=self.menu_v1)
 
-        self.menu_v1 = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Général", menu=self.menu_v1)
+        self.menu_v2 = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Mise à jour", menu=self.menu_v2)
 
-        self.menu_v2 = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Mise à jour", menu=self.menu_v2)
+        self.menu_v3 = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Edition", menu=self.menu_v3)
 
-        self.menu_v3 = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Edition", menu=self.menu_v3)
-
-        self.menu_v4 = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Qualité de la base", menu=self.menu_v4)
+        self.menu_v4 = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Qualité de la base", menu=self.menu_v4)
 
         # on garde les index de chaque item pour pouvoir les (dés)activer
         self.menu_v1.add_command(
@@ -72,7 +60,7 @@ class MonMenu:
     def executer_action(self, message, index_menu):
         match index_menu:
             case "10":
-                u_gen.fermer_projet()
+                self.root.quit()
             case "20":
                 ad.actualiser_bdd('actualiser_bdd_executer')
             case "21":
@@ -92,7 +80,6 @@ class MonMenu:
 
     def bidon(self):
         messagebox.showinfo("Action", "bidon...")
-"""
 
 
 if __name__ == "__main__":

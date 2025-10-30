@@ -38,7 +38,7 @@ class AppContext:
 
         # Autres variables partagées (optionnelles)
         self.mode_debug = getattr(config, "MODE_DEBUG", False)
-        self.version = getattr(config, "VERSION", "1.0.0")
+        self.version = getattr(config, "VERSION", "xxx.x.x")
 
 
 # Singleton : une seule instance réutilisable partout
