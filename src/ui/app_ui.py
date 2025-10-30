@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from .menu import MonMenu
 from src.ui.pages.accueil_page import AccueilPage
+from src.ui.pages.general_page import GeneralPage
+from src.ui.pages.mise_a_jour_page import MiseAJourPage
+from src.ui.pages.edition_page import EditionPage
+from src.ui.pages.qualite_base_page import QualiteBasePage
+from src.ui.pages.affichage_page import AffichagePage
 import parametres as config
 from parametres import PALETTES
 
