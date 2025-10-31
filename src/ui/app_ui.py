@@ -13,7 +13,7 @@ print("Module app_ui chargé avec succès.")
 
 
 class AppUi(tk.Tk):
-    """Fenêtre principale de l'application."""
+    """Fenêtre principale de l'application (root)."""
 
     def __init__(self, context):
         super().__init__()
@@ -34,29 +34,26 @@ class AppUi(tk.Tk):
             page = P(self, context)
             # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
             self.pages[P.__name__] = page
-            page.place(relwidth=1, relheight=1)
-        self.afficher_page("AccueilPage")
-        # Contenu de base
-        self.label_status = tk.Label(
-            self,
-            text=f"Base connectée : {context.db_path.name}",
-            bg="white",
-            fg="gray"
-        )
-        self.label_status.pack(pady=10)
 
+        # Contenu de base
+        # Affichage de la barre de statut
+        self.fr_statut = tk.Frame(self, height=300, bg='blue')
+        self.fr_statut.pack(side="bottom", fill="x")
+        label_statut = tk.Label(
+            self.fr_statut,
+            text=f"Base connectée : {context.db_path.name}",
+            anchor="w"
+        )
+        label_statut.pack(side="left", padx=10)
+        # Affichage de la page d'accueil par défaut
+        self.afficher_page("AccueilPage")
         # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-
-    def on_close(self):
-        """Ferme proprement l'application."""
-        print("Fermeture de la connexion à la base…")
-        self.context.db.close()
-        self.destroy()
 
     def afficher_page(self, nom_page):
         """Affiche la page demandée"""
         page = self.pages[nom_page]
+        self.pages[nom_page].pack(side="top", fill="both", expand=True)
         page.lift()
     # --- Fonctions utilitaires de couleurs---
 
@@ -114,7 +111,13 @@ class AppUi(tk.Tk):
         self.styliser_ttk(palette)
         self.appliquer_palette(self, palette)
 
+    def on_close(self):
+        """Ferme proprement l'application."""
+        print("Fermeture de la connexion à la base…")
+        self.context.db.close()
+        self.destroy()
     # --- Transition douce ---
+
     def changer_palette(self, context):
         frame = tk.Frame(self)
         frame.pack(padx=20, pady=20)

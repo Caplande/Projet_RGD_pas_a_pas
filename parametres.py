@@ -65,3 +65,50 @@ PALETTES = {
         "valide": "#81c784",        # vert tendre qui s’accorde bien au mauve
     }
 }
+
+POLICES = {
+    'POLICE_GESTION': {
+        "titre": ("Segoe UI", 18, "bold"),         # clair, pro
+        "soustitre": ("Segoe UI", 14, "italic"),   # hiérarchie douce
+        "texte": ("Segoe UI", 11, "normal"),       # texte standard
+        # lisible sur petit format
+        "bouton": ("Segoe UI", 10, "bold"),
+        # police à chasse fixe pour états ou logs
+        "statut": ("Consolas", 10, "normal"),
+    },
+    'POLICE_MODERNE_1': {
+        "titre": ("Roboto", 18, "bold"),         # clair, pro
+        "soustitre": ("Roboto", 14, "italic"),   # hiérarchie douce
+        "texte": ("Roboto", 11, "normal"),       # texte standard
+        "bouton": ("Roboto", 10, "bold"),        # lisible sur petit format
+        # police à chasse fixe pour états ou logs
+        "statut": ("Consolas", 10, "normal"),
+    },
+    'POLICE_MODERNE_2': {
+        "titre": ("Noto Sans", 18, "bold"),         # clair, pro
+        "soustitre": ("Noto Sans", 14, "italic"),   # hiérarchie douce
+        "texte": ("Noto Sans", 11, "normal"),       # texte standard
+        # lisible sur petit format
+        "bouton": ("Noto Sans", 10, "bold"),
+        # police à chasse fixe pour états ou logs
+        "statut": ("Consolas", 10, "normal"),
+    },
+    'POLICE_DOUCE_1': {
+        "titre": ("Calibri", 18, "bold"),         # clair, pro
+        "soustitre": ("Calibri", 14, "italic"),   # hiérarchie douce
+        "texte": ("Calibri", 11, "normal"),       # texte standard
+        # lisible sur petit format
+        "bouton": ("Calibri", 10, "bold"),
+        # police à chasse fixe pour états ou logs
+        "statut": ("Consolas", 10, "normal"),
+    },
+    'POLICE_DOUCE_2': {
+        "titre": ("Gill Sans", 18, "bold"),         # clair, pro
+        "soustitre": ("Gill Sans", 14, "italic"),   # hiérarchie douce
+        "texte": ("Gill Sans", 11, "normal"),       # texte standard
+        # lisible sur petit format
+        "bouton": ("Gill Sans", 10, "bold"),
+        # police à chasse fixe pour états ou logs
+        "statut": ("Consolas", 10, "normal"),
+    }
+}

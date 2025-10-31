@@ -25,6 +25,7 @@ class AppContext:
         self.nom_application = getattr(
             config, "NOM_APPLICATION", "a déterminer")
         self.palettes = getattr(config, "PALETTES", {})
+        self.polices = getattr(config, "POLICES", {})
         # Dossiers structurants
         self.paths = {
             # "sources": self.root_dir / "sources",

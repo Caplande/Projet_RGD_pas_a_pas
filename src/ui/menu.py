@@ -2,13 +2,16 @@ import sys
 import os
 import tkinter as tk
 from tkinter import messagebox
-from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
+from src.core import actualiser_donnees as ad, edit_speciales as e_s, reinitialiser_bdd as rb, synoptique as sy
+from src.core import resultats as res
 import src.core.variables_metier_path as config
 
 print("Module menu chargé avec succès.")
 
 
 class MonMenu:
+    """Le menu est attaché à la fenêtre principale (root)."""
+
     def __init__(self, root, context):
         self.root = root
         self.context = context

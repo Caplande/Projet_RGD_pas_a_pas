@@ -2,8 +2,9 @@ from sqlalchemy import create_engine, MetaData, update, inspect, text
 from sqlalchemy.orm import Session
 import tkinter as tk
 from tkinter import messagebox
+from src.core import synoptique as synopt
 import src.core.variables_metier_path as vc
-from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3, synoptique as synopt
+from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 print("Module actualiser_donnees chargé avec succès.")
 
