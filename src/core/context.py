@@ -1,7 +1,7 @@
 from pathlib import Path
 import tkinter as tk
 import parametres as config
-import variables_path as paths
+import src.core.variables_metier_path as paths
 from .data import Database  # ta classe qui gère SQLite
 
 
@@ -19,6 +19,12 @@ class AppContext:
         # Racine du projet (un cran au-dessus de /src)
         # self.root_dir = Path(__file__).resolve().parents[2]
         paths.REP_DEFAUT
+        # Constantes descriptives de l'application
+        self.mode_debug = getattr(config, "MODE_DEBUG", False)
+        self.version = getattr(config, "VERSION", "xxx.x.x")
+        self.nom_application = getattr(
+            config, "NOM_APPLICATION", "a déterminer")
+        self.palettes = getattr(config, "PALETTES", {})
         # Dossiers structurants
         self.paths = {
             # "sources": self.root_dir / "sources",
@@ -36,12 +42,8 @@ class AppContext:
         # Instance de base de données
         self.db = Database(self.db_path)
 
-        # Autres variables partagées (optionnelles)
-        self.mode_debug = getattr(config, "MODE_DEBUG", False)
-        self.version = getattr(config, "VERSION", "xxx.x.x")
 
-
-# Singleton : une seule instance réutilisable partout
+# Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py
 app_context = AppContext()
 
 if __name__ == '__main__':

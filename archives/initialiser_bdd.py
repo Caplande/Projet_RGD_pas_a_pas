@@ -1,4 +1,4 @@
-import variables_path as vc
+import src.core.variables_metier_path as vc
 import src.utils.modeles as modl
 from src.utils import u_gen as u_gen, u_sql_1 as u_sql_1
 from sqlalchemy import create_engine, MetaData, update, inspect

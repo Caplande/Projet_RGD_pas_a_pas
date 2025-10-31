@@ -3,7 +3,7 @@
 from pathlib import Path
 from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ignore
 
-print("Module variables_path chargé avec succès.")
+print("Module variables_metier_path chargé avec succès.")
 
 
 REP_DEFAUT = Path.cwd()

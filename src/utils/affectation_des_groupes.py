@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import sqlite3
-import variables_path as vc
+import src.core.variables_metier_path as vc
 from src.utils import u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 # --- Configuration de la Base de Données ---

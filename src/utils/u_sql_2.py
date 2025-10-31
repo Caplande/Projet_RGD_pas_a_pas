@@ -8,7 +8,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 import pandas as pd
-import variables_path as vc
+import src.core.variables_metier_path as vc
 from src.utils import u_sql_1 as u1
 
 print("Module u_sql_2 chargé avec succès.")

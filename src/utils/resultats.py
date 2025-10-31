@@ -10,7 +10,7 @@ from PyPDF2 import PdfReader
 from typing import Sequence, List, Union
 import tkinter as tk
 from tkinter import ttk
-import variables_path as vc
+import src.core.variables_metier_path as vc
 from src.utils import u_sql_3 as u_sql_3
 
 

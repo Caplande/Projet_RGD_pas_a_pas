@@ -3,7 +3,8 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from src.utils import reinitialiser_bdd as rb, actualiser_donnees as ad, synoptique as sy, resultats as res, edit_speciales as e_s
-import variables_path as config
+import src.core.variables_metier_path as config
+
 print("Module menu chargé avec succès.")
 
 
@@ -65,6 +66,7 @@ class MonMenu:
     def executer_action(self, message, index_menu):
         match index_menu:
             case "10":
+                self.root.afficher_page("GeneralPage")
                 self.root.quit()
             case "20":
                 ad.actualiser_bdd('actualiser_bdd_executer')
@@ -80,8 +82,8 @@ class MonMenu:
                 res.ed_spec_par_groupe()
             case "40":
                 sy.afficher_table()
-            case "50:
-                "    
+            case "50":
+                pass
             case _:
                 messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 

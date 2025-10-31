@@ -7,8 +7,7 @@ from src.ui.pages.mise_a_jour_page import MiseAJourPage
 from src.ui.pages.edition_page import EditionPage
 from src.ui.pages.qualite_base_page import QualiteBasePage
 from src.ui.pages.affichage_page import AffichagePage
-import parametres as config
-from parametres import PALETTES
+
 
 print("Module app_ui chargé avec succès.")
 
@@ -21,21 +20,22 @@ class AppUi(tk.Tk):
         self.context = context
 
         self.title(
-            f"Copropriété Monica - Exploitation du relevé général des dépenses (version:{context.version})")
+            f"{context.nom_application} (version:{context.version})")
         self.geometry("1200x800")
         # self.configure(bg="white")
-        # Ajout des frames à l'intérieur de self (fenetre)
+        # Ajout des widgets (menu,frames etc...) à l'intérieur de self (fenetre)
         # 1) Menu principal
         mon_menu = MonMenu(self, context)
-        self.config(menu=mon_menu.menubar)
+        self.configure(menu=mon_menu.menubar)
         # 2) Pages
-        self.page_accueil = AccueilPage(self, context)
-        self.page_general = GeneralPage(self, context)
-        self.page_maj = MiseAJourPage(self, context)
-        self.page_edition = EditionPage(self, context)
-        self.page_qualite = QualiteBasePage(self, context)
-        self.page_affichage = AffichagePage(self, context)
-
+        self.pages = {}
+        for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
+                  QualiteBasePage, AffichagePage):
+            page = P(self, context)
+            # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
+            self.pages[P.__name__] = page
+            page.place(relwidth=1, relheight=1)
+        self.afficher_page("AccueilPage")
         # Contenu de base
         self.label_status = tk.Label(
             self,
@@ -45,7 +45,7 @@ class AppUi(tk.Tk):
         )
         self.label_status.pack(pady=10)
 
-        # Gestion de la fermeture
+        # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def on_close(self):
@@ -54,6 +54,10 @@ class AppUi(tk.Tk):
         self.context.db.close()
         self.destroy()
 
+    def afficher_page(self, nom_page):
+        """Affiche la page demandée"""
+        page = self.pages[nom_page]
+        page.lift()
     # --- Fonctions utilitaires de couleurs---
 
     def hex_to_rgb(self, hex_code):
@@ -111,7 +115,7 @@ class AppUi(tk.Tk):
         self.appliquer_palette(self, palette)
 
     # --- Transition douce ---
-    def changer_palette(self):
+    def changer_palette(self, context):
         frame = tk.Frame(self)
         frame.pack(padx=20, pady=20)
 
@@ -123,14 +127,14 @@ class AppUi(tk.Tk):
         bouton_theme.pack(pady=15)
 
         # État
-        theme_actuel = {"palette": config.PALETTE_SOMBRE}
+        theme_actuel = {"palette": context.palettes["PALETTE_SOMBRE"]}
         self.appliquer_theme(theme_actuel["palette"])
 
         def toggle_theme():
-            if theme_actuel["palette"] == config.PALETTE_SOMBRE:
-                next_palette = config.PALETTE_CLAIRE
+            if theme_actuel["palette"] == context.palettes["PALETTE_SOMBRE"]:
+                next_palette = context.palettes["PALETTE_CLAIRE"]
             else:
-                next_palette = config.PALETTE_SOMBRE
+                next_palette = context.palettes["PALETTE_SOMBRE"]
             self.transition_theme(theme_actuel["palette"], next_palette)
             theme_actuel["palette"] = next_palette
 

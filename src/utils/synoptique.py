@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 import json
-import variables_path as vc  # adapte si besoin
+import src.core.variables_metier_path as vc  # adapte si besoin
 from src.utils import u_sql_1 as u_sql_1
 
 

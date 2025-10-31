@@ -6,7 +6,7 @@ import sqlite3
 import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
 from sqlalchemy.orm import Session, declarative_base, mapper, class_mapper, sessionmaker
-import variables_path as vc
+import src.core.variables_metier_path as vc
 
 
 print("Module u_sql_1 chargé avec succès.")

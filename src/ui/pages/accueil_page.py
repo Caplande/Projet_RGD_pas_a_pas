@@ -1,9 +1,12 @@
 from tkinter import ttk
-
+import tkinter as tk
+from parametres import NOM_APPLICATION, PALETTES
 print("Module accueil chargé avec succès.")
 
 
-class AccueilPage:
+class AccueilPage(tk.Frame):
     def __init__(self, parent, context):
-        label = ttk.Label(parent, text="Bienvenue dans l'application")
+        super().__init__(parent)
+        label = ttk.Label(
+            self, text=f"Bienvenue dans l'application {NOM_APPLICATION}")
         label.pack(padx=20, pady=20)

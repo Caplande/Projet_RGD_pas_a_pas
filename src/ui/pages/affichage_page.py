@@ -1,9 +1,11 @@
 from tkinter import ttk
+import tkinter as tk
 
-print("Module accueil chargé avec succès.")
+print("Module affichage chargé avec succès.")
 
 
-class AffichagePage:
+class AffichagePage(tk.Frame):
     def __init__(self, parent, context):
-        label = ttk.Label(parent, text="Bienvenue dans l'application")
-        label.pack(padx=20, pady=20)
+        super().__init__(parent)
+        label = ttk.Label(
+            parent, text="Paramétrer les couleurs des widgets d'affichage")

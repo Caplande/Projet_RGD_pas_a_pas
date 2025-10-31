@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 import re
 from datetime import datetime
-import variables_path as vc
+import src.core.variables_metier_path as vc
 from src.utils import u_sql_1 as u1, u_sql_2 as u2
 import tkinter as tk
 from tkinter import messagebox

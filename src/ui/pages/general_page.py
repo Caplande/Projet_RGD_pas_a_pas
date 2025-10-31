@@ -1,9 +1,11 @@
 from tkinter import ttk
+import tkinter as tk
 
-print("Module accueil chargé avec succès.")
+print("Module general_page chargé avec succès.")
 
 
-class GeneralPage:
+class GeneralPage(tk.Frame):
     def __init__(self, parent, context):
-        label = ttk.Label(parent, text="Bienvenue dans l'application")
+        super().__init__(parent)
+        label = ttk.Label(parent, text="Menu général de l'application")
         label.pack(padx=20, pady=20)
