@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from parametres import PALETTE, POLICE
 
-style = ttk.Style()
-
 
 def definir_theme_global():
     """Crée et applique un thème ttk global basé sur les variables PALETTES et POLICES du projet."""

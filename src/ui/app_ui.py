@@ -25,6 +25,8 @@ class AppUi(tk.Tk):
         self.geometry("1200x800")
 
         # Les styles
+        # Appliquer le thème global
+        style = definir_theme_global()
 
         # Création du menu principal
         mon_menu = MonMenu(self, context)
@@ -50,6 +52,11 @@ class AppUi(tk.Tk):
         label_statut.pack(side="left", padx=10)
         # Affichage de la page d'accueil par défaut
         self.afficher_page("AccueilPage")
+
+        # **********************************************************
+        # self.after(2000, lambda: style.configure(
+        #    "TFrame", background="yellow"))
+        # **********************************************************
 
         # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
