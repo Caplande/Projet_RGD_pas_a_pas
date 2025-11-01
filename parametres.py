@@ -10,6 +10,8 @@ MODE_DEBUG = True
 VERSION = "1.0.0"
 NOM_APPLICATION = "Copropriété Monica - Exploitation du relevé général des dépenses"
 
+
+# Sélectionner en bas de module la PALETTEet la POLICE sélectionnées pour l'application
 # Ensemble de couleurs harmonieux
 PALETTES = {
     "palette_moderne": {
@@ -21,6 +23,7 @@ PALETTES = {
         "hover_bouton": "#b0bec5",  # gris bleuté au survol
         "erreur": "#e74c3c",        # rouge vif pour signaler
         "valide": "#27ae60",        # vert apaisant
+        "secondaire": "#7f8c8d",    # gris bleuté apaisant
     },
 
     "palette_claire": {
@@ -32,6 +35,7 @@ PALETTES = {
         "hover_bouton": "#f0b974",  # plus chaud au survol
         "erreur": "#f44747",        # rouge doux pour signaler
         "valide": "#4ec9b0",        # vert bleuté apaisant
+        "secondaire": "#7f8c8d",    # gris bleuté apaisant
     },
 
     "palette_sombre": {
@@ -43,6 +47,7 @@ PALETTES = {
         "hover_bouton": "#3e3e42",  # un peu plus clair au survol
         "erreur": "#f44747",        # rouge doux pour signaler
         "valide": "#4ec9b0",        # vert bleuté apaisant
+        "secondaire": "#7f8c8d",    # gris bleuté apaisant
     },
     "palette_bleue_pastel": {
         "fond": "#f2f7fb",          # bleu très clair, presque blanc
@@ -53,6 +58,7 @@ PALETTES = {
         "hover_bouton": "#b3d2eb",  # un ton au-dessus pour le survol
         "erreur": "#e57373",        # rouge rosé adouci
         "valide": "#81c784",        # vert pastel harmonieux
+        "secondaire": "#7f8c8d",    # gris bleuté apaisant
     },
     "palette_mauve_pastel": {
         "fond": "#f8f4fa",          # mauve très clair, presque blanc
@@ -63,11 +69,12 @@ PALETTES = {
         "hover_bouton": "#c8b0dc",  # légèrement plus soutenu au survol
         "erreur": "#e57373",        # rouge rosé, toujours doux
         "valide": "#81c784",        # vert tendre qui s’accorde bien au mauve
+        "secondaire": "#7f8c8d",    # gris bleuté apaisant
     }
 }
 
 POLICES = {
-    'POLICE_GESTION': {
+    'police_gestion': {
         "titre": ("Segoe UI", 18, "bold"),         # clair, pro
         "soustitre": ("Segoe UI", 14, "italic"),   # hiérarchie douce
         "texte": ("Segoe UI", 11, "normal"),       # texte standard
@@ -76,7 +83,7 @@ POLICES = {
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
     },
-    'POLICE_MODERNE_1': {
+    'police_moderne_1': {
         "titre": ("Roboto", 18, "bold"),         # clair, pro
         "soustitre": ("Roboto", 14, "italic"),   # hiérarchie douce
         "texte": ("Roboto", 11, "normal"),       # texte standard
@@ -84,7 +91,7 @@ POLICES = {
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
     },
-    'POLICE_MODERNE_2': {
+    'police_moderne_2': {
         "titre": ("Noto Sans", 18, "bold"),         # clair, pro
         "soustitre": ("Noto Sans", 14, "italic"),   # hiérarchie douce
         "texte": ("Noto Sans", 11, "normal"),       # texte standard
@@ -93,7 +100,7 @@ POLICES = {
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
     },
-    'POLICE_DOUCE_1': {
+    'police_douce_1': {
         "titre": ("Calibri", 18, "bold"),         # clair, pro
         "soustitre": ("Calibri", 14, "italic"),   # hiérarchie douce
         "texte": ("Calibri", 11, "normal"),       # texte standard
@@ -102,7 +109,7 @@ POLICES = {
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
     },
-    'POLICE_DOUCE_2': {
+    'police_douce_2': {
         "titre": ("Gill Sans", 18, "bold"),         # clair, pro
         "soustitre": ("Gill Sans", 14, "italic"),   # hiérarchie douce
         "texte": ("Gill Sans", 11, "normal"),       # texte standard
@@ -112,3 +119,6 @@ POLICES = {
         "statut": ("Consolas", 10, "normal"),
     }
 }
+
+PALETTE = PALETTES["palette_moderne"]
+POLICE = POLICES["police_moderne_1"]

@@ -4,7 +4,7 @@ import tkinter as tk
 print("Module general_page chargé avec succès.")
 
 
-class GeneralPage(tk.Frame):
+class GeneralPage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.label = ttk.Label(self, text="Menu général de l'application")

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from .menu import MonMenu
+from .theme_global import definir_theme_global
 from src.ui.pages.accueil_page import AccueilPage
 from src.ui.pages.general_page import GeneralPage
 from src.ui.pages.mise_a_jour_page import MiseAJourPage
@@ -22,12 +23,14 @@ class AppUi(tk.Tk):
         self.title(
             f"{context.nom_application} (version:{context.version})")
         self.geometry("1200x800")
-        # self.configure(bg="white")
-        # Ajout des widgets (menu,frames etc...) à l'intérieur de self (fenetre)
-        # 1) Menu principal
+
+        # Les styles
+
+        # Création du menu principal
         mon_menu = MonMenu(self, context)
         self.configure(menu=mon_menu.menubar)
-        # 2) Pages
+
+        # Création des pages
         self.pages = {}
         for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
                   QualiteBasePage, AffichagePage):
@@ -35,7 +38,7 @@ class AppUi(tk.Tk):
             # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
             self.pages[P.__name__] = page
 
-        # Contenu de base
+        # Affichage initial: frame de statut: fr_statut et page d'accueil: AccueilPage
         # Affichage de la barre de statut
         self.fr_statut = tk.Frame(self, height=300, bg='blue')
         self.fr_statut.pack(side="bottom", fill="x")
@@ -47,8 +50,18 @@ class AppUi(tk.Tk):
         label_statut.pack(side="left", padx=10)
         # Affichage de la page d'accueil par défaut
         self.afficher_page("AccueilPage")
+
         # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def appliquer_style(self, frame, style_map):
+        """Applique un style aux widgets d'un frame donné (simulateur d'héritage)."""
+        for child in frame.winfo_children():
+            cls = child.winfo_class()
+            if isinstance(child, ttk.Label):
+                child.configure(style=style_map.get("Label", "TLabel"))
+            elif isinstance(child, ttk.Button):
+                child.configure(style=style_map.get("Button", "TButton"))
 
     def afficher_page(self, nom_page):
         """Affiche la page demandée"""

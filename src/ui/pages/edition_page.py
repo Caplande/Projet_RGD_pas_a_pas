@@ -4,7 +4,7 @@ import tkinter as tk
 print("Module edition chargé avec succès.")
 
 
-class EditionPage(tk.Frame):
+class EditionPage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.label = ttk.Label(self, text="Menu d'édition")

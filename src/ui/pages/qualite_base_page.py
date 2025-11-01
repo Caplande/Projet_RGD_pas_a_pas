@@ -4,7 +4,7 @@ import tkinter as tk
 print("Module qualite_base_page chargé avec succès.")
 
 
-class QualiteBasePage(tk.Frame):
+class QualiteBasePage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.label = ttk.Label(self, text="Menu de qualité de la base")

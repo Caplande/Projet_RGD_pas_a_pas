@@ -3,11 +3,11 @@ import tkinter as tk
 print("Module accueil chargé avec succès.")
 
 
-class AccueilPage(tk.Frame):
+class AccueilPage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.bg = 'green'
-        self.configure(bg=self.bg)
+        # self.configure(bg=self.bg)
         self.label = ttk.Label(
             self,
             text=f"Bienvenue dans l'application {context.nom_application}",

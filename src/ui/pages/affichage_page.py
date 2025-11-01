@@ -4,7 +4,7 @@ import tkinter as tk
 print("Module affichage chargé avec succès.")
 
 
-class AffichagePage(tk.Frame):
+class AffichagePage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.label = ttk.Label(

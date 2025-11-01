@@ -4,7 +4,7 @@ import tkinter as tk
 print("Module mise_a_jour chargé avec succès.")
 
 
-class MiseAJourPage(tk.Frame):
+class MiseAJourPage(ttk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.label = ttk.Label(self, text="Menu de mise à jour")
