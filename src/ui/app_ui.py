@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from .menu import MonMenu
+import parametres as config
 from .theme_global import definir_theme_global
 from src.ui.pages.accueil_page import AccueilPage
 from src.ui.pages.general_page import GeneralPage

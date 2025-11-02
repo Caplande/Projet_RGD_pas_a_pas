@@ -9,5 +9,11 @@
 "python.formatting.provider": "black",
 "editor.formatOnSave": true,
 "python.analysis.autoImportCompletions": true,
-"python.analysis.typeCheckingMode": "standard"
+"python.analysis.typeCheckingMode": "standard",
+"python.defaultInterpreterPath": "C:\\mes_dossiers_synchronises\\projet_rgd_pas_a_pas\\mon_envrt\\Scripts\\python.exe",
+"code-runner.executorMap": {
+    "python": "C:\\mes_dossiers_synchronises\\projet_rgd_pas_a_pas\\mon_envrt\\Scripts\\python.exe"
+}
+}
+
 }

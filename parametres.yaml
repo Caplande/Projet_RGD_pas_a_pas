@@ -1,0 +1,101 @@
+PALETTES:
+  palette_moderne:
+    fond: "#f5f6fa" # gris très clair
+    accent: "#4078c0" # bleu moyen
+    texte: "#2c3e50" # gris anthracite
+    fond_cadre: "#eaecef" # gris doux
+    fond_bouton: "#d5d8dc" # gris clair
+    hover_bouton: "#b0bec5" # gris bleuté au survol
+    erreur: "#e74c3c" # rouge vif pour signaler
+    valide: "#27ae60" # vert apaisant
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#164A2C" # vert très foncé pour la barre d'état
+
+  palette_claire:
+    fond: "#fffaf0" # ivoire
+    accent: "#e67e22" # orange doux
+    texte: "#3b3b3b" # gris foncé
+    fond_cadre: "#fcefe3" # beige clair
+    fond_bouton: "#f9d7a0" # sable
+    hover_bouton: "#f0b974" # plus chaud au survol
+    erreur: "#f44747" # rouge doux pour signaler
+    valide: "#4ec9b0" # vert bleuté apaisant
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#3E2723" # brun foncé pour la barre d'état
+
+  palette_sombre:
+    fond: "#1e1e1e" # gris très foncé (fond général)
+    accent: "#569cd6" # bleu doux pour les éléments actifs
+    texte: "#d4d4d4" # gris clair pour le texte
+    fond_cadre: "#252526" # léger contraste avec le fond
+    fond_bouton: "#2d2d30" # ton moyen pour boutons
+    hover_bouton: "#3e3e42" # un peu plus clair au survol
+    erreur: "#f44747" # rouge doux pour signaler
+    valide: "#4ec9b0" # vert bleuté apaisant
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#0B3D2E" # vert foncé pour la barre d'état
+
+  palette_bleue_pastel:
+    fond: "#f2f7fb" # bleu très clair, presque blanc
+    accent: "#7daed3" # bleu pastel principal
+    texte: "#2e3a46" # gris bleuté foncé pour la lisibilité
+    fond_cadre: "#e1edf6" # bleu très pâle pour les zones encadrées
+    fond_bouton: "#c9def0" # bleu-gris léger
+    hover_bouton: "#b3d2eb" # un ton au-dessus pour le survol
+    erreur: "#e57373" # rouge rosé adouci
+    valide: "#81c784" # vert pastel harmonieux
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#0B3D2E" # vert foncé pour la barre d'état
+
+  palette_mauve_pastel:
+    fond: "#f8f4fa" # mauve très clair, presque blanc
+    accent: "#b79ad4" # mauve pastel principal
+    texte: "#332f3b" # gris violacé foncé pour le contraste
+    fond_cadre: "#ece3f3" # lavande pâle pour les encadrés
+    fond_bouton: "#d9c7e6" # mauve clair pour les boutons
+    hover_bouton: "#c8b0dc" # légèrement plus soutenu au survol
+    erreur: "#e57373" # rouge rosé, toujours doux
+    valide: "#81c784" # vert tendre qui s’accorde bien au mauve
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#3E2723" # brun foncé pour la barre d'état
+
+POLICES:
+  police_gestion:
+    titre: ["Segoe UI", 18, "bold"] # clair, pro
+    soustitre: ["Segoe UI", 14, "italic"] # hiérarchie douce
+    texte: ["Segoe UI", 11, "normal"] # texte standard
+    bouton: ["Segoe UI", 10, "bold"] # lisible sur petit format
+    statut: ["Consolas", 10, "normal"] # police à chasse fixe pour états ou logs
+    barre_etat: ["Segoe UI", 8, "normal"] # petite police pour la barre d'état
+
+  police_moderne_1:
+    titre: ["Roboto", 18, "bold"]
+    soustitre: ["Roboto", 14, "italic"]
+    texte: ["Roboto", 11, "normal"]
+    bouton: ["Roboto", 10, "bold"]
+    statut: ["Consolas", 10, "normal"]
+    barre_etat: ["Roboto", 8, "normal"]
+
+  police_moderne_2:
+    titre: ["Noto Sans", 18, "bold"]
+    soustitre: ["Noto Sans", 14, "italic"]
+    texte: ["Noto Sans", 11, "normal"]
+    bouton: ["Noto Sans", 10, "bold"]
+    statut: ["Consolas", 10, "normal"]
+    barre_etat: ["Noto Sans", 8, "normal"]
+
+  police_douce_1:
+    titre: ["Calibri", 18, "bold"]
+    soustitre: ["Calibri", 14, "italic"]
+    texte: ["Calibri", 11, "normal"]
+    bouton: ["Calibri", 10, "bold"]
+    statut: ["Consolas", 10, "normal"]
+    barre_etat: ["Calibri", 8, "normal"]
+
+  police_douce_2:
+    titre: ["Gill Sans", 18, "bold"]
+    soustitre: ["Gill Sans", 14, "italic"]
+    texte: ["Gill Sans", 11, "normal"]
+    bouton: ["Gill Sans", 10, "bold"]
+    statut: ["Consolas", 10, "normal"]
+    barre_etat: ["Gill Sans", 8, "normal"]
