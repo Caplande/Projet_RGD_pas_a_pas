@@ -26,36 +26,49 @@ class AppUi(tk.Tk):
 
         # Les styles
         # Appliquer le thème global
+        # Affecte le thème global TFrame à tous les frames, TLabel à tous les labels etc...
         style = definir_theme_global()
 
         # Création du menu principal
         mon_menu = MonMenu(self, context)
         self.configure(menu=mon_menu.menubar)
 
+        # Création d'un Frame central pour accueillir les pages
+        self.fr_centre = ttk.Frame(self)
+        self.fr_centre.pack(side="top", fill="both", expand=True)
+
+        # Affichage initial: frame de statut: fr_statut et page d'accueil: AccueilPage
+        # Affichage de la barre de statut fr_statut
+        self.fr_statut = ttk.Frame(
+            self, height=25, style="FondBarreEtat.TFrame")
+        # Empêcher le redimensionnement automatique
+        self.fr_statut.pack_propagate(False)
+        self.fr_statut.pack(side="bottom", fill="x")
+        label_statut = ttk.Label(
+            self.fr_statut,
+            text=f"Base connectée : {context.db_path.name}",
+            anchor="w", style="LabelBarreEtat.TLabel"
+        )
+        # **********************************************************
+        # self.after(2000, lambda: style.configure(
+        #    "TLabel", background="yellow"))
+        # **********************************************************
+
+        label_statut.pack(side="left", padx=10)
+
+        # Affichage de la page d'accueil par défaut
         # Création des pages
         self.pages = {}
         for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
                   QualiteBasePage, AffichagePage):
-            page = P(self, context)
+            page = P(self.fr_centre, context)
             # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
             self.pages[P.__name__] = page
-
-        # Affichage initial: frame de statut: fr_statut et page d'accueil: AccueilPage
-        # Affichage de la barre de statut
-        self.fr_statut = tk.Frame(self, height=300, bg='blue')
-        self.fr_statut.pack(side="bottom", fill="x")
-        label_statut = tk.Label(
-            self.fr_statut,
-            text=f"Base connectée : {context.db_path.name}",
-            anchor="w"
-        )
-        label_statut.pack(side="left", padx=10)
-        # Affichage de la page d'accueil par défaut
         self.afficher_page("AccueilPage")
 
         # **********************************************************
         # self.after(2000, lambda: style.configure(
-        #    "TFrame", background="yellow"))
+        #    "TLabel", font=("Arial", 22, "bold")))
         # **********************************************************
 
         # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
@@ -71,10 +84,11 @@ class AppUi(tk.Tk):
                 child.configure(style=style_map.get("Button", "TButton"))
 
     def afficher_page(self, nom_page):
-        """Affiche la page demandée"""
+        for p in self.pages.values():
+            p.pack_forget()
         page = self.pages[nom_page]
-        self.pages[nom_page].pack(side="top", fill="both", expand=True)
-        page.lift()
+        page.pack(fill="both", expand=True)
+
     # --- Fonctions utilitaires de couleurs---
 
     def hex_to_rgb(self, hex_code):

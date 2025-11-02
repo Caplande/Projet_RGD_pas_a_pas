@@ -24,6 +24,8 @@ class AppContext:
         self.version = getattr(config, "VERSION", "xxx.x.x")
         self.nom_application = getattr(
             config, "NOM_APPLICATION", "a déterminer")
+        self.nom_court = getattr(
+            config, "NOM_COURT", "a déterminer")
         self.palettes = getattr(config, "PALETTES", {})
         self.polices = getattr(config, "POLICES", {})
         # Dossiers structurants

@@ -27,11 +27,12 @@ def definir_theme_global():
     texte = get_palette('texte', "#2c3e50")
     fond_cadre = get_palette('fond_cadre', "#999999")
     erreur = get_palette('erreur', "#ee2f2f")
+    fond_barre_etat = get_palette('barre_etat', "#0B3D2E")
     secondaire = get_palette('secondaire', "#7f8c8d")
     font_normale = get_police('texte', ("Segoe UI", 10))
     font_titre = get_police('titre', ("Segoe UI", 12, "bold"))
     font_bouton = get_police('bouton', font_normale)
-
+    font_barre_etat = get_police('barre_etat', ("Segoe UI", 9, "normal"))
     # --- Styles de base ---
     # === Styles généraux ===
     style.configure("TFrame", background=fond)
@@ -53,6 +54,19 @@ def definir_theme_global():
 
     # === Variantes ===
     # Label de titre
+    style.configure("FondBarreEtat.TFrame",
+                    background=fond_barre_etat,
+                    relief="flat")
+    style.configure("LabelBarreEtat.TLabel",
+                    background=fond_barre_etat,
+                    foreground="white",
+                    font=font_barre_etat)
+    style.configure("Accueil.TFrame",
+                    background=fond,
+                    borderwidth=2)
+    style.configure("Accueil.TLabel",
+                    font=("Helvetica", 16, "bold"),
+                    foreground="#16073B")
     style.configure("Titre.TLabel",
                     font=font_titre,
                     foreground=accent,

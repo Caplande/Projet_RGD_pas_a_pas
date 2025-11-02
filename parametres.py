@@ -9,7 +9,7 @@ print(f"Locale définie sur : {locale.getlocale(locale.LC_TIME)}")
 MODE_DEBUG = True
 VERSION = "1.0.0"
 NOM_APPLICATION = "Copropriété Monica - Exploitation du relevé général des dépenses"
-
+NOM_COURT = "Exploitation du RGD Monica"
 
 # Sélectionner en bas de module la PALETTEet la POLICE sélectionnées pour l'application
 # Ensemble de couleurs harmonieux
@@ -24,6 +24,7 @@ PALETTES = {
         "erreur": "#e74c3c",        # rouge vif pour signaler
         "valide": "#27ae60",        # vert apaisant
         "secondaire": "#7f8c8d",    # gris bleuté apaisant
+        "barre_etat": "#164A2C"     # vert très foncé pour la barre d'état
     },
 
     "palette_claire": {
@@ -36,6 +37,7 @@ PALETTES = {
         "erreur": "#f44747",        # rouge doux pour signaler
         "valide": "#4ec9b0",        # vert bleuté apaisant
         "secondaire": "#7f8c8d",    # gris bleuté apaisant
+        "barre_etat": "#3E2723"     # brun foncé pour la barre d'état
     },
 
     "palette_sombre": {
@@ -48,6 +50,7 @@ PALETTES = {
         "erreur": "#f44747",        # rouge doux pour signaler
         "valide": "#4ec9b0",        # vert bleuté apaisant
         "secondaire": "#7f8c8d",    # gris bleuté apaisant
+        "barre_etat": "#0B3D2E"     # vert foncé pour la barre d'état
     },
     "palette_bleue_pastel": {
         "fond": "#f2f7fb",          # bleu très clair, presque blanc
@@ -59,6 +62,7 @@ PALETTES = {
         "erreur": "#e57373",        # rouge rosé adouci
         "valide": "#81c784",        # vert pastel harmonieux
         "secondaire": "#7f8c8d",    # gris bleuté apaisant
+        "barre_etat": "#0B3D2E"     # vert foncé pour la barre d'état
     },
     "palette_mauve_pastel": {
         "fond": "#f8f4fa",          # mauve très clair, presque blanc
@@ -70,6 +74,7 @@ PALETTES = {
         "erreur": "#e57373",        # rouge rosé, toujours doux
         "valide": "#81c784",        # vert tendre qui s’accorde bien au mauve
         "secondaire": "#7f8c8d",    # gris bleuté apaisant
+        "barre_etat": "#3E2723"     # brun foncé pour la barre d'état
     }
 }
 
@@ -82,6 +87,8 @@ POLICES = {
         "bouton": ("Segoe UI", 10, "bold"),
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
+        # petite police pour la barre d'état
+        "barre_etat": ("Segoe UI", 8, "normal"),
     },
     'police_moderne_1': {
         "titre": ("Roboto", 18, "bold"),         # clair, pro
@@ -90,6 +97,8 @@ POLICES = {
         "bouton": ("Roboto", 10, "bold"),        # lisible sur petit format
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
+        # petite police pour la barre d'état
+        "barre_etat": ("Roboto", 8, "normal"),
     },
     'police_moderne_2': {
         "titre": ("Noto Sans", 18, "bold"),         # clair, pro
@@ -99,6 +108,8 @@ POLICES = {
         "bouton": ("Noto Sans", 10, "bold"),
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
+        # petite police pour la barre d'état
+        "barre_etat": ("Noto Sans", 8, "normal"),
     },
     'police_douce_1': {
         "titre": ("Calibri", 18, "bold"),         # clair, pro
@@ -108,6 +119,8 @@ POLICES = {
         "bouton": ("Calibri", 10, "bold"),
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
+        # petite police pour la barre d'état
+        "barre_etat": ("Calibri", 8, "normal"),
     },
     'police_douce_2': {
         "titre": ("Gill Sans", 18, "bold"),         # clair, pro
@@ -117,6 +130,8 @@ POLICES = {
         "bouton": ("Gill Sans", 10, "bold"),
         # police à chasse fixe pour états ou logs
         "statut": ("Consolas", 10, "normal"),
+        # petite police pour la barre d'état
+        "barre_etat": ("Gill Sans", 8, "normal"),
     }
 }
 

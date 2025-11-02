@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from src.ui.theme_global import definir_theme_global
+from src.ui.pages.accueil_page import AccueilPage
 
 
 """
@@ -30,27 +31,23 @@ def main():
     # Appliquer le thème global
     style = definir_theme_global()
 
-    # --- Widgets de démonstration ---
-    frame_principal = ttk.Frame(root, padding=20)
-    frame_principal.pack(fill="both", expand=True)
+    # Création d'un Frame central pour accueillir les pages
+    fr_centre = ttk.Frame(root)
+    fr_centre.pack(side="top", fill="both", expand=True)
 
-    titre = ttk.Label(
-        frame_principal, text="Interface harmonisée", style="Titre.TLabel")
-    titre.pack(pady=10)
-
-    label = ttk.Label(frame_principal, text="Ceci est un label normal.")
-    label.pack(pady=5)
-
-    entry = ttk.Entry(frame_principal)
-    entry.pack(pady=5, fill="x")
-
-    bouton = ttk.Button(frame_principal, text="Valider")
-    bouton.pack(pady=15)
-
-    cadre = ttk.Frame(frame_principal, style="Cadre.TFrame", padding=10)
-    cadre.pack(fill="both", expand=True, pady=10)
-
-    ttk.Label(cadre, text="Cadre stylé").pack()
+    fr_statut = ttk.Frame(root, height=30, style="BarreEtat.TFrame")
+    fr_statut.pack(side="bottom", fill="x")
+    """
+    label_statut = ttk.Label(
+        fr_statut,
+        text="Base connectée : exemple.db",
+        anchor="w", style="LabelBarreEtat.TFrame"
+    )
+    label_statut.pack(side="left", padx=10)
+    """
+    accueil_page = AccueilPage(
+        fr_centre, {"nom_application": "abcd des carottes et des navets"})
+    accueil_page.pack(fill="both", expand=True)
 
     root.mainloop()
 
