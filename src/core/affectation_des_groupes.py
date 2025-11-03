@@ -2,15 +2,15 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import sqlite3
-import src.core.variables_metier_path as vc
+from src.core.context import context as ctxt
 from src.utils import u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 # --- Configuration de la Base de Données ---
-CHEMIN_BDD = vc.REP_BDD
-NOM_TABLE = 't_base_data'
-NOM_TABLE_GROUPES = 't_liste_groupes'  # Nouvelle table de référence
-COLONNE_A_EDITER = 'groupe'
-COLONNE_IDENTIFIANT_UNIQUE = 'cle'
+chemin_bdd = ctxt.rep_bdd
+nom_table = 't_base_data'
+nom_table_groupes = 't_liste_groupes'  # Nouvelle table de référence
+colonne_a_editer = 'groupe'
+colonne_identifiant_unique = 'cle'
 
 
 class GroupeValorisationApp:
@@ -21,28 +21,28 @@ class GroupeValorisationApp:
 
         # Dictionnaire de configuration des largeurs
         self.largeurs_colonnes = {
-            COLONNE_IDENTIFIANT_UNIQUE: 0, 'exercice': 60, 'batrub': 60, 'typ': 50,
+            colonne_identifiant_unique: 0, 'exercice': 60, 'batrub': 60, 'typ': 50,
             'typ_tit': 100, 'libelle': 300, 'reference': 120, 'nom_fournisseur': 200,
-            'montant': 70, COLONNE_A_EDITER: 150,
+            'montant': 70, colonne_a_editer: 150,
         }
 
         self.groupes_valides = self._recuperer_groupes_valides()
 
         self.requete_select = f"""
             SELECT 
-                {COLONNE_IDENTIFIANT_UNIQUE}, exercice, batrub, typ, typ_tit, libelle, reference, nom_fournisseur,montant, {COLONNE_A_EDITER} 
+                {colonne_identifiant_unique}, exercice, batrub, typ, typ_tit, libelle, reference, nom_fournisseur,montant, {colonne_a_editer} 
             FROM 
-                {NOM_TABLE} 
+                {nom_table} 
             WHERE 
-                {COLONNE_A_EDITER} IS NULL OR {COLONNE_A_EDITER} = ''
+                {colonne_a_editer} IS NULL OR {colonne_a_editer} = ''
             ORDER BY 
                 exercice, libelle, typ_tit, nom_fournisseur
         """
 
         self.requete_count = f"""
             SELECT COUNT(*) 
-            FROM {NOM_TABLE} 
-            WHERE {COLONNE_A_EDITER} IS NULL OR {COLONNE_A_EDITER} = ''
+            FROM {nom_table} 
+            WHERE {colonne_a_editer} IS NULL OR {colonne_a_editer} = ''
         """
 
         # Variables d'état pour la gestion de l'édition
@@ -61,10 +61,10 @@ class GroupeValorisationApp:
         # (Méthode inchangée - lit les groupes valides)
         conn = None
         try:
-            conn = sqlite3.connect(CHEMIN_BDD)
+            conn = sqlite3.connect(chemin_bdd)
             cur = conn.cursor()
             cur.execute(
-                f"SELECT groupe FROM {NOM_TABLE_GROUPES} ORDER BY groupe")
+                f"SELECT groupe FROM {nom_table_groupes} ORDER BY groupe")
             return [row[0] for row in cur.fetchall()]
         except sqlite3.Error as e:
             print(
@@ -78,10 +78,10 @@ class GroupeValorisationApp:
         # (Méthode inchangée - mise à jour BDD)
         conn = None
         try:
-            conn = sqlite3.connect(CHEMIN_BDD)
+            conn = sqlite3.connect(chemin_bdd)
             cur = conn.cursor()
 
-            requete_update = f"UPDATE {NOM_TABLE} SET {COLONNE_A_EDITER} = ? WHERE {COLONNE_IDENTIFIANT_UNIQUE} = ?"
+            requete_update = f"UPDATE {nom_table} SET {colonne_a_editer} = ? WHERE {colonne_identifiant_unique} = ?"
             cur.execute(requete_update, (new_groupe_value, cle_value))
 
             conn.commit()
@@ -97,7 +97,7 @@ class GroupeValorisationApp:
         # (Méthode inchangée - comptage des lignes)
         conn = None
         try:
-            conn = sqlite3.connect(CHEMIN_BDD)
+            conn = sqlite3.connect(chemin_bdd)
             cur = conn.cursor()
             cur.execute(self.requete_count)
             return cur.fetchone()[0]
@@ -156,7 +156,7 @@ class GroupeValorisationApp:
         # (Méthode inchangée - chargement des données)
         conn = None
         try:
-            conn = sqlite3.connect(CHEMIN_BDD)
+            conn = sqlite3.connect(chemin_bdd)
             cur = conn.cursor()
 
             cur.execute(self.requete_select)
@@ -308,7 +308,7 @@ class GroupeValorisationApp:
             return
 
         try:
-            index_colonne_groupe = self.tree["columns"].index(COLONNE_A_EDITER)
+            index_colonne_groupe = self.tree["columns"].index(colonne_a_editer)
         except ValueError:
             return
 
@@ -326,7 +326,7 @@ class GroupeValorisationApp:
         col_index_groupe = index_colonne_groupe
         current_text = current_values[col_index_groupe]
 
-        cle_col_index = self.tree["columns"].index(COLONNE_IDENTIFIANT_UNIQUE)
+        cle_col_index = self.tree["columns"].index(colonne_identifiant_unique)
         cle_value = current_values[cle_col_index]
 
         # 1. CRÉATION DU ENTRY EDITOR
@@ -368,9 +368,9 @@ def saisie_automatique():
 
 
 # --- Configuration de la Base de Données ---
-NOM_TABLE_DATA = 't_base_data'
-NOM_TABLE_CRITERES = 't_criteres_groupe'
-COLONNE_A_EDITER = 'groupe'
+nom_table_data = 't_base_data'
+nom_table_criteres = 't_criteres_groupe'
+colonne_a_editer = 'groupe'
 
 
 def mise_a_jour_groupe_par_criteres(table_data, table_criteres, colonne_groupe):
@@ -386,7 +386,7 @@ def mise_a_jour_groupe_par_criteres(table_data, table_criteres, colonne_groupe):
     """
     conn = None
     try:
-        conn = sqlite3.connect(CHEMIN_BDD)
+        conn = sqlite3.connect(chemin_bdd)
         cur = conn.cursor()
 
         # 1. Lire tous les critères et les noms de groupe
@@ -461,7 +461,7 @@ if __name__ == '__main__':
     # u_sql_2.nettoyer_table('t_base_data')
     print("\n--- Début de la Mise à Jour ---")
     mise_a_jour_groupe_par_criteres(
-        NOM_TABLE_DATA,
-        NOM_TABLE_CRITERES,
-        COLONNE_A_EDITER
+        nom_table_data,
+        nom_table_criteres,
+        colonne_a_editer
     )

@@ -8,7 +8,8 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 import pandas as pd
-import src.core.variables_metier_path as vc
+from src.core.context import context as ctxt
+import src.core.variables_metier as vm
 from src.utils import u_sql_1 as u1
 
 print("Module u_sql_2 chargé avec succès.")
@@ -219,7 +220,7 @@ def inventaire_complet(engine, Base):
 
 
 def lister_tables_reelles():
-    insp = inspect(vc.engine)
+    insp = inspect(ctxt.engine)
     # Tables réelles
     return set(insp.get_table_names())
 
@@ -282,7 +283,7 @@ def inventaire_1(engine, Base):
 def maj_metadata():
     global metadata
     metadata = MetaData()
-    metadata.reflect(bind=vc.engine)
+    metadata.reflect(bind=ctxt.engine)
     print("Metadata mis à jour")
     return metadata
 
@@ -290,7 +291,7 @@ def maj_metadata():
 def vider_table(nom_table):
     if nom_table in lister_tables_reelles():
         table = metadata.tables[nom_table]
-        with vc.engine.begin() as conn:
+        with ctxt.engine.begin() as conn:
             conn.execute(delete(table))  # supprime toutes les lignes
         print(f"La table '{nom_table}' a été vidée.")
     else:
@@ -302,7 +303,7 @@ def supprimer_table(nom_table):
     maj_metadata()
     if nom_table in metadata.tables:
         table = metadata.tables[nom_table]
-        table.drop(vc.engine, checkfirst=True)
+        table.drop(ctxt.engine, checkfirst=True)
         metadata = maj_metadata()
         print(f"La table '{nom_table}' a été supprimée.")
     else:
@@ -326,7 +327,7 @@ def a_une_pk(db_path, table_name):
 
 
 def promouvoir_ou_ajouter_id_en_pk(table_name):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     # Récupérer la structure de la table
@@ -391,7 +392,7 @@ def creer_classes_manquantes():
 
     # Préparer l'automap AVANT d'accéder à Base.classes
     # surcharge de la fonction de nommage
-    Base.prepare(autoload_with=vc.engine,
+    Base.prepare(autoload_with=ctxt.engine,
                  classname_for_table=classname_for_table)
 
     # Extraire les classes mappées
@@ -506,7 +507,7 @@ def copier_donnees_sql(table_src, table_dst, mapping, conversions=None):
     sql = u_gen.purifier_sql(sql)
     print(f"SQL après purification: {sql}")
 
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     conn.execute(sql)
 
     # Suppression de la table source
@@ -519,7 +520,7 @@ def normer_noms_colonnes():
     Norme les noms des colonnes de la table data dans la table "tampon_data"
     """
 
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     # Récupérer la structure de la table tampon_data
@@ -532,7 +533,7 @@ def normer_noms_colonnes():
     # Créer une nouvelle liste de colonnes normalisées
     new_cols = []
     for name in cols:
-        new_cols.append(vc.mapping_tampon_data[name])
+        new_cols.append(vm.mapping_tampon_data[name])
 
     for old, new in zip(cols, new_cols):
         # les anciens noms non conformes doivent être entourés de guillemets doubles
@@ -549,9 +550,9 @@ def normer_types_colonnes(dry_run=False, l_tables=None):
     Normalise les types de colonnes de toutes les tables SQLite selon le lexique fourni.
     Si dry_run=True, affiche les modifications sans toucher à la base.
     """
-    lexique = vc.lexique_colonnes_types
+    lexique = vm.lexique_colonnes_types
 
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     if not l_tables:
@@ -613,8 +614,8 @@ def adjoindre_pk(l_tables=None):
       - crée une clé primaire sur 'id' si la table n'en a pas déjà
       - conserve les types et contraintes des autres colonnes
     """
-    l_tables = l_tables if l_tables else vc.l_tables_source
-    conn = sqlite3.connect(vc.REP_BDD)
+    l_tables = l_tables if l_tables else vm.l_tables_source
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     for table in l_tables:
@@ -678,7 +679,7 @@ def adjoindre_pk(l_tables=None):
 
 
 def remplacer_nulls_toutes_tables(l_tables=None):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     if not l_tables:
@@ -712,11 +713,11 @@ def maj_cle_et_creer_lexique():
     Les deux colonnes groupe et cle de t_base_data sont ensuite copiées dans les colonnes du même nom de t_lexique_cles
     Cet enchainenemnt signifie qu'il ne faut jamais mettre à jour directement t_lexique_cles mais passer par l'intermédiaire de t_base_data
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     # récupération des noms de colonnes composant la clé
-    colonnes_cle = vc.composantes_cle
+    colonnes_cle = vm.composantes_cle
 
     # Vérifier que les colonnes existent dans t_base_data
     cur.execute("PRAGMA table_info(t_base_data)")
@@ -768,7 +769,7 @@ def maj_cle_et_creer_lexique():
 
 
 def formater_bat_rub_typ(l_tables):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
     for table in l_tables:
         # Vérifier que la table contient bien les colonnes à formater
@@ -790,7 +791,7 @@ def formater_bat_rub_typ(l_tables):
 
 
 def table_existe(nom_table):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.execute(
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?;",
         (nom_table,)
@@ -804,7 +805,7 @@ class TableInexistanteError(Exception):
 
 
 def compter_lignes(nom_table, cdtn=None, annee=None):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     cursor.execute(
@@ -856,7 +857,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     Returns:
         _type_: _description_
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     # 1. Supprimer si déjà existante
@@ -865,7 +866,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     # 2. Créer la table cible selon le dictionnaire avec id en PK
     colonnes_def = ", ".join(
         [f"{col} {typ} PRIMARY KEY" if col == "id" else f"{col} {typ}"
-         for col, typ in vc.colonnes_t_base_data.items()]
+         for col, typ in vm.colonnes_t_base_data.items()]
     )
     cursor.execute(f"CREATE TABLE t_base_data ({colonnes_def})")
 
@@ -882,7 +883,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
     lignes_par_source = {}
     for table_source in [table_source1, table_source2]:
         cols_src = colonnes_table(table_source)
-        colonnes_cibles = list(vc.colonnes_t_base_data.keys())
+        colonnes_cibles = list(vm.colonnes_t_base_data.keys())
 
         select_expr = []
         # on retire 'id' des colonnes cibles
@@ -893,7 +894,7 @@ def creer_peupler_table_fusion(table_source1, table_source2):
             if col in cols_src:
                 select_expr.append(col)
             else:
-                type_col = vc.colonnes_t_base_data[col].upper()
+                type_col = vm.colonnes_t_base_data[col].upper()
                 if any(t in type_col for t in types_numeriques):
                     select_expr.append(f"0 AS {col}")
                 else:
@@ -939,7 +940,7 @@ def maj_cle_sha256(nom_table, l_colonnes_composantes):
         return
 
     try:
-        conn = sqlite3.connect(vc.REP_BDD)
+        conn = sqlite3.connect(ctxt.rep_bdd)
         cur = conn.cursor()
 
         # Vérifie si la colonne 'cle' existe, sinon la crée
@@ -981,7 +982,7 @@ def maj_groupe_avec_lexique_cles(nom_table):
     La colonne 'groupe' est créée si elle n'existe pas.
     Les tables sont liées par la colonne 'cle'.
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     # Vérifie que la table existe
@@ -1025,7 +1026,7 @@ def mettre_a_niveau_t_base_data():
     """Il s'agit de creer une colonne exercice - supprimer les colonnes debut_periode et fin_periode - 
     creer et valoriser colonne clé - creer et valoriser colonne groupe - ajouter les colonnes bat_tit_yp, rub_tit_yp, typ_tit_yp
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     # 1) Creer colonne exercice
@@ -1051,7 +1052,7 @@ def mettre_a_niveau_t_base_data():
     # 3) Creer et valoriser colonne cle
     u1.creer_colonnes("t_base_data", {"cle": "TEXT"})
     u1
-    maj_cle_sha256("t_base_data", vc.composantes_cle)
+    maj_cle_sha256("t_base_data", vm.composantes_cle)
 
     # 4) Créer et valoriser colonne groupe
     maj_groupe_avec_lexique_cles("t_base_data")
@@ -1062,7 +1063,7 @@ def verifier_tables_existent(liste_tables):
     Vérifie la présence de toutes les tables de liste_tables dans la base SQLite.
     Retourne un dictionnaire {nom_table: True/False}.
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     resultat = {}
@@ -1087,7 +1088,7 @@ def modifier_types_colonnes(nom_table):
     Les colonnes non mentionnées dans le dictionnaire restent inchangées.
     """
 
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     # Récupération du schéma actuel
@@ -1102,7 +1103,7 @@ def modifier_types_colonnes(nom_table):
     # Construction du nouveau schéma
     nouveau_schema = []
     for nom_col, type_col in colonnes_existantes.items():
-        nouveau_type = vc.lexique_colonnes_types.get(nom_col, type_col)
+        nouveau_type = vm.lexique_colonnes_types.get(nom_col, type_col)
         nouveau_schema.append(f'"{nom_col}" {nouveau_type}')
 
     colonnes_ordre = list(colonnes_existantes.keys())
@@ -1129,7 +1130,7 @@ def renommer_table(nom_old, nom_new):
     Renomme une table SQLite de nom_old vers nom_new.
     Crée une erreur si la table d'origine n'existe pas ou si la nouvelle existe déjà.
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cursor = conn.cursor()
 
     # Vérifie que la table d’origine existe
@@ -1153,7 +1154,7 @@ def renommer_table(nom_old, nom_new):
 
 
 def verifier_integrite_bdd():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
     cur.execute("PRAGMA integrity_check;")
     resultat = cur.fetchone()[0]
@@ -1170,7 +1171,7 @@ def generer_modeles(fichier_sortie):
     les classes SQLAlchemy correspondant aux tables existantes.
     """
     metadata = MetaData()
-    metadata.reflect(bind=vc.engine)
+    metadata.reflect(bind=ctxt.engine)
 
     lignes = [
         "from sqlalchemy import Column, Integer, Text, Float, Boolean, Date, DateTime, Numeric",
@@ -1207,7 +1208,7 @@ def numeroter_doublons_par_cle():
     - Si plusieurs lignes ont la même cle : 1, 2, 3, ...
     - Si une seule ligne a cette cle : 1
     """
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     conn.execute("UPDATE t_base_data SET rang_doublon = '';")
 
     # 1. Réinitialiser la colonne
@@ -1240,7 +1241,7 @@ def numeroter_doublons_par_cle():
 
 
 def ajouter_calculer_colonne_exercice_tampon_data():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     conn.execute("""
     ALTER TABLE tampon_data
     ADD COLUMN exercice TEXT(4);
@@ -1255,7 +1256,7 @@ def ajouter_calculer_colonne_exercice_tampon_data():
 
 
 def ajouter_colonne_batrub():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
     try:
         # ajoute la colonne si elle n'existe pas déjà
@@ -1278,7 +1279,7 @@ def ajouter_colonne_batrub():
 
 
 def correspondances():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
     sql = """SELECT COUNT(*) 
         FROM t_base_data tbd 
@@ -1293,7 +1294,7 @@ def correspondances():
 
 
 def nettoyer_table(nom_table):
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     # Récupérer les colonnes de type TEXT
@@ -1333,7 +1334,7 @@ def nettoyer_table(nom_table):
 # Exemple d'utilisation
 if __name__ == "__main__":
     # numeroter_doublons_par_cle()
-    # maj_cle_sha256("t_base_data", vc.composantes_cle)
+    # maj_cle_sha256("t_base_data", vm.composantes_cle)
     # maj_groupe_avec_lexique_cles("t_base_data")
     # ajouter_colonne_batrub()
     correspondances()

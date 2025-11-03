@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from parametres import PALETTE, POLICE
+from src.core.context import context as ctxt
 
 
 def definir_theme_global():
@@ -110,14 +110,14 @@ def _assombrir(couleur_hex, facteur):
 
 
 def get_palette(cle, defaut="#ffffff"):
-    valeur = PALETTE.get(cle, defaut)
-    if cle not in PALETTE:
+    valeur = ctxt.palette.get(cle, defaut)
+    if cle not in ctxt.palette:
         print(f"(défaut) {cle} = {defaut}")
     return valeur
 
 
 def get_police(cle, defaut=("Segoe UI", 10)):
-    valeur = POLICE.get(cle, defaut)
-    if cle not in POLICE:
+    valeur = ctxt.police.get(cle, defaut)
+    if cle not in ctxt.police:
         print(f"(défaut) {cle} = {defaut}")
     return valeur

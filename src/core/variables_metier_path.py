@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, MetaData, inspect, __version__  # type: ig
 print("Module variables_metier_path chargé avec succès.")
 
 
-REP_DEFAUT = Path.cwd()
+REP_DEFAUT = racine_projet = Path(__file__).resolve().parent.parent.parent
 print(f"VC_1 ---> Répertoire par défaut {REP_DEFAUT}")
 
 REP_SOURCE = REP_DEFAUT / "sources"
@@ -20,9 +20,10 @@ REP_RESULTATS = REP_DEFAUT / "resultats"
 
 REP_DATA = REP_DEFAUT / "data"
 
+ENGINE = None
 try:
-    DATABASE_URL = f"sqlite:///{REP_BDD.resolve()}"
-    engine = create_engine(DATABASE_URL)
+    database_url = f"sqlite:///{REP_BDD.resolve()}"
+    ENGINE = create_engine(database_url)
     print(f"VC_4 ---> Création de engine réussie")
 
 except Exception as e:

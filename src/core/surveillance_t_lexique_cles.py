@@ -1,12 +1,11 @@
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
-import src.core.variables_metier_path as vc
-from src.utils import u_sql_1 as u_sql_1, u_gen as u_gen
+from src.core.context import context as ctxt
 
 
 def creer_table_surveillance():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
     script = """
         CREATE TABLE t_signaux (
@@ -32,7 +31,7 @@ def creer_table_surveillance():
 
 
 def controle_modif():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
     rows = cur.execute("SELECT * FROM t_signaux").fetchall()
     if rows:

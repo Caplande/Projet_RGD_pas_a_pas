@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from pathlib import Path
 from .menu import MonMenu
 import parametres as config
 from .theme_global import definir_theme_global
@@ -47,7 +48,7 @@ class AppUi(tk.Tk):
         self.fr_statut.pack(side="bottom", fill="x")
         label_statut = ttk.Label(
             self.fr_statut,
-            text=f"Base connectée : {context.db_path.name}",
+            text=f"Base connectée : {Path(context.rep_bdd).name}",
             anchor="w", style="LabelBarreEtat.TLabel"
         )
         # **********************************************************

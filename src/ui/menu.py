@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 from src.core import actualiser_donnees as ad, edit_speciales as e_s, reinitialiser_bdd as rb, synoptique as sy
 from src.core import resultats as res
-import src.core.variables_metier_path as config
+
 
 print("Module menu chargé avec succès.")
 

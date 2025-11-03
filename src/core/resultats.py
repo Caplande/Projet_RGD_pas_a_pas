@@ -10,7 +10,7 @@ from PyPDF2 import PdfReader
 from typing import Sequence, List, Union
 import tkinter as tk
 from tkinter import ttk
-import src.core.variables_metier_path as vc
+from src.core.context import context as ctxt
 from src.utils import u_sql_3 as u_sql_3
 
 
@@ -30,7 +30,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Hist
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(vc.REP_BDD)
+        conn = sqlite3.connect(ctxt.rep_bdd)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -408,7 +408,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(vc.REP_BDD)
+        conn = sqlite3.connect(ctxt.rep_bdd)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -768,7 +768,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
 
 
 def choisir_un_typ():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()
@@ -807,7 +807,7 @@ def choisir_un_typ():
 
 
 def choisir_un_groupe():
-    conn = sqlite3.connect(vc.REP_BDD)
+    conn = sqlite3.connect(ctxt.rep_bdd)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()

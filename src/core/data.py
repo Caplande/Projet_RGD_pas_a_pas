@@ -4,22 +4,25 @@ import sqlite3
 import pandas as pd
 import re
 from datetime import datetime
-import src.core.variables_metier_path as vc
-from src.utils import u_sql_1 as u1, u_sql_2 as u2
 import tkinter as tk
 from tkinter import messagebox
+from src.core import variables_metier_path as vmp
 
 print("Module data chargé avec succès.")
 
 
 class Database:
-    def __init__(self, db_path):
-        self.db_path = db_path
+    """Une instance de DataBase fait partie des variables produites par context.py. 
+    Sous peine de créer une référence circulaire, il n'est donc pas possible d'utiliser une instance de AppContext
+    """
+
+    def __init__(self):
+        self.rep_bdd = vmp.REP_BDD
         self.connection = None
 
     def connect(self):
         if self.connection is None:
-            self.connection = sqlite3.connect(self.db_path)
+            self.connection = sqlite3.connect(self.rep_bdd)
         return self.connection
 
     def close(self):
@@ -41,7 +44,7 @@ class Database:
             try:
                 nom_table = "tampon_" + nom_feuille.lower() if nom_feuille in [
                     "data", "Parametres"] else "t_" + nom_feuille.lower()[2:]
-                df.to_sql(nom_table, con=vc.engine, index=True,
+                df.to_sql(nom_table, con=vmp.ENGINE, index=True,
                           index_label='id', if_exists="replace")
                 return nom_table
             except Exception as e:

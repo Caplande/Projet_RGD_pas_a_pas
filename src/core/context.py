@@ -1,8 +1,8 @@
 from pathlib import Path
 import tkinter as tk
 import parametres as config
-import src.core.variables_metier_path as paths
-from .data import Database  # ta classe qui gère SQLite
+import src.core.variables_metier_path as vmp
+from src.core.data import Database  # ta classe qui gère SQLite
 
 
 print("Module context chargé avec succès.")
@@ -16,9 +16,6 @@ class AppContext:
     """
 
     def __init__(self):
-        # Racine du projet (un cran au-dessus de /src)
-        # self.root_dir = Path(__file__).resolve().parents[2]
-        paths.REP_DEFAUT
         # Constantes descriptives de l'application
         self.mode_debug = getattr(config, "MODE_DEBUG", False)
         self.version = getattr(config, "VERSION", "xxx.x.x")
@@ -28,26 +25,30 @@ class AppContext:
             config, "NOM_COURT", "a déterminer")
         self.palettes = getattr(config, "PALETTES", {})
         self.polices = getattr(config, "POLICES", {})
+        self.palette = getattr(config, "PALETTE", {})
+        self.police = getattr(config, "POLICE", {})
         # Dossiers structurants
         self.paths = {
-            # "sources": self.root_dir / "sources",
-            # "resultats": self.root_dir / "resultats",
-            # "data": self.root_dir / "data",
-            "sources": paths.REP_SOURCE,
-            "resultats": paths.REP_RESULTATS,
-            "data": paths.REP_DATA
+            "defaut": vmp.REP_DEFAUT,
+            "sources": vmp.REP_SOURCE,
+            "resultats": vmp.REP_RESULTATS,
+            "data": vmp.REP_DATA  # répertoire bdd.sqlite
         }
 
         # Fichier de base de données
         # self.db_path = self.paths["data"] / "bdd.sqlite"
-        self.db_path = paths.REP_BDD
+        self.rep_bdd = vmp.REP_BDD
 
-        # Instance de base de données
-        self.db = Database(self.db_path)
+        # Création de l'instance de base de données et de toutes les fonctionnalités qui lui sont attachées
+        self.db = Database()
+
+        # Accès SQLITE à la base de données via SQLAlchemy
+        self.engine = vmp.ENGINE
 
 
 # Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py
 app_context = AppContext()
+context = app_context
 
 if __name__ == '__main__':
     liste_attributs = [attr for attr in dir(
