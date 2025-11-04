@@ -10,15 +10,24 @@ from src.ui.pages.mise_a_jour_page import MiseAJourPage
 from src.ui.pages.edition_page import EditionPage
 from src.ui.pages.qualite_base_page import QualiteBasePage
 from src.ui.pages.affichage_page import AffichagePage
-
+from colorama import Fore, Style
 
 print("Module app_ui chargé avec succès.")
+
+ecran = None
 
 
 class AppUi(tk.Tk):
     """Fenêtre principale de l'application (root)."""
+    nb_instances = 0
 
     def __init__(self, context):
+        # *******************
+        AppUi.nb_instances += 1
+        if AppUi.nb_instances > 1:
+            print(
+                Fore.RED + f"Nb instances AppUi = {AppUi.nb_instances}" + Style.RESET_ALL)
+        # *******************
         super().__init__()
         self.context = context
 
@@ -48,7 +57,7 @@ class AppUi(tk.Tk):
         self.fr_statut.pack(side="bottom", fill="x")
         label_statut = ttk.Label(
             self.fr_statut,
-            text=f"Base connectée : {Path(context.rep_bdd).name}",
+            text=f"Base connectée : {Path(context.path_bdd).name}",
             anchor="w", style="LabelBarreEtat.TLabel"
         )
         # **********************************************************
@@ -198,6 +207,7 @@ class AppUi(tk.Tk):
 def launch_ui(context):
     """Point d'entrée pour l'interface."""
     app = AppUi(context)  # Instance de tk.Tk()
+    ecran = app
     app.mainloop()
 
 # --- Interface ---

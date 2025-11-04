@@ -1,32 +1,32 @@
-from sqlalchemy import create_engine, MetaData, update, inspect, text
-from sqlalchemy.orm import Session
 import tkinter as tk
 from tkinter import messagebox
 from src.core.context import context as ctxt
-from src.core import variables_metier as vm
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
+from src.ui.app_ui import ecran
 
 print("Module reinitialiser_bdd chargé avec succès.")
 
 
-def reinitialiser_bdd_executer(context):
+def reinitialiser_bdd_executer():
+    # Afficher la page "mise_a_jour_page" de l'interface
+    ecran.afficher_page("MiseAJourPage")
     # 1) Supprimer toutes les tables
-    # Supprime toutes les tables
+    # Supprime toutes les tables et toutes les vues de la base de données
     u_sql_1.supprimer_toutes_tables()
-
+    u_sql_1.supprimer_toutes_vues()
     # 2) Initialiser les tables fondatrices
     # 2.1) Convertir les données Excel en tables SQLite
     # ex tac = {"nom_fichier": "rgd_originel_completee_modifiee.xlsm", "feuilles": ["F_roc_modifiee"]}
-    for famille, fac in vm.composantes_bdd_initialisation.items():  # fac feuilles à convertir
+    for famille, fac in ctxt.vm_composantes_bdd_initialisation.items():  # fac feuilles à convertir
         nom_classeur = fac["nom_fichier"]
-        ctxt.db.traiter_classeur(ctxt.paths['sources'] / nom_classeur)
+        ctxt.db.traiter_classeur(ctxt.dir_sources / nom_classeur)
     # 2.2) Recensement des tables nécessaires à l'initialisation
-    u_sql_2.verifier_tables_existent(vm.l_tables_source)
+    u_sql_2.verifier_tables_existent(ctxt.vm_l_tables_source)
     # 2.3) Normer les types des colonnes de toutes les tables
-    for nom_table in vm.l_tables_source:
+    for nom_table in ctxt.vm_l_tables_source:
         u_sql_2.modifier_types_colonnes(nom_table)
     # 2.4) Normer les valeurs bat, rub, typ de l'ensemble des tables
-    u_sql_2.formater_bat_rub_typ(vm.l_tables_source)
+    u_sql_2.formater_bat_rub_typ(ctxt.vm_l_tables_source)
     # 2.5) Eliminer toutes les valeurs Null de toutes les tables de la bdd
     u_sql_2.remplacer_nulls_toutes_tables()
     # 2.6) Ajouter PK à chacune des tables de la BDD
@@ -70,7 +70,3 @@ def reinitialiser_bdd(methode, *args, **kwargs):
 
 if __name__ == "__main__":
     reinitialiser_bdd(reinitialiser_bdd_executer)
-    # u_sql_2.adjoindre_pk()
-    # u_sql_2.creer_peupler_table_fusion(
-    #    table_source1="t_agregation", table_source2="t_roc_modifiee")
-    # u_sql_2.maj_cle_et_creer_lexique()

@@ -50,7 +50,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.reinitialiser_bdd",
+            "module": "src.core.reinitialiser_bdd",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
@@ -60,7 +60,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.actualiser_donnees",
+            "module": "src.core.actualiser_donnees",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
@@ -90,7 +90,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.affectation_des_groupes",
+            "module": "src.core.affectation_des_groupes",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
@@ -100,7 +100,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.resultats",
+            "module": "src.core.resultats",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
@@ -110,7 +110,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.synoptique",
+            "module": "src.core.synoptique",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },
@@ -120,7 +120,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "src.utils.surveillance_t_lexique_cles",
+            "module": "src.core.surveillance_t_lexique_cles",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"} 
         },

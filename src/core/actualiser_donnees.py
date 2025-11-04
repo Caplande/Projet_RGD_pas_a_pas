@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import messagebox
 from src.core.context import context as ctxt
 from src.core import synoptique as synopt
-import src.core.variables_metier as vm
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 print("Module actualiser_donnees chargé avec succès.")
@@ -33,9 +32,9 @@ def actualiser_bdd_executer():
     # 2.3) Convertir les données Excel en tables SQLite
     # ex fac = {"nom_fichier": "source_active.xlsm", "feuilles": ["data",F_parametres"]}
     # Cette étape conduit à la création des tables tampon_data (feuille data) et t_parametres (feuille parametre)
-    for famille, fac in vm.composantes_bdd_actualisation.items():  # fac feuilles à convertir
+    for famille, fac in ctxt.vm_composantes_bdd_actualisation.items():  # fac feuilles à convertir
         nom_classeur = fac["nom_fichier"]
-        ctxt.db.traiter_classeur(ctxt.paths["sources"] / nom_classeur)
+        ctxt.db.traiter_classeur(ctxt.dir_sources / nom_classeur)
 
     # 2.4) tampon_data: Normer tampon_data
     # 2.4.1) Normer les noms de colonnes de tampon_data
@@ -57,11 +56,11 @@ def actualiser_bdd_executer():
     # 2.5.1) Créer et peupler la colonne batrub
     u_sql_2.ajouter_colonne_batrub()
     # 2.5.2) Calcul de la colonne cle de la table t_base_data
-    u_sql_2.maj_cle_sha256("t_base_data", vm.composantes_cle)
+    u_sql_2.maj_cle_sha256("t_base_data", ctxt.vm_composantes_cle)
     # 2.5.3) Traiter les doublons dans t_base_data en numérotant la colonne rang_doublon
     u_sql_2.numeroter_doublons_par_cle()
     # 2.5.4) La colonne rang_doublon vient d'être valorisée, elle est composante du SHA256 de la cle. Il faut donc recalculer la cle
-    u_sql_2.maj_cle_sha256("t_base_data", vm.composantes_cle)
+    u_sql_2.maj_cle_sha256("t_base_data", ctxt.vm_composantes_cle)
     # 2.5.6) Affectation d'une valeur à la colonne groupe de t_base_data.
     # A ce stade, t_lexique_cles est complet
     u_sql_2.maj_groupe_avec_lexique_cles("t_base_data")

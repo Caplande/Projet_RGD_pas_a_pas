@@ -6,7 +6,7 @@ from src.core.context import context as ctxt
 from src.utils import u_sql_2 as u_sql_2, u_sql_3 as u_sql_3
 
 # --- Configuration de la Base de Données ---
-chemin_bdd = ctxt.rep_bdd
+chemin_bdd = ctxt.path_bdd
 nom_table = 't_base_data'
 nom_table_groupes = 't_liste_groupes'  # Nouvelle table de référence
 colonne_a_editer = 'groupe'

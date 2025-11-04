@@ -17,12 +17,12 @@ class Database:
     """
 
     def __init__(self):
-        self.rep_bdd = vmp.REP_BDD
+        self.path_bdd = vmp.REP_BDD
         self.connection = None
 
     def connect(self):
         if self.connection is None:
-            self.connection = sqlite3.connect(self.rep_bdd)
+            self.connection = sqlite3.connect(self.path_bdd)
         return self.connection
 
     def close(self):

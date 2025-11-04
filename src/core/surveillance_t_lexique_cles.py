@@ -5,7 +5,7 @@ from src.core.context import context as ctxt
 
 
 def creer_table_surveillance():
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
     script = """
         CREATE TABLE t_signaux (
@@ -31,7 +31,7 @@ def creer_table_surveillance():
 
 
 def controle_modif():
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
     rows = cur.execute("SELECT * FROM t_signaux").fetchall()
     if rows:

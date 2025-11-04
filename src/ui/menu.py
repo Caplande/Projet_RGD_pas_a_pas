@@ -72,9 +72,9 @@ class MonMenu:
                 self.root.afficher_page("GeneralPage")
                 self.root.quit()
             case "20":
-                ad.actualiser_bdd('actualiser_bdd_executer')
+                ad.actualiser_bdd(ad.actualiser_bdd_executer)
             case "21":
-                rb.reinitialiser_bdd('reinitialiser_bdd_executer')
+                rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
             case "30":
                 res.creer_pdf_pivot_hierarchique_vue_typ()
             case "31":

@@ -8,7 +8,6 @@ import hashlib
 from sqlalchemy import create_engine, MetaData, update, text, Table, select, func, String, inspect
 from sqlalchemy.orm import Session, declarative_base,  class_mapper, sessionmaker
 from src.core.context import context as ctxt
-import src.core.variables_metier as vm
 
 
 print("Module u_sql_1 chargé avec succès.")
@@ -45,6 +44,17 @@ def supprimer_toutes_tables(l_tables=None, l_excepte=None):
         conn.commit()
 
 
+def supprimer_toutes_vues():
+    with ctxt.engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='view';"))
+        vues = [row[0] for row in result.fetchall()]
+        for vue in vues:
+            conn.execute(text(f"DROP VIEW IF EXISTS {vue};"))
+            print(f"Vue {vue} supprimée.")
+        conn.commit()
+
+
 def lister_tables():
     with ctxt.engine.connect() as conn:
         result = conn.execute(
@@ -54,7 +64,7 @@ def lister_tables():
 
 
 def supprimer_colonne_toutes_tables(nom_colonne):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cursor = conn.cursor()
     cursor.execute("PRAGMA foreign_keys = OFF;")
     cursor.execute(
@@ -69,7 +79,7 @@ def supprimer_colonne_toutes_tables(nom_colonne):
 
 
 def renommer_colonne_pk_toutes_tables(ancien_nom, nouveau_nom):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cursor = conn.cursor()
     # Etablir la liste des tables
     cursor.execute("PRAGMA foreign_keys = OFF;")
@@ -85,7 +95,7 @@ def renommer_colonne_pk_toutes_tables(ancien_nom, nouveau_nom):
 
 
 def migrate_add_pk():
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cursor = conn.cursor()
 
     # Récupération des tables
@@ -95,7 +105,7 @@ def migrate_add_pk():
     conn.close()
 
     for table in tables:
-        conn = sqlite3.connect(ctxt.rep_bdd)
+        conn = sqlite3.connect(ctxt.path_bdd)
         cursor = conn.cursor()
         # On récupère la définition de la table
         cursor.execute(f"PRAGMA table_info({table});")
@@ -130,7 +140,7 @@ def migrate_add_pk():
 
 
 def renommer_une_colonne(nom_table, ancien_nom, nouveau_nom):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
     succes = True
     try:
@@ -146,9 +156,9 @@ def renommer_une_colonne(nom_table, ancien_nom, nouveau_nom):
 def renommer_toutes_colonnes_toutes_tables():
     succes = True
     nom_table = None
-    for nom_table in list(vm.d_tables_colonnes.keys()):
-        for ancien_nom in list(vm.d_tables_colonnes[nom_table]):
-            nouveau_nom = vm.d_tables_colonnes[nom_table][ancien_nom]
+    for nom_table in list(ctxt.vm_d_tables_colonnes.keys()):
+        for ancien_nom in list(ctxt.vm_d_tables_colonnes[nom_table]):
+            nouveau_nom = ctxt.vm_d_tables_colonnes[nom_table][ancien_nom]
             if nouveau_nom:
                 res = renommer_une_colonne(
                     nom_table, ancien_nom, nouveau_nom)
@@ -224,7 +234,7 @@ def extraire_schema():
 
     # Récupérer toutes les tables
     tables = inspector.get_table_names()
-    print(f"Schéma général de {ctxt.rep_bdd} - Tables : {tables}")
+    print(f"Schéma général de {ctxt.path_bdd} - Tables : {tables}")
 
     # Détails sur une table spécifique
     for table_name in tables:
@@ -305,7 +315,7 @@ def formater_champ(nom_table, nom_champ):
 def creer_lexique_cles(nom_table):
     raz_colonne(nom_table, "cle")
     sessionlocal = sessionmaker(ctxt.engine)
-    select_sql = f"SELECT id, {vm.ccc} AS concat_val FROM {nom_table}"
+    select_sql = f"SELECT id, {ctxt.vm_ccc} AS concat_val FROM {nom_table}"
     update_sql = f"UPDATE {nom_table} SET cle = :cle WHERE id = :id"
 
     with sessionlocal() as session:
@@ -456,9 +466,9 @@ def convertir_colonne_en_date_julien(nom_table, nom_colonne):
         f"ALTER TABLE {ancienne_table} RENAME COLUMN date_julien TO {col};"
     ]
 
-    run_sql_sequence(ctxt.rep_bdd, sql_statements1)
-    cloner_table(ctxt.rep_bdd, ancienne_table, "nouvelle_table")
-    run_sql_sequence(ctxt.rep_bdd, sql_statements2)
+    run_sql_sequence(ctxt.path_bdd, sql_statements1)
+    cloner_table(ctxt.path_bdd, ancienne_table, "nouvelle_table")
+    run_sql_sequence(ctxt.path_bdd, sql_statements2)
 
 
 def introspecter_table_non_mappee(nom_table):
@@ -481,7 +491,7 @@ def extraire_table_depuis_nom_table(nom_table):
 
 
 def vider_table(nom_table):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     conn.execute(f"DELETE FROM {nom_table};")
     conn.commit()
     conn.close()
@@ -653,7 +663,7 @@ def creer_colonnes(nom_table, d_noms_colonnes):
     Crée dans nom_table les colonnes listées dans d_noms_colonne si elles n'existent pas déjà.
     d_noms_colonne : dict {nom_colonne: type_sql}
     """
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
 
     # Vérifie que la table existe
@@ -681,7 +691,7 @@ def creer_colonnes(nom_table, d_noms_colonnes):
 
 
 def nb_lig(table):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     try:
         cur = conn.execute(f"SELECT COUNT(*) FROM {table}")
         return str(cur.fetchone()[0])
@@ -694,7 +704,7 @@ def nb_lig(table):
 
 
 def nb_avec_colonne_vide(table, nom_colonne):
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.execute(f"""
         SELECT COUNT(*) 
         FROM {table}
@@ -707,7 +717,7 @@ def compter_par_exercice():
     """
     Retourne un dictionnaire {exercice: nombre_de_lignes} pour t_base_data.
     """
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
     cur.execute("""
         SELECT exercice, COUNT(*) 
@@ -722,4 +732,4 @@ def compter_par_exercice():
 
 # print(lister_tables())
 if __name__ == "__main__":
-    print(nb_avec_colonne_vide("t_base_data", "groupe"))
+    supprimer_toutes_vues()

@@ -14,7 +14,7 @@ from src.core.context import context as ctxt
 from src.utils import u_sql_3 as u_sql_3
 
 
-def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Historique (par TYP) vue_typ.pdf"):
+def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf=ctxt.dir_resultats / "Historique (par TYP) vue_typ.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -30,7 +30,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Hist
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(ctxt.rep_bdd)
+        conn = sqlite3.connect(ctxt.path_bdd)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -64,7 +64,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Hist
             A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique par TYP du Relevé général des dépenses")
         canvas.setFont('Helvetica-Bold', 8)
         canvas.drawString(
-            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_gen.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
+            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_sql_3.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
         canvas.restoreState()
 
     def pied_de_page(canvas, doc):
@@ -375,7 +375,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Hist
         # --- Deuxième passe pour créer le pdf ---
 
         final_doc = SimpleDocTemplate(
-            fichier_pdf,
+            str(fichier_pdf),
             pagesize=landscape(A4),
             leftMargin=0.5*cm,
             rightMargin=0.5*cm,
@@ -392,7 +392,7 @@ def creer_pdf_pivot_hierarchique_vue_typ(cdtn='1=1', fichier_pdf="resultats/Hist
     print(f"✅ Fichier PDF généré : {fichier_pdf}")
 
 
-def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/Historique (par groupe) vue_groupe.pdf"):
+def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf=ctxt.dir_resultats / "Historique (par groupe) vue_groupe.pdf"):
 
     # --- Réglages et Définitions ---
     vue_name = "v_t_base_data"
@@ -408,7 +408,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
     # --- Connexion SQLite ---
     conn = None
     try:
-        conn = sqlite3.connect(ctxt.rep_bdd)
+        conn = sqlite3.connect(ctxt.path_bdd)
         cur = conn.cursor()
 
         cur.execute(f"""
@@ -442,7 +442,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
             A4[1] / 2, 20.5 * cm, "Copropriété Monica – Historique par GROUPE du Relevé général des dépenses")
         canvas.setFont('Helvetica-Bold', 8)
         canvas.drawString(
-            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_gen.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
+            23.5 * cm, 20.5 * cm, "Dernière maj: " + u_sql_3.convertir_date(u_sql_3.extraire_un_parametre("I_002")))
         canvas.restoreState()
 
     def pied_de_page(canvas, doc):
@@ -750,7 +750,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
         # --- Deuxième passe pour créer le pdf ---
 
         final_doc = SimpleDocTemplate(
-            fichier_pdf,
+            str(fichier_pdf),
             pagesize=landscape(A4),
             leftMargin=0.5*cm,
             rightMargin=0.5*cm,
@@ -768,7 +768,7 @@ def creer_pdf_pivot_hierarchique_vue_groupe(cdtn='1=1', fichier_pdf="resultats/H
 
 
 def choisir_un_typ():
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()
@@ -807,7 +807,7 @@ def choisir_un_typ():
 
 
 def choisir_un_groupe():
-    conn = sqlite3.connect(ctxt.rep_bdd)
+    conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
 
     u_sql_3.creer_vue()
@@ -848,7 +848,7 @@ def ed_spec_par_typ():
     if typ:  # si un choix a été fait
         creer_pdf_pivot_hierarchique_vue_typ(
             cdtn=f"typ='{typ}'",
-            fichier_pdf=f"resultats/Historique pour TYP {typ}.pdf"
+            fichier_pdf=ctxt.dir_resultats / f"Historique pour TYP {typ}.pdf"
         )
 
 
@@ -858,7 +858,8 @@ def ed_spec_par_groupe():
         groupe_safe = groupe.replace("'", "''")
         creer_pdf_pivot_hierarchique_vue_groupe(
             cdtn=f"groupe='{groupe_safe}'",
-            fichier_pdf=f"resultats/Historique pour groupe {groupe}.pdf"
+            fichier_pdf=ctxt.dir_resultats /
+            f"Historique pour groupe {groupe}.pdf"
         )
 
 
