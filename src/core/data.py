@@ -13,7 +13,7 @@ print("Module data chargé avec succès.")
 
 class Database:
     """Une instance de DataBase fait partie des variables produites par context.py. 
-    Sous peine de créer une référence circulaire, il n'est donc pas possible d'utiliser une instance de AppContext
+    Sous peine de créer une référence circulaire, il n'est donc pas possible d'utiliser ici l'instance ctxt de AppContext
     """
 
     def __init__(self):

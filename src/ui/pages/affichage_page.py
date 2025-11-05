@@ -5,7 +5,7 @@ print("Module affichage chargé avec succès.")
 
 
 class AffichagePage(ttk.Frame):
-    def __init__(self, parent, context):
+    def __init__(self, parent):
         super().__init__(parent)
         self.label = ttk.Label(
             self, text="Paramétrer les couleurs des widgets d'affichage")

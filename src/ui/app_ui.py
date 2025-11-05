@@ -1,15 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
-from .menu import MonMenu
 import parametres as config
 from .theme_global import definir_theme_global
-from src.ui.pages.accueil_page import AccueilPage
-from src.ui.pages.general_page import GeneralPage
-from src.ui.pages.mise_a_jour_page import MiseAJourPage
-from src.ui.pages.edition_page import EditionPage
-from src.ui.pages.qualite_base_page import QualiteBasePage
-from src.ui.pages.affichage_page import AffichagePage
+
 from colorama import Fore, Style
 
 print("Module app_ui chargé avec succès.")
@@ -40,9 +34,9 @@ class AppUi(tk.Tk):
         # Affecte le thème global TFrame à tous les frames, TLabel à tous les labels etc...
         style = definir_theme_global()
 
-        # Création du menu principal
-        mon_menu = MonMenu(self, context)
-        self.configure(menu=mon_menu.menubar)
+        # Création de la racine du menu principal
+        self.menubar = tk.Menu(self)
+        self.configure(menu=self.menubar)
 
         # Création d'un Frame central pour accueillir les pages
         self.fr_centre = ttk.Frame(self)
@@ -67,15 +61,7 @@ class AppUi(tk.Tk):
 
         label_statut.pack(side="left", padx=10)
 
-        # Affichage de la page d'accueil par défaut
-        # Création des pages
         self.pages = {}
-        for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
-                  QualiteBasePage, AffichagePage):
-            page = P(self.fr_centre, context)
-            # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
-            self.pages[P.__name__] = page
-        self.afficher_page("AccueilPage")
 
         # **********************************************************
         # self.after(2000, lambda: style.configure(
@@ -204,14 +190,6 @@ class AppUi(tk.Tk):
         theme_actuel["palette"] = next_palette
 
 
-def launch_ui(context):
-    """Point d'entrée pour l'interface."""
-    app = AppUi(context)  # Instance de tk.Tk()
-    ecran = app
-    app.mainloop()
-
 # --- Interface ---
-
-
 if __name__ == "__main__":
     pass

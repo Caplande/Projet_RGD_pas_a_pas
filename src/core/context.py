@@ -64,6 +64,12 @@ class AppContext:
         self.vm_colonnes_t_base_data = vm.colonnes_t_base_data
         self.vm_ccc = vm.ccc
 
+        # Référence à la fenêtre principale de l'application (AppUi)
+        self.ecran = None
+
+    def set_ecran(self, ecran):
+        self.ecran = ecran
+
 
 # Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py
 app_context = AppContext()

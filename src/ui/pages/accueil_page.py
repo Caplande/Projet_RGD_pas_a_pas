@@ -1,17 +1,18 @@
 from tkinter import ttk
 import tkinter as tk
+from src.core.context import context as ctxt
 
 print("Module accueil chargé avec succès.")
 
 
 class AccueilPage(ttk.Frame):
-    def __init__(self, parent, context):
+    def __init__(self, parent):
         super().__init__(parent)
         # self.bg = 'green'
         # self.configure(bg=self.bg)
         self.label = ttk.Label(
             self,
-            text=f"Bienvenue dans l'application {context.nom_court}",
+            text=f"Bienvenue dans l'application {ctxt.nom_court}",
             style="Accueil.TLabel")  # police, taille, style
         self.label.pack(expand=True, padx=20, pady=20)
         # self.label.configure(background=self.bg)
