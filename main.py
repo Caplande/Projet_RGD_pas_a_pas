@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # Active le menu principal et lance l'interface
     """Point d'entrée pour l'interface."""
-    app = AppUi(ctxt)  # Instance de tk.Tk()
+    app = AppUi()  # Instance de tk.Tk()
     # Pour pouvoir accéder à l'interface depuis le contexte global
     ctxt.set_ecran(app)
     activer_ecran()

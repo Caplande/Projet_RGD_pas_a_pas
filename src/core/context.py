@@ -18,11 +18,12 @@ class AppContext:
     nb_instances = 0  # Attribut de classe pour le singleton
 
     def __init__(self):
+        print(Fore.GREEN + "Création d'une instance de AppContext" + Style.RESET_ALL)
         # *******************
         AppContext.nb_instances += 1
         if AppContext.nb_instances > 1:
             print(
-                Fore.RED + f"Nb instances AppUi = {AppContext.nb_instances}" + Style.RESET_ALL)
+                Fore.RED + f"Nb instances AppContext = {AppContext.nb_instances}" + Style.RESET_ALL)
         # *******************
         # Constantes descriptives de l'application
         self.mode_debug = getattr(config, "MODE_DEBUG", False)
@@ -74,8 +75,3 @@ class AppContext:
 # Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py
 app_context = AppContext()
 context = app_context
-
-if __name__ == '__main__':
-    liste_attributs = [attr for attr in dir(
-        app_context) if not attr.startswith("__")]
-    print(liste_attributs)

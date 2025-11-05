@@ -3,7 +3,7 @@ from tkinter import ttk
 from pathlib import Path
 import parametres as config
 from .theme_global import definir_theme_global
-from src.core.context import context as ctxt
+
 from colorama import Fore, Style
 
 print("Module app_ui chargé avec succès.")
@@ -12,9 +12,10 @@ ecran = None
 
 
 class AppUi(tk.Tk):
+    """Fenêtre principale de l'application (root)."""
     nb_instances = 0
 
-    def __init__(self):
+    def __init__(self, context):
         # *******************
         AppUi.nb_instances += 1
         if AppUi.nb_instances > 1:
@@ -22,10 +23,12 @@ class AppUi(tk.Tk):
                 Fore.RED + f"Nb instances AppUi = {AppUi.nb_instances}" + Style.RESET_ALL)
         # *******************
         super().__init__()
+        self.context = context
 
-        self.geometry("1200x800")
         self.title(
-            f"{ctxt.nom_application} (version:{ctxt.version})")
+            f"{context.nom_application} (version:{context.version})")
+        self.geometry("1200x800")
+
         # Les styles
         # Appliquer le thème global
         # Affecte le thème global TFrame à tous les frames, TLabel à tous les labels etc...
@@ -34,6 +37,7 @@ class AppUi(tk.Tk):
         # Création de la racine du menu principal
         self.menubar = tk.Menu(self)
         self.configure(menu=self.menubar)
+
         # Création d'un Frame central pour accueillir les pages
         self.fr_centre = ttk.Frame(self)
         self.fr_centre.pack(side="top", fill="both", expand=True)
@@ -47,21 +51,24 @@ class AppUi(tk.Tk):
         self.fr_statut.pack(side="bottom", fill="x")
         label_statut = ttk.Label(
             self.fr_statut,
-            text=f"Base connectée : {Path(ctxt.path_bdd).name}",
+            text=f"Base connectée : {Path(context.path_bdd).name}",
             anchor="w", style="LabelBarreEtat.TLabel"
         )
         # **********************************************************
-        # self.after(2000, lambda: style.configure(
-        #    "TLabel", background="yellow"))
+        self.after(2000, lambda: style.configure(
+            "TLabel", background="yellow"))
         # **********************************************************
 
         label_statut.pack(side="left", padx=10)
 
         self.pages = {}
+
         # **********************************************************
-        # self.after(2000, lambda: (print("Changement de style"),
-        #           style.configure("LabelBarreEtat.TLabel", font=("Arial", 40, "bold"))))
+        self.after(2000, lambda: style.configure(
+            "TLabel", font=("Arial", 22, "bold")))
         # **********************************************************
+
+        # Gestion de la fermeture de la fenetre gérée par la méthode on_close (à compléter éventuellement)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def appliquer_style(self, frame, style_map):
@@ -138,11 +145,11 @@ class AppUi(tk.Tk):
     def on_close(self):
         """Ferme proprement l'application."""
         print("Fermeture de la connexion à la base…")
-        ctxt.db.close()
+        self.context.db.close()
         self.destroy()
     # --- Transition douce ---
 
-    def changer_palette(self, ctxt):
+    def changer_palette(self, context):
         frame = tk.Frame(self)
         frame.pack(padx=20, pady=20)
 
@@ -154,14 +161,14 @@ class AppUi(tk.Tk):
         bouton_theme.pack(pady=15)
 
         # État
-        theme_actuel = {"palette": ctxt.palettes["PALETTE_SOMBRE"]}
+        theme_actuel = {"palette": context.palettes["PALETTE_SOMBRE"]}
         self.appliquer_theme(theme_actuel["palette"])
 
         def toggle_theme():
-            if theme_actuel["palette"] == ctxt.palettes["PALETTE_SOMBRE"]:
-                next_palette = ctxt.palettes["PALETTE_CLAIRE"]
+            if theme_actuel["palette"] == context.palettes["PALETTE_SOMBRE"]:
+                next_palette = context.palettes["PALETTE_CLAIRE"]
             else:
-                next_palette = ctxt.palettes["PALETTE_SOMBRE"]
+                next_palette = context.palettes["PALETTE_SOMBRE"]
             self.transition_theme(theme_actuel["palette"], next_palette)
             theme_actuel["palette"] = next_palette
 
@@ -181,3 +188,8 @@ class AppUi(tk.Tk):
             next_palette = config.PALETTE_SOMBRE
         self.transition_theme(theme_actuel["palette"], next_palette)
         theme_actuel["palette"] = next_palette
+
+
+# --- Interface ---
+if __name__ == "__main__":
+    pass
