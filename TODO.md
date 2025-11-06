@@ -6,7 +6,7 @@ _Mis à jour le 2 Novembre 2025_
 
 ## 📋 Tâches principales
 
-⬜ Editer les lignes de t_base_data correspondant à un critère donné  
+🟡 Editer les lignes de t_base_data correspondant à un critère donné  
 ⬜ Faire de l'appli un exécutable  
 ✅ Modifier structure projet  
 ✅ Introduire la fonction theme global  

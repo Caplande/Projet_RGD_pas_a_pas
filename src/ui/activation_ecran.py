@@ -7,6 +7,7 @@ from src.ui.pages.mise_a_jour_page import MiseAJourPage
 from src.ui.pages.edition_page import EditionPage
 from src.ui.pages.qualite_base_page import QualiteBasePage
 from src.ui.pages.affichage_page import AffichagePage
+from src.ui.pages.selection_enregistrements_page import SelectionEnregistrementsPage
 from src.core import actualiser_donnees as ad, edit_speciales as e_s, reinitialiser_bdd as rb, synoptique as sy
 from src.core import resultats as res
 
@@ -15,12 +16,12 @@ print("Module activation_ecran chargé avec succès.")
 
 def activer_ecran():
     for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
-              QualiteBasePage, AffichagePage):
-        page = P(ctxt.ecran.fr_centre)
+              QualiteBasePage, AffichagePage, SelectionEnregistrementsPage):
+        page = P(ctxt.ecran.fr_centre)  # type: ignore
         # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
-        ctxt.ecran.pages[P.__name__] = page
-    ctxt.ecran.afficher_page("AccueilPage")
-    creer_menu(ctxt.ecran.menubar)
+        ctxt.ecran.pages[P.__name__] = page  # type: ignore
+    ctxt.ecran.afficher_page("AccueilPage")  # type: ignore
+    creer_menu(ctxt.ecran.menubar)  # type: ignore
 
 
 def creer_menu(menubar):
@@ -37,7 +38,10 @@ def creer_menu(menubar):
     menubar.add_cascade(label="Qualité de la base", menu=menu_v4)
 
     menu_v5 = tk.Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Affichage", menu=menu_v5)
+    menubar.add_cascade(label="Sélection enregistrements", menu=menu_v5)
+
+    menu_v6 = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Affichage", menu=menu_v6)
 
     # on garde les index de chaque item pour pouvoir les (dés)activer
     menu_v1.add_command(
@@ -68,37 +72,46 @@ def creer_menu(menubar):
         label="Statistiques de la base", command=lambda: executer_action("Statistiques de la base...", "40"))
 
     menu_v5.add_command(
-        label="Affichage", command=lambda: executer_action("Affichage...", "50"))
+        label="Selection enregistrements", command=lambda: executer_action("Selection enregistrements...", "50"))
+
+    menu_v6.add_command(
+        label="Affichage", command=lambda: executer_action("Affichage...", "60"))
 
 
 def executer_action(message, index_menu):
     match index_menu:
         case "10":
-            ctxt.ecran.afficher_page("GeneralPage")
-            ctxt.ecran.quit()
+            ctxt.ecran.afficher_page("GeneralPage")  # type: ignore
+            ctxt.ecran.quit()  # type: ignore
         case "20":
-            ctxt.ecran.afficher_page("MiseAJourPage")
+            ctxt.ecran.afficher_page("MiseAJourPage")  # type: ignore
             ad.actualiser_bdd(ad.actualiser_bdd_executer)
         case "21":
-            ctxt.ecran.afficher_page("MiseAJourPage")
+            ctxt.ecran.afficher_page("MiseAJourPage")  # type: ignore
             rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
         case "30":
-            ctxt.ecran.afficher_page("EditionPage")
+            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
             res.creer_pdf_pivot_hierarchique_vue_typ()
         case "31":
-            ctxt.ecran.afficher_page("EditionPage")
+            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
             res.creer_pdf_pivot_hierarchique_vue_groupe()
         case "32":
-            ctxt.ecran.afficher_page("EditionPage")
+            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
             res.ed_spec_par_typ()
         case "33":
-            ctxt.ecran.afficher_page("EditionPage")
+            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
             res.ed_spec_par_groupe()
         case "40":
-            ctxt.ecran.afficher_page("QualiteBasePage")
+            ctxt.ecran.afficher_page("QualiteBasePage")  # type: ignore
             sy.afficher_table()
         case "50":
-            pass
+            ctxt.ecran.afficher_page(  # type: ignore
+                "SelectionEnregistrementsPage")  # type: ignore
+            e_s.creer_vue_base()
+            e_s.afficher_vue(
+                ctxt.ecran.fr_centre)  # type: ignore
+        case "60":
+            ctxt.ecran.afficher_page("AffichagePage")  # type: ignore
         case _:
             messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 
