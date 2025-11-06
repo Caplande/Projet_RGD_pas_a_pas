@@ -34,6 +34,7 @@ class AppUi(tk.Tk):
         # Création de la racine du menu principal
         self.menubar = tk.Menu(self)
         self.configure(menu=self.menubar)
+
         # Création d'un Frame central pour accueillir les pages
         self.fr_centre = ttk.Frame(self)
         self.fr_centre.pack(side="top", fill="both", expand=True)

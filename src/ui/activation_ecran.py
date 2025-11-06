@@ -77,18 +77,25 @@ def executer_action(message, index_menu):
             ctxt.ecran.afficher_page("GeneralPage")
             ctxt.ecran.quit()
         case "20":
+            ctxt.ecran.afficher_page("MiseAJourPage")
             ad.actualiser_bdd(ad.actualiser_bdd_executer)
         case "21":
+            ctxt.ecran.afficher_page("MiseAJourPage")
             rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
         case "30":
+            ctxt.ecran.afficher_page("EditionPage")
             res.creer_pdf_pivot_hierarchique_vue_typ()
         case "31":
+            ctxt.ecran.afficher_page("EditionPage")
             res.creer_pdf_pivot_hierarchique_vue_groupe()
         case "32":
+            ctxt.ecran.afficher_page("EditionPage")
             res.ed_spec_par_typ()
         case "33":
+            ctxt.ecran.afficher_page("EditionPage")
             res.ed_spec_par_groupe()
         case "40":
+            ctxt.ecran.afficher_page("QualiteBasePage")
             sy.afficher_table()
         case "50":
             pass
