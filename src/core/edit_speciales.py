@@ -5,6 +5,7 @@ from src.core.context import context as ctxt
 
 
 def creer_vue_base():
+    """Crée une vue complète sans filtre."""
     conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
 
@@ -13,16 +14,16 @@ def creer_vue_base():
     cur.execute("""
         CREATE VIEW vue_editions_speciales AS
         SELECT
+            lbr.base_rep,
             b.exercice,
             b.groupe,
-            b.montant,
             b.bat,
             lb.bat_tit_yp,
             b.batrub,
             lbr.batrub_tit_yp,
-            lbr.base_rep,
             b.typ,
-            lt.typ_tit_yp
+            lt.typ_tit_yp,
+            b.montant
         FROM t_base_data AS b
         LEFT JOIN t_lexique_bat AS lb ON b.bat = lb.bat
         LEFT JOIN t_lexique_batrub AS lbr ON b.batrub = lbr.batrub
@@ -34,31 +35,89 @@ def creer_vue_base():
     conn.close()
 
 
-def afficher_vue(mon_frame, filtre_typ=None):
-    for w in mon_frame.winfo_children():
-        w.destroy()
-
+def selectionner_resultats(filtres):
+    """
+    Récupère les enregistrements de la vue selon les filtres passés sous forme de dict.
+    Exemple : filtres = {'typ': '441', 'exercice': '2024'}
+    """
     conn = sqlite3.connect(ctxt.path_bdd)
     cur = conn.cursor()
 
-    requete = "SELECT * FROM vue_editions_speciales"
-    params = ()
+    # Construire la clause WHERE dynamiquement selon les filtres fournis
+    conditions = []
+    params = {}
 
-    if filtre_typ:
-        requete += " WHERE typ = ?"
-        params = (filtre_typ,)
+    for cle, valeur in filtres.items():
+        conditions.append(f"{cle} = :{cle}")
+        params[cle] = valeur
 
-    cur.execute(requete, params)
-    rows = cur.fetchall()
-    colonnes = [d[0] for d in cur.description]
+    where_clause = " AND ".join(conditions)
+    if where_clause:
+        where_clause = "WHERE " + where_clause
+
+    sql = f"""
+        SELECT *
+        FROM vue_editions_speciales
+        {where_clause}
+        ORDER BY bat || batrub || typ
+    """
+
+    cur.execute(sql, params)
+    resultats = cur.fetchall()
     conn.close()
+    return resultats
 
-    tree = ttk.Treeview(mon_frame, columns=colonnes, show="headings")
-    for col in colonnes:
-        tree.heading(col, text=col)
-        tree.column(col, width=100, anchor="w")
 
-    for row in rows:
-        tree.insert("", "end", values=row)
+def afficher_dans_frame():
+    creer_vue_base()
+    filtres = {
+        'typ': '441',
+        'exercice': '2024',
+        'base_rep': 'CCG/9984'
+    }
+    lignes = selectionner_resultats(filtres)
 
-    tree.pack(fill="both", expand=True)
+    for ligne in lignes:
+        ttk.Label(ctxt.ecran.pages["SelectionEnregistrementsPage"].fr_resultats,
+                  text=str(ligne)).pack(anchor="w")
+
+
+def compter_selection(filtre=None):
+    conn = sqlite3.connect(ctxt.path_bdd)
+    cur = conn.cursor()
+    requete = "SELECT count(*) FROM vue_editions_speciales"
+    params = ()
+    if filtre:
+        requete += " WHERE typ = ?"
+        params = (filtre,)
+    cur.execute(requete, params)
+    count = cur.fetchone()[0]
+
+    conn.close()
+    return count
+
+
+def valeurs_possibles_vues():
+    """Retourne un dict {champ: [valeurs_uniques]} à partir de vue_editions_speciales."""
+    conn = sqlite3.connect(ctxt.path_bdd)
+    cur = conn.cursor()
+    champs = ["exercice", "groupe", "batrub", "typ", "base_rep"]
+    valeurs = {}
+    for champ in champs:
+        cur.execute(
+            f"SELECT DISTINCT {champ} FROM vue_editions_speciales WHERE {champ} IS NOT NULL ORDER BY {champ}")
+        valeurs[champ] = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return valeurs
+
+
+def filtrer_vues(filtres):
+    """
+    Utilise selectionner_resultats pour renvoyer les lignes filtrées
+    (listes de tuples lisibles dans le Text de SelectionEnregistrementsPage).
+    """
+    try:
+        return selectionner_resultats(filtres)
+    except Exception as e:
+        print("Erreur lors du filtrage :", e)
+        return []

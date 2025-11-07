@@ -46,18 +46,24 @@ class AppUi(tk.Tk):
         # Empêcher le redimensionnement automatique
         self.fr_statut.pack_propagate(False)
         self.fr_statut.pack(side="bottom", fill="x")
-        label_statut = ttk.Label(
+        self.label_statut_1 = ttk.Label(
             self.fr_statut,
             text=f"Base connectée : {Path(ctxt.path_bdd).name}",
             anchor="w", style="LabelBarreEtat.TLabel"
         )
+        self.label_statut_2 = ttk.Label(
+            self.fr_statut, anchor="w", style="LabelBarreEtat.TLabel"
+        )
+
         # **********************************************************
         # self.after(2000, lambda: style.configure(
         #    "TLabel", background="yellow"))
         # **********************************************************
 
-        label_statut.pack(side="left", padx=10)
+        self.label_statut_1.pack(side="left", padx=10)
+        self.label_statut_2.pack(side="left", padx=10)
 
+        # Dictionnaire des pages initialisé depuis AppUi mais rempli depuis activation_ecran.py (pour éviter référence circulaires)
         self.pages = {}
         # **********************************************************
         # self.after(2000, lambda: (print("Changement de style"),
@@ -75,6 +81,7 @@ class AppUi(tk.Tk):
                 child.configure(style=style_map.get("Button", "TButton"))
 
     def afficher_page(self, nom_page):
+        # Voir ci-dessus: self.pages est rempli depuis activation_ecran.py
         for p in self.pages.values():
             p.pack_forget()
         page = self.pages[nom_page]

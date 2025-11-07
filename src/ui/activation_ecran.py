@@ -1,13 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 from src.core.context import context as ctxt
-from src.ui.pages.accueil_page import AccueilPage
-from src.ui.pages.general_page import GeneralPage
-from src.ui.pages.mise_a_jour_page import MiseAJourPage
-from src.ui.pages.edition_page import EditionPage
-from src.ui.pages.qualite_base_page import QualiteBasePage
-from src.ui.pages.affichage_page import AffichagePage
-from src.ui.pages.selection_enregistrements_page import SelectionEnregistrementsPage
+from src.ui.pages.accueil_page import AccueilPage as ap
+from src.ui.pages.general_page import GeneralPage as gp
+from src.ui.pages.mise_a_jour_page import MiseAJourPage as map
+from src.ui.pages.edition_page import EditionPage as ep
+from src.ui.pages.qualite_base_page import QualiteBasePage as qbp
+from src.ui.pages.affichage_page import AffichagePage as afp
+from src.ui.pages.selection_enregistrements_page import SelectionEnregistrementsPage as sep
 from src.core import actualiser_donnees as ad, edit_speciales as e_s, reinitialiser_bdd as rb, synoptique as sy
 from src.core import resultats as res
 
@@ -15,8 +15,8 @@ print("Module activation_ecran chargé avec succès.")
 
 
 def activer_ecran():
-    for P in (AccueilPage, GeneralPage, MiseAJourPage, EditionPage,
-              QualiteBasePage, AffichagePage, SelectionEnregistrementsPage):
+    for P in (ap, gp, map, ep,
+              qbp, afp, sep):
         page = P(ctxt.ecran.fr_centre)  # type: ignore
         # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
         ctxt.ecran.pages[P.__name__] = page  # type: ignore
@@ -105,11 +105,19 @@ def executer_action(message, index_menu):
             ctxt.ecran.afficher_page("QualiteBasePage")  # type: ignore
             sy.afficher_table()
         case "50":
-            ctxt.ecran.afficher_page(  # type: ignore
+            ctxt.ecran.afficher_page(
                 "SelectionEnregistrementsPage")  # type: ignore
-            e_s.creer_vue_base()
-            e_s.afficher_vue(
-                ctxt.ecran.fr_centre)  # type: ignore
+            # type: ignore
+            # page = ctxt.ecran.pages["SelectionEnregistrementsPage"]
+            # page.pack(fill="both", expand=True)
+            # La page "SelectionEnregistrementsPage" est instanciée dans ctxt.ecran.pages à l'exécution de activer_ecran() (main.py)
+            # ctxt.ecran.afficher_page(  # type: ignore
+            #    "SelectionEnregistrementsPage")  # type: ignore
+            # e_s.afficher_dans_frame()
+            # sep.creer_vue_base()
+            # sep.afficher_vue(ctxt.ecran.label_statut_2.config(  # type: ignore
+            # type: ignore
+            #    text=f"Nombre d'enregistrements : {e_s.compter_selection()}"))
         case "60":
             ctxt.ecran.afficher_page("AffichagePage")  # type: ignore
         case _:
