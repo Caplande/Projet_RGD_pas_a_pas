@@ -92,3 +92,30 @@ def valeurs_possibles_vues():
 def filtrer_vues(filtres):
     """Simplifie l’accès : renvoie directement les résultats filtrés."""
     return selectionner_resultats(filtres)
+
+
+def calcul_montant_total(filtres):
+    conn = sqlite3.connect(ctxt.path_bdd)
+    cur = conn.cursor()
+
+    conditions = []
+    params = {}
+
+    for cle, valeur in filtres.items():
+        if valeur:  # ignorer les filtres vides
+            conditions.append(f"{cle} = :{cle}")
+            params[cle] = valeur
+
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    sql = f"""
+        SELECT SUM(montant)
+        FROM vue_editions_speciales
+        {where_clause}
+        ORDER BY bat || batrub || typ
+    """
+
+    cur.execute(sql, params)
+    total = cur.fetchone()[0]
+    conn.close()
+    return total

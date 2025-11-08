@@ -105,8 +105,9 @@ def executer_action(message, index_menu):
             ctxt.ecran.afficher_page("QualiteBasePage")  # type: ignore
             sy.afficher_table()
         case "50":
-            ctxt.ecran.afficher_page(
+            ctxt.ecran.afficher_page(  # type: ignore
                 "SelectionEnregistrementsPage")  # type: ignore
+
             # type: ignore
             # page = ctxt.ecran.pages["SelectionEnregistrementsPage"]
             # page.pack(fill="both", expand=True)

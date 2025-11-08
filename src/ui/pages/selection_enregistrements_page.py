@@ -113,6 +113,9 @@ class SelectionEnregistrementsPage(ttk.Frame):
         # Sauvegarde du tree pour référence (utile pour re-tri)
         self.tree = tree
 
+        # Affichage du montant total de la sélection dans la barre de statut
+        self.afficher_total_montant()
+
     # ------------------------
     def _trier_colonne(self, tree, col, descendante):
         """Trie les valeurs d’une colonne lors du clic sur l’en-tête."""
@@ -140,3 +143,8 @@ class SelectionEnregistrementsPage(ttk.Frame):
             text="Sélectionnez vos filtres puis cliquez sur Afficher.",
             style="TLabel"
         ).pack(pady=10)
+
+    def afficher_total_montant(self):
+        total = res.calcul_montant_total(self.filtres)
+        ctxt.ecran.label_statut_2.configure(  # type: ignore
+            text=f"Montant total : {total:.2f} €")
