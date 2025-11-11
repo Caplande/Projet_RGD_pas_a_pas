@@ -13,6 +13,7 @@ if __name__ == "__main__":
     """Point d'entrée pour l'interface."""
     app = AppUi()  # Instance de tk.Tk()
     # Pour pouvoir accéder à l'interface depuis le contexte global
+    # L'instance singleton de AppUi est stockée dans le singleton ctxt sous le nom d'attribut: 'ecran'
     ctxt.set_ecran(app)
     activer_ecran()
     app.mainloop()

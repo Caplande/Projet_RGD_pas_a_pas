@@ -3,6 +3,7 @@ import json
 import re
 from datetime import datetime
 import tkinter as tk
+from tkinter import ttk
 from src.core.context import context as ctxt
 from src.utils import u_sql_1 as u_sql_1
 
@@ -353,11 +354,28 @@ class AffichageEcran():
                 w.destroy()
 
 
-# Lancement de l’application
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = AffichageEcran(root)
-    root.mainloop()
+def appliquer_couleur_jaune_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Jaune.TFrame", background="yellow")
+    mon_widget.configure(style="Jaune.TFrame")
+
+
+def appliquer_couleur_bleu_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Bleu.TFrame", background="blue")
+    mon_widget.configure(style="Bleu.TFrame")
+
+
+def appliquer_couleur_vert_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Vert.TFrame", background="green")
+    mon_widget.configure(style="Vert.TFrame")
+
+
+def appliquer_couleur_orange_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Orange.TFrame", background="orange")
+    mon_widget.configure(style="Orange.TFrame")
 
 
 if __name__ == "__main__":

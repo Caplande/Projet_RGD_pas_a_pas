@@ -1,5 +1,6 @@
 from tkinter import ttk
 import tkinter as tk
+# from src.ui.app_ui import ecran
 
 print("Module affichage chargé avec succès.")
 

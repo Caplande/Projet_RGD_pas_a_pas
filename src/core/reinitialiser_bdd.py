@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from src.core.context import context as ctxt
 from src.utils import u_sql_1 as u_sql_1, u_sql_2 as u_sql_2
-from src.ui.app_ui import ecran
+from src.ui.app_ui import ecran  # instance singleton de AppUi
 
 print("Module reinitialiser_bdd chargé avec succès.")
 

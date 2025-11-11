@@ -15,12 +15,17 @@ print("Module activation_ecran chargé avec succès.")
 
 
 def activer_ecran():
+    noms_pages = {'!accueilpage': 'page_accueil', '!generalpage': 'page_general', '!miseajourpage': 'page_miseajour_page', '!editionpage': 'page_edition',
+                  '!qualitebasepage': 'page_qualitebase', '!selectionenregistrementspage': 'page_selectionenregistrements', '!affichagepage': 'page_affichage'}
     for P in (ap, gp, map, ep,
               qbp, afp, sep):
+        # On instancie chaque page dans le frame fr_centre.
         page = P(ctxt.ecran.fr_centre)  # type: ignore
         # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
-        ctxt.ecran.pages[P.__name__] = page  # type: ignore
-    ctxt.ecran.afficher_page("AccueilPage")  # type: ignore
+        # ctxt.ecran.pages[P.__name__] = page  # type: ignore
+        ctxt.ecran.pages[noms_pages[page._name]] = page  # type: ignore
+    ctxt.ecran.afficher_page("page_accueil")  # type: ignore
+
     creer_menu(ctxt.ecran.menubar)  # type: ignore
 
 
@@ -81,32 +86,35 @@ def creer_menu(menubar):
 def executer_action(message, index_menu):
     match index_menu:
         case "10":
-            ctxt.ecran.afficher_page("GeneralPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_general")  # type: ignore
             ctxt.ecran.quit()  # type: ignore
         case "20":
-            ctxt.ecran.afficher_page("MiseAJourPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
             ad.actualiser_bdd(ad.actualiser_bdd_executer)
         case "21":
-            ctxt.ecran.afficher_page("MiseAJourPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
             rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
         case "30":
-            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_edition")  # type: ignore
             res.creer_pdf_pivot_hierarchique_vue_typ()
         case "31":
-            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_edition")  # type: ignore
             res.creer_pdf_pivot_hierarchique_vue_groupe()
         case "32":
-            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_edition")  # type: ignore
             res.ed_spec_par_typ()
         case "33":
-            ctxt.ecran.afficher_page("EditionPage")  # type: ignore
+            ctxt.ecran.afficher_page("page_edition")  # type: ignore
             res.ed_spec_par_groupe()
         case "40":
-            ctxt.ecran.afficher_page("QualiteBasePage")  # type: ignore
+            ctxt.ecran.afficher_page("page_qualitebase")  # type: ignore
             sy.afficher_table()
         case "50":
             ctxt.ecran.afficher_page(  # type: ignore
-                "SelectionEnregistrementsPage")  # type: ignore
+                "page_selectionenregistrements")  # type: ignore
+        case "60":
+            ctxt.ecran.afficher_page("page_affichage")  # type: ignore
+            ctxt.ecran.afficher_choix_palettes_polices()  # type: ignore
 
             # type: ignore
             # page = ctxt.ecran.pages["SelectionEnregistrementsPage"]
@@ -119,8 +127,6 @@ def executer_action(message, index_menu):
             # sep.afficher_vue(ctxt.ecran.label_statut_2.config(  # type: ignore
             # type: ignore
             #    text=f"Nombre d'enregistrements : {e_s.compter_selection()}"))
-        case "60":
-            ctxt.ecran.afficher_page("AffichagePage")  # type: ignore
         case _:
             messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 

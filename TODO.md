@@ -6,11 +6,11 @@ _Mis à jour le 2 Novembre 2025_
 
 ## 📋 Tâches principales
 
-🟡 Editer les lignes de t_base_data correspondant à un critère donné  
+✅ Editer les lignes de t_base_data correspondant à un critère donné  
 ⬜ Faire de l'appli un exécutable  
 ✅ Modifier structure projet  
 ✅ Introduire la fonction theme global  
-⬜ Dans context.py corriger les lignes: <ins>self.palettes = getattr(config, "PALETTES", {}) et self.polices = getattr(config, "POLICES", {})</ins> et d'autres certainement.
+⬜ Dans app_ui.py corriger les lignes: <ins>self.palettes = getattr(config, "PALETTES", {}) et self.polices = getattr(config, "POLICES", {})</ins> et d'autres certainement.
 
 _Légende :_ ✅ fait · 🟡 en cours · ⬜ à faire · ❌ bloqué
 

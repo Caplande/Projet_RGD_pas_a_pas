@@ -11,7 +11,7 @@ def definir_theme_global():
     LES POLICES: Les différentes polices proposées fournissent des styles de texte adaptés à divers usages dans l'interface 
     selon le même type de fonctionnement que les palettes.
     UN THEME: Définit un ensemble de styles ttk alimentés par les valeurs des palettes et des polices sélectionnées.
-    La règle d'appellation généraled'un style (ex:barre_etat.Tframe) permet d'appliqer ce style là tous les wdgets du même type (ici TFrame)
+    La règle d'appellation générale d'un style (ex:barre_etat.Tframe) permet d'appliqer ce style à tous les wdgets du même type (ici TFrame)
     Il est possible de définir des variantes (ex: LabelBarreEtat.TLabel) pour des usages spécifiques qui surchargent le style de base (ici TLabel).
     REMARQUE 1: Si les choix faits dans la sélection des couleurs/polices dans les palettes/polices sont harmonieux, alors, les thèmes s'appuyant 
                 sur ces choix devraient également être harmonieux.
@@ -20,8 +20,12 @@ def definir_theme_global():
     """
 
     style = ttk.Style()
-    style.theme_use("clam")  # base neutre, largement compatible
+    # base neutre, largement compatible. Autres thèmes pré-construits possibles: "clam", "alt", "default", "vista", "xpnative"
+    style.theme_use("clam")
 
+    # On définit une liste de zones communes à la plupart des widgets auxquelles on attribue la composante de la palette courante la plus pertinente.
+    # Ex fond est associé à l'attribut 'fond' de la palette courante.
+    # Même principe pour la police.
     fond = get_palette('fond', "#f0f0f0")
     accent = get_palette('accent', "#4078c0")
     texte = get_palette('texte', "#2c3e50")
@@ -33,8 +37,10 @@ def definir_theme_global():
     font_titre = get_police('titre', ("Segoe UI", 12, "bold"))
     font_bouton = get_police('bouton', font_normale)
     font_barre_etat = get_police('barre_etat', ("Segoe UI", 9, "normal"))
-    # --- Styles de base ---
-    # === Styles généraux ===
+
+    # Construction des styles généraux. Chaque instruction style.configure(...) contribue à la construction du thème
+    # Dans la logique ci-dessus, on précise, par type de widget, la partie du widget à traiter avec une des zones définies ci-dessus.
+    # Si l'on veut que le widget soit traité de manière identique à tous ses pairs
     style.configure("TFrame", background=fond)
     style.configure("TLabel", background=fond,
                     foreground=texte, font=font_normale)
@@ -52,8 +58,7 @@ def definir_theme_global():
                     font=font_normale,
                     padding=3)
 
-    # === Variantes ===
-    # Label de titre
+    # Construction des styles pour des widgets utilisés dans des conditions déterminées particulières.
     style.configure("FondBarreEtat.TFrame",
                     background=fond_barre_etat,
                     relief="flat")
@@ -98,6 +103,11 @@ def definir_theme_global():
                     foreground="#7f8c8d",
                     font=font_normale)
 
+    # Visualisation d'un cadre par remplissage d'une couleur repérable
+    style.configure("Visualiser.TFrame",
+                    fieldbackground="#082f13",
+                    foreground="#f5f8f9",
+                    font=font_normale)
     return style
 
 
