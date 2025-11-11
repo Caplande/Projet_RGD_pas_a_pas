@@ -32,10 +32,13 @@ class AppContext:
             config, "NOM_APPLICATION", "a déterminer")
         self.nom_court = getattr(
             config, "NOM_COURT", "a déterminer")
-        self.palettes = getattr(config, "PALETTES", {})
-        self.polices = getattr(config, "POLICES", {})
-        self.palette = getattr(config, "PALETTE", {})
-        self.police = getattr(config, "POLICE", {})
+
+        # Palettes et polices
+        self.theme_en_vigueur = {
+            "palette": "palette_moderne", "police": "police_moderne_1"}
+        self.palette = config.PALETTES.get(
+            self.theme_en_vigueur["palette"], {})
+        self.police = config.POLICES.get(self.theme_en_vigueur["police"], {})
 
         # Dossiers structurants
         self.dir_defaut = vmp.REP_DEFAUT
@@ -70,6 +73,12 @@ class AppContext:
 
     def set_ecran(self, ecran):
         self.ecran = ecran
+
+    def set_palette(self, palette):
+        self.palette = palette
+
+    def set_police(self, police):
+        self.police = police
 
 
 # Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py

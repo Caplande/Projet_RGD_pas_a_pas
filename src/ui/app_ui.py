@@ -113,24 +113,27 @@ class AppUi(tk.Tk):
             print(f"Palette: {palette}, Police: {police}")
             return palette, police
 
+        def modifier_theme():
+            ctxt.set_palette(bx_palette.get())
+            ctxt.set_police(bx_police.get())
+
         # --- Frame theme ---
-        # ******************************************************
-        # self.fr_centre.configure(style="Visualiser.TFrame")
-        style = ttk.Style()
-        style.configure("Jaune.TFrame", background="yellow")
-        self.fr_centre.configure(style="Jaune.TFrame")
-        # ******************************************************
         fr_theme = ttk.Frame(ctxt.ecran.pages['page_affichage'], borderwidth=2,  # type: ignore
                              relief="groove", padding=5)
-        fr_theme.pack(side="top", anchor="nw", padx=5, pady=5)
+        # fr_theme.pack(side="top", anchor="nw", padx=5, pady=5)
+        # placement avec grid
+        fr_theme.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
         # *******************************************************
-        # fr_theme.configure(style="Jaune.TFrame")
-        ctxt.ecran.pages['page_affichage'].configure(
-            style="Jaune.TFrame")  # type: ignore
+        u_sql_3.appliquer_couleur_vert_fond(fr_theme)
         # *******************************************************
+        page_affichage = ctxt.ecran.pages['page_affichage']  # type: ignore
+        page_affichage.grid_rowconfigure(
+            0, weight=0)   # la barre reste en haut
+        page_affichage.grid_columnconfigure(0, weight=1)
+
         # --- Combobox Palette ---
         ttk.Label(fr_theme, text="Palette:").grid(
-            row=0, column=0, sticky="w", padx=5, pady=2)
+            row=0, column=0, sticky="nw", padx=5, pady=2)
         bx_palette = ttk.Combobox(
             fr_theme, values=["Clair", "Sombre", "Automne", "Bleu pastel"])
         bx_palette.current(0)
@@ -138,7 +141,7 @@ class AppUi(tk.Tk):
 
         # --- Combobox Police ---
         ttk.Label(fr_theme, text="Police:").grid(
-            row=1, column=0, sticky="w", padx=5, pady=2)
+            row=1, column=0, sticky="nw", padx=5, pady=2)
         bx_police = ttk.Combobox(
             fr_theme, values=["Arial", "Calibri", "Times New Roman", "Courier"])
         bx_police.current(0)
@@ -147,6 +150,12 @@ class AppUi(tk.Tk):
         # --- Lier les changements à la fonction ---
         bx_palette.bind("<<ComboboxSelected>>", get_theme_selection)
         bx_police.bind("<<ComboboxSelected>>", get_theme_selection)
+
+        # --- Bouton d'application du thème ---
+        btn_appliquer = ttk.Button(
+            fr_theme, text="Appliquer", command=modifier_theme)
+        btn_appliquer.grid(row=0, column=2, rowspan=2,
+                           sticky="ne", padx=10, pady=2)
 
 
 if __name__ == "__main__":

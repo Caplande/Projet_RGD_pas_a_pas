@@ -25,7 +25,4 @@ NOM_APPLICATION = "Copropriété Monica - Exploitation du relevé général des 
 NOM_COURT = "Exploitation du RGD Monica"
 
 # Configuration du theme en vigueur
-theme_en_vigueur = {"palette": "palette_moderne", "police": "police_moderne_1"}
-palettes, polices = extraire_themes()
-PALETTE = palettes.get(theme_en_vigueur["palette"], {})
-POLICE = polices.get(theme_en_vigueur["police"], {})
+PALETTES, POLICES = extraire_themes()

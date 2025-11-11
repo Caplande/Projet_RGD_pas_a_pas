@@ -10,6 +10,7 @@ from src.ui.pages.affichage_page import AffichagePage as afp
 from src.ui.pages.selection_enregistrements_page import SelectionEnregistrementsPage as sep
 from src.core import actualiser_donnees as ad, edit_speciales as e_s, reinitialiser_bdd as rb, synoptique as sy
 from src.core import resultats as res
+from src.utils import u_sql_3 as u_sql_3
 
 print("Module activation_ecran chargé avec succès.")
 
@@ -21,11 +22,13 @@ def activer_ecran():
               qbp, afp, sep):
         # On instancie chaque page dans le frame fr_centre.
         page = P(ctxt.ecran.fr_centre)  # type: ignore
-        # Attention les noms des pages ne répondent pas à la norme PEP8. Ex: l'instance de AccueilPage est stockée sous le nom "AccueilPage" au lieu de "accueil_page".
-        # ctxt.ecran.pages[P.__name__] = page  # type: ignore
         ctxt.ecran.pages[noms_pages[page._name]] = page  # type: ignore
     ctxt.ecran.afficher_page("page_accueil")  # type: ignore
 
+    # **********************************************************************
+    u_sql_3.appliquer_couleur_vert_fond(
+        ctxt.ecran.pages["page_accueil"])  # type: ignore
+    # **********************************************************************
     creer_menu(ctxt.ecran.menubar)  # type: ignore
 
 
@@ -114,6 +117,10 @@ def executer_action(message, index_menu):
                 "page_selectionenregistrements")  # type: ignore
         case "60":
             ctxt.ecran.afficher_page("page_affichage")  # type: ignore
+            # **********************************************************************
+            u_sql_3.appliquer_couleur_orange_fond(
+                ctxt.ecran.pages["page_affichage"])  # type: ignore
+            # **********************************************************************
             ctxt.ecran.afficher_choix_palettes_polices()  # type: ignore
 
             # type: ignore
