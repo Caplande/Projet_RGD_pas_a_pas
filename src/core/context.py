@@ -39,6 +39,8 @@ class AppContext:
         self.palette = config.PALETTES.get(
             self.theme_en_vigueur["palette"], {})
         self.police = config.POLICES.get(self.theme_en_vigueur["police"], {})
+        print(f"self.palette = {self.palette}")
+        print(f"self.police = {self.police}")
 
         # Dossiers structurants
         self.dir_defaut = vmp.REP_DEFAUT

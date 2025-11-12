@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 import parametres as config
-from .theme_global import definir_theme_global
+from .theme_global import definir_theme_global, zones, fonts
 from src.core.context import context as ctxt
 from colorama import Fore, Style
 from src.utils import u_sql_3 as u_sql_3
@@ -27,10 +27,14 @@ class AppUi(tk.Tk):
         self.geometry("1200x800")
         self.title(
             f"{ctxt.nom_application} (version:{ctxt.version})")
-        # Les styles
+
+        # Les palettes, les styles
         # Appliquer le thème global
         # Affecte le thème global TFrame à tous les frames, TLabel à tous les labels etc...
-        style = definir_theme_global()
+        # Inventaire des palettes et polices disponibles
+        self.d_palettes_polices = self.lister_palettes_polices()
+
+        self.style = definir_theme_global(self)
 
         # Création de la racine du menu principal
         self.menubar = tk.Menu(self)
@@ -65,10 +69,10 @@ class AppUi(tk.Tk):
         self.label_statut_2.pack(side="left", padx=10)
 
         # **********************************************************
-        u_sql_3.appliquer_couleur_jaune_fond(self.fr_centre)
-        u_sql_3.appliquer_couleur_bleu_fond(self.fr_statut)
-        u_sql_3.appliquer_couleur_vert_fond(self.label_statut_1)
-        u_sql_3.appliquer_couleur_orange_fond(self.label_statut_2)
+        # u_sql_3.appliquer_couleur_jaune_fond(self.fr_centre)
+        # u_sql_3.appliquer_couleur_bleu_fond(self.fr_statut)
+        # u_sql_3.appliquer_couleur_vert_fond(self.label_statut_1)
+        # u_sql_3.appliquer_couleur_orange_fond(self.label_statut_2)
         # **********************************************************
 
         # Dictionnaire des pages initialisé depuis AppUi mais rempli depuis activation_ecran.py (pour éviter référence circulaires)
@@ -100,31 +104,29 @@ class AppUi(tk.Tk):
         palettes = data["PALETTES"]
         polices = data["POLICES"]
 
-        # Créer une liste de choix à partir des clés
-        l_palettes = list(palettes.keys())
-        l_polices = list(polices.keys())
-        print(l_palettes)
-        print(l_polices)
+        return [list(palettes.keys()), list(polices.keys())]
 
-    def afficher_choix_palettes_polices(self, event=None):
+    def changer_theme(self, event=None):
         def get_theme_selection(event=None):
-            palette = bx_palette.get()
-            police = bx_police.get()
-            print(f"Palette: {palette}, Police: {police}")
-            return palette, police
+            d_palette = config.PALETTES[bx_palette.get()]
+            d_police = config.POLICES[bx_police.get()]
+            print(f"Palette: {d_palette}, Police: {d_police}")
+            return d_palette, d_police
 
         def modifier_theme():
-            ctxt.set_palette(bx_palette.get())
-            ctxt.set_police(bx_police.get())
+            d_palette, d_police = get_theme_selection()
+            ctxt.set_palette(d_palette)
+            ctxt.set_police(d_police)
+            self.style = definir_theme_global(self)
 
-        # --- Frame theme ---
+            # --- Frame theme ---
         fr_theme = ttk.Frame(ctxt.ecran.pages['page_affichage'], borderwidth=2,  # type: ignore
                              relief="groove", padding=5)
         # fr_theme.pack(side="top", anchor="nw", padx=5, pady=5)
         # placement avec grid
         fr_theme.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
         # *******************************************************
-        u_sql_3.appliquer_couleur_vert_fond(fr_theme)
+        # u_sql_3.appliquer_couleur_vert_fond(fr_theme)
         # *******************************************************
         page_affichage = ctxt.ecran.pages['page_affichage']  # type: ignore
         page_affichage.grid_rowconfigure(
@@ -135,7 +137,7 @@ class AppUi(tk.Tk):
         ttk.Label(fr_theme, text="Palette:").grid(
             row=0, column=0, sticky="nw", padx=5, pady=2)
         bx_palette = ttk.Combobox(
-            fr_theme, values=["Clair", "Sombre", "Automne", "Bleu pastel"])
+            fr_theme, values=self.d_palettes_polices[0])
         bx_palette.current(0)
         bx_palette.grid(row=0, column=1, padx=5, pady=2)
 
@@ -143,7 +145,7 @@ class AppUi(tk.Tk):
         ttk.Label(fr_theme, text="Police:").grid(
             row=1, column=0, sticky="nw", padx=5, pady=2)
         bx_police = ttk.Combobox(
-            fr_theme, values=["Arial", "Calibri", "Times New Roman", "Courier"])
+            fr_theme, values=self.d_palettes_polices[1])
         bx_police.current(0)
         bx_police.grid(row=1, column=1, padx=5, pady=2)
 

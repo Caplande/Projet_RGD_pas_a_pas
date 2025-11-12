@@ -26,8 +26,8 @@ def activer_ecran():
     ctxt.ecran.afficher_page("page_accueil")  # type: ignore
 
     # **********************************************************************
-    u_sql_3.appliquer_couleur_vert_fond(
-        ctxt.ecran.pages["page_accueil"])  # type: ignore
+    # u_sql_3.appliquer_couleur_vert_fond(
+    #     ctxt.ecran.pages["page_accueil"])  # type: ignore
     # **********************************************************************
     creer_menu(ctxt.ecran.menubar)  # type: ignore
 
@@ -118,10 +118,10 @@ def executer_action(message, index_menu):
         case "60":
             ctxt.ecran.afficher_page("page_affichage")  # type: ignore
             # **********************************************************************
-            u_sql_3.appliquer_couleur_orange_fond(
-                ctxt.ecran.pages["page_affichage"])  # type: ignore
+            # u_sql_3.appliquer_couleur_orange_fond(
+            #     ctxt.ecran.pages["page_affichage"])  # type: ignore
             # **********************************************************************
-            ctxt.ecran.afficher_choix_palettes_polices()  # type: ignore
+            ctxt.ecran.changer_theme()  # type: ignore
 
             # type: ignore
             # page = ctxt.ecran.pages["SelectionEnregistrementsPage"]

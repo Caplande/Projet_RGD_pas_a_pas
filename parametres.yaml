@@ -59,6 +59,17 @@ PALETTES:
     secondaire: "#7f8c8d" # gris bleuté apaisant
     barre_etat: "#3E2723" # brun foncé pour la barre d'état
 
+  palette_test:
+    fond: "#111111" # noir
+    accent: "#b79ad4" # mauve pastel principal
+    texte: "#dddddd" # blanc
+    fond_cadre: "#333333" # noir
+    fond_bouton: "#d9c7e6" # mauve clair pour les boutons
+    hover_bouton: "#c8b0dc" # légèrement plus soutenu au survol
+    erreur: "#e57373" # rouge rosé, toujours doux
+    valide: "#81c784" # vert tendre qui s’accorde bien au mauve
+    secondaire: "#7f8c8d" # gris bleuté apaisant
+    barre_etat: "#3E2723" # brun foncé pour la barre d'état
 POLICES:
   police_gestion:
     titre: ["Segoe UI", 18, "bold"] # clair, pro

@@ -2,8 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 from src.core.context import context as ctxt
 
+# On définit une liste de zones communes à la plupart des widgets auxquelles on attribue la composante de la palette courante la plus pertinente.
+# Ex fond est associé à l'attribut 'fond' de la palette courante.
+# Même principe pour la police.
 
-def definir_theme_global():
+
+def definir_theme_global(root=None):
     """
     Crée et applique un thème ttk global qui s'appuie sur les variables PALETTES et POLICES du projet.
     LES PALETTES: Les différentes palettes proposées fournissent un ensemble de couleurs harmonieuses pour l'interface. 
@@ -23,79 +27,64 @@ def definir_theme_global():
     # base neutre, largement compatible. Autres thèmes pré-construits possibles: "clam", "alt", "default", "vista", "xpnative"
     style.theme_use("clam")
 
-    # On définit une liste de zones communes à la plupart des widgets auxquelles on attribue la composante de la palette courante la plus pertinente.
-    # Ex fond est associé à l'attribut 'fond' de la palette courante.
-    # Même principe pour la police.
-    fond = get_palette('fond', "#f0f0f0")
-    accent = get_palette('accent', "#4078c0")
-    texte = get_palette('texte', "#2c3e50")
-    fond_cadre = get_palette('fond_cadre', "#999999")
-    erreur = get_palette('erreur', "#ee2f2f")
-    fond_barre_etat = get_palette('barre_etat', "#0B3D2E")
-    secondaire = get_palette('secondaire', "#7f8c8d")
-    font_normale = get_police('texte', ("Segoe UI", 10))
-    font_titre = get_police('titre', ("Segoe UI", 12, "bold"))
-    font_bouton = get_police('bouton', font_normale)
-    font_barre_etat = get_police('barre_etat', ("Segoe UI", 9, "normal"))
-
     # Construction des styles généraux. Chaque instruction style.configure(...) contribue à la construction du thème
     # Dans la logique ci-dessus, on précise, par type de widget, la partie du widget à traiter avec une des zones définies ci-dessus.
-    # Si l'on veut que le widget soit traité de manière identique à tous ses pairs
-    style.configure("TFrame", background=fond)
-    style.configure("TLabel", background=fond,
-                    foreground=texte, font=font_normale)
+    # Si l'on veut que le widget soit traité de manière identique pour tous ses pairs
+    style.configure("TFrame", background=zne_fond)
+    style.configure("TLabel", background=zne_fond,
+                    foreground=zne_texte, font=font_normale)
     style.configure("TButton",
-                    background=accent,
+                    background=zne_accent,
                     foreground="white",
                     font=font_bouton,
                     padding=(8, 4))
     style.map("TButton",
-              background=[("active", _assombrir(accent, 0.85))],
+              background=[("active", _assombrir(zne_accent, 0.85))],
               relief=[("pressed", "sunken"), ("!pressed", "raised")])
     style.configure("TEntry",
                     fieldbackground="white",
-                    foreground=texte,
+                    foreground=zne_texte,
                     font=font_normale,
                     padding=3)
 
     # Construction des styles pour des widgets utilisés dans des conditions déterminées particulières.
     style.configure("FondBarreEtat.TFrame",
-                    background=fond_barre_etat,
+                    background=zne_fond_barre_etat,
                     relief="flat")
     style.configure("LabelBarreEtat.TLabel",
-                    background=fond_barre_etat,
+                    background=zne_fond_barre_etat,
                     foreground="white",
                     font=font_barre_etat)
     style.configure("Accueil.TFrame",
-                    background=fond,
+                    background=zne_fond,
                     borderwidth=2)
     style.configure("Accueil.TLabel",
                     font=("Helvetica", 16, "bold"),
                     foreground="#61926E")
     style.configure("Titre.TLabel",
                     font=font_titre,
-                    foreground=accent,
-                    background=fond)
+                    foreground=zne_accent,
+                    background=zne_fond)
 
     # Cadre structurant
     style.configure("Cadre.TFrame",
-                    background=fond_cadre,
+                    background=zne_fond_cadre,
                     relief="groove",
                     borderwidth=2)
 
     # Label d’erreur
     style.configure("Erreur.TLabel",
-                    foreground=erreur,
-                    background=fond,
+                    foreground=zne_erreur,
+                    background=zne_fond,
                     font=font_normale)
 
     # Bouton secondaire (gris neutre)
     style.configure("Secondaire.TButton",
-                    background=secondaire,
+                    background=zne_secondaire,
                     foreground="white",
                     font=font_bouton)
     style.map("Secondaire.TButton",
-              background=[("active", _assombrir(secondaire, 0.85))])
+              background=[("active", _assombrir(zne_secondaire, 0.85))])
 
     # Entrée désactivée (fond grisé)
     style.configure("Disabled.TEntry",
@@ -120,6 +109,7 @@ def _assombrir(couleur_hex, facteur):
 
 
 def get_palette(cle, defaut="#ffffff"):
+    # Retourne la composante cle de l'ensemble de la palette active
     valeur = ctxt.palette.get(cle, defaut)
     if cle not in ctxt.palette:
         print(f"(défaut) {cle} = {defaut}")
@@ -127,7 +117,28 @@ def get_palette(cle, defaut="#ffffff"):
 
 
 def get_police(cle, defaut=("Segoe UI", 10)):
-    valeur = ctxt.police.get(cle, defaut)
+    # Retourne la composante cle de l'ensemble de la police active
+    valeur = ctxt.police.get(cle, defaut)  # type: ignore
     if cle not in ctxt.police:
         print(f"(défaut) {cle} = {defaut}")
     return valeur
+
+
+zne_fond = get_palette('fond', "#f0f0f0")
+zne_accent = get_palette('accent', "#4078c0")
+zne_texte = get_palette('texte', "#2c3e50")
+zne_fond_cadre = get_palette('fond_cadre', "#999999")
+zne_erreur = get_palette('erreur', "#ee2f2f")
+zne_fond_barre_etat = get_palette('barre_etat', "#0B3D2E")
+zne_secondaire = get_palette('secondaire', "#7f8c8d")
+font_normale = get_police('texte', ("Segoe UI", 10))
+font_titre = get_police('titre', ("Segoe UI", 12, "bold"))
+font_bouton = get_police('bouton', font_normale)
+font_barre_etat = get_police('barre_etat', ("Segoe UI", 9, "normal"))
+
+zones = [nom for nom in globals() if nom.startswith("zne_")]
+fonts = [nom for nom in globals() if nom.startswith("font_")]
+
+
+if __name__ == "__main__":
+    print(zones, fonts)
