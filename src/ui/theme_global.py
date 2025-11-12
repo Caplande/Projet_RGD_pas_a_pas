@@ -30,73 +30,73 @@ def definir_theme_global(root=None):
     # Construction des styles généraux. Chaque instruction style.configure(...) contribue à la construction du thème
     # Dans la logique ci-dessus, on précise, par type de widget, la partie du widget à traiter avec une des zones définies ci-dessus.
     # Si l'on veut que le widget soit traité de manière identique pour tous ses pairs
-    style.configure("TFrame", background=zne_fond)
-    style.configure("TLabel", background=zne_fond,
-                    foreground=zne_texte, font=font_normale)
+    style.configure("TFrame", background=zne_fond())
+    style.configure("TLabel", background=zne_fond(),
+                    foreground=zne_texte(), font=font_normale())
     style.configure("TButton",
-                    background=zne_accent,
+                    background=zne_accent(),
                     foreground="white",
-                    font=font_bouton,
+                    font=font_bouton(),
                     padding=(8, 4))
     style.map("TButton",
-              background=[("active", _assombrir(zne_accent, 0.85))],
+              background=[("active", _assombrir(zne_accent(), 0.85))],
               relief=[("pressed", "sunken"), ("!pressed", "raised")])
     style.configure("TEntry",
                     fieldbackground="white",
-                    foreground=zne_texte,
-                    font=font_normale,
+                    foreground=zne_texte(),
+                    font=font_normale(),
                     padding=3)
 
     # Construction des styles pour des widgets utilisés dans des conditions déterminées particulières.
     style.configure("FondBarreEtat.TFrame",
-                    background=zne_fond_barre_etat,
+                    background=zne_fond_barre_etat(),
                     relief="flat")
     style.configure("LabelBarreEtat.TLabel",
-                    background=zne_fond_barre_etat,
+                    background=zne_fond_barre_etat(),
                     foreground="white",
-                    font=font_barre_etat)
+                    font=font_barre_etat())
     style.configure("Accueil.TFrame",
-                    background=zne_fond,
+                    background=zne_fond(),
                     borderwidth=2)
     style.configure("Accueil.TLabel",
                     font=("Helvetica", 16, "bold"),
                     foreground="#61926E")
     style.configure("Titre.TLabel",
-                    font=font_titre,
-                    foreground=zne_accent,
-                    background=zne_fond)
+                    font=font_titre(),
+                    foreground=zne_accent(),
+                    background=zne_fond())
 
     # Cadre structurant
     style.configure("Cadre.TFrame",
-                    background=zne_fond_cadre,
+                    background=zne_fond_cadre(),
                     relief="groove",
                     borderwidth=2)
 
     # Label d’erreur
     style.configure("Erreur.TLabel",
-                    foreground=zne_erreur,
-                    background=zne_fond,
-                    font=font_normale)
+                    foreground=zne_erreur(),
+                    background=zne_fond(),
+                    font=font_normale())
 
     # Bouton secondaire (gris neutre)
     style.configure("Secondaire.TButton",
-                    background=zne_secondaire,
+                    background=zne_secondaire(),
                     foreground="white",
-                    font=font_bouton)
+                    font=font_bouton())
     style.map("Secondaire.TButton",
-              background=[("active", _assombrir(zne_secondaire, 0.85))])
+              background=[("active", _assombrir(zne_secondaire(), 0.85))])
 
     # Entrée désactivée (fond grisé)
     style.configure("Disabled.TEntry",
                     fieldbackground="#e0e0e0",
                     foreground="#7f8c8d",
-                    font=font_normale)
+                    font=font_normale())
 
     # Visualisation d'un cadre par remplissage d'une couleur repérable
     style.configure("Visualiser.TFrame",
                     fieldbackground="#082f13",
                     foreground="#f5f8f9",
-                    font=font_normale)
+                    font=font_normale())
     return style
 
 
@@ -124,17 +124,21 @@ def get_police(cle, defaut=("Segoe UI", 10)):
     return valeur
 
 
-zne_fond = get_palette('fond', "#f0f0f0")
-zne_accent = get_palette('accent', "#4078c0")
-zne_texte = get_palette('texte', "#2c3e50")
-zne_fond_cadre = get_palette('fond_cadre', "#999999")
-zne_erreur = get_palette('erreur', "#ee2f2f")
-zne_fond_barre_etat = get_palette('barre_etat', "#0B3D2E")
-zne_secondaire = get_palette('secondaire', "#7f8c8d")
-font_normale = get_police('texte', ("Segoe UI", 10))
-font_titre = get_police('titre', ("Segoe UI", 12, "bold"))
-font_bouton = get_police('bouton', font_normale)
-font_barre_etat = get_police('barre_etat', ("Segoe UI", 9, "normal"))
+def zne_fond(): return get_palette('fond', "#f0f0f0")
+def zne_accent(): return get_palette('accent', "#4078c0")
+def zne_texte(): return get_palette('texte', "#2c3e50")
+def zne_fond_cadre(): return get_palette('fond_cadre', "#999999")
+def zne_erreur(): return get_palette('erreur', "#ee2f2f")
+def zne_fond_barre_etat(): return get_palette('barre_etat', "#0B3D2E")
+def zne_secondaire(): return get_palette('secondaire', "#7f8c8d")
+def font_normale(): return get_police('texte', ("Segoe UI", 10))
+def font_titre(): return get_police('titre', ("Segoe UI", 12, "bold"))
+def font_bouton(): return get_police('bouton', font_normale)
+
+
+def font_barre_etat(): return get_police(
+    'barre_etat', ("Segoe UI", 9, "normal"))
+
 
 zones = [nom for nom in globals() if nom.startswith("zne_")]
 fonts = [nom for nom in globals() if nom.startswith("font_")]
