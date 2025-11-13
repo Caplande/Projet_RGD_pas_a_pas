@@ -122,18 +122,6 @@ def executer_action(message, index_menu):
             #     ctxt.ecran.pages["page_affichage"])  # type: ignore
             # **********************************************************************
             ctxt.ecran.changer_theme()  # type: ignore
-
-            # type: ignore
-            # page = ctxt.ecran.pages["SelectionEnregistrementsPage"]
-            # page.pack(fill="both", expand=True)
-            # La page "SelectionEnregistrementsPage" est instanciée dans ctxt.ecran.pages à l'exécution de activer_ecran() (main.py)
-            # ctxt.ecran.afficher_page(  # type: ignore
-            #    "SelectionEnregistrementsPage")  # type: ignore
-            # e_s.afficher_dans_frame()
-            # sep.creer_vue_base()
-            # sep.afficher_vue(ctxt.ecran.label_statut_2.config(  # type: ignore
-            # type: ignore
-            #    text=f"Nombre d'enregistrements : {e_s.compter_selection()}"))
         case _:
             messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
 

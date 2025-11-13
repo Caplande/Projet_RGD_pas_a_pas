@@ -9,7 +9,7 @@ print("Module reinitialiser_bdd chargé avec succès.")
 
 def reinitialiser_bdd_executer():
     # Afficher la page "mise_a_jour_page" de l'interface
-    ecran.afficher_page("MiseAJourPage")
+    ecran.afficher_page("MiseAJourPage")  # type: ignore
     # 1) Supprimer toutes les tables
     # Supprime toutes les tables et toutes les vues de la base de données
     u_sql_1.supprimer_toutes_tables()

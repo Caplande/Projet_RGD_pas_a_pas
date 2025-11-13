@@ -53,11 +53,11 @@ class AppUi(tk.Tk):
         self.fr_statut.pack(side="bottom", fill="x")
         self.label_statut_1 = ttk.Label(
             self.fr_statut,
-            text=f"Base connectée : {Path(ctxt.path_bdd).name}",
             anchor="w", style="LabelBarreEtat.TLabel"
         )
         self.label_statut_2 = ttk.Label(
-            self.fr_statut, anchor="w", style="LabelBarreEtat.TLabel"
+            self.fr_statut,
+            anchor="w", style="LabelBarreEtat.TLabel"
         )
 
         # **********************************************************
@@ -105,6 +105,10 @@ class AppUi(tk.Tk):
         polices = data["POLICES"]
 
         return [list(palettes.keys()), list(polices.keys())]
+
+    def maj_barre_etat(self, contenu_1=f"Base connectée : {Path(ctxt.path_bdd).name}", contenu_2=""):
+        self.label_statut_1.config(text=contenu_1)
+        self.label_statut_2.config(text=contenu_2)
 
     def changer_theme(self, event=None):
         def get_theme_selection(event=None):

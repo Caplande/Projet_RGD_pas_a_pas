@@ -11,7 +11,7 @@ _Mis à jour le 13 Novembre 2025_
 ✅ Modifier structure projet  
 ✅ Introduire la fonction theme global  
 ✅ Dans app_ui.py corriger les lignes: <ins>self.palettes = getattr(config, "PALETTES", {}) et self.polices = getattr(config, "POLICES", {})</ins> et d'autres certainement.
-🟡 Mieux formaliser l'accueil de chaque option du menu.
+🟡 Mieux formaliser l'accueil de chaque option du menu. Mise à jour de la barre de statut. Caler à droite les montants dans les états de restitution
 
 _Légende :_ ✅ fait · 🟡 en cours · ⬜ à faire · ❌ bloqué
 

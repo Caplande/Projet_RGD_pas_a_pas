@@ -146,5 +146,7 @@ class SelectionEnregistrementsPage(ttk.Frame):
 
     def afficher_total_montant(self):
         total = res.calcul_montant_total(self.filtres)
-        ctxt.ecran.label_statut_2.configure(  # type: ignore
-            text=f"Montant total : {total:.2f} €")
+        ctxt.ecran.maj_barre_etat(  # type: ignore
+            contenu_2=f"Montant total : {total:.2f} €")  # type: ignore
+        # ctxt.ecran.label_statut_2.configure(  # type: ignore
+        #     text=f"Montant total : {total:.2f} €")

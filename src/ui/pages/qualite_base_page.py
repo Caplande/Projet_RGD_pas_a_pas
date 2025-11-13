@@ -1,5 +1,6 @@
 from tkinter import ttk
 import tkinter as tk
+from src.core.context import context as ctxt
 
 print("Module qualite_base_page chargé avec succès.")
 
@@ -17,3 +18,5 @@ class QualiteBasePage(ttk.Frame):
         # NE PAS UTILISER pack. Frame géré en cours de traitement par "place" incompatible avec "pack"
         # Centrer dans le frame
         self.label.place(relx=0.5, rely=0.5, anchor="center")
+        # Mise à jour de la barre d'état
+        ctxt.ecran.maj_barre_etat()  # type: ignore
