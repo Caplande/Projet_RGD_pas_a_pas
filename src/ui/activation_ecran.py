@@ -16,7 +16,7 @@ print("Module activation_ecran chargé avec succès.")
 
 
 def activer_ecran():
-    noms_pages = {'!accueilpage': 'page_accueil', '!generalpage': 'page_general', '!miseajourpage': 'page_miseajour_page', '!editionpage': 'page_edition',
+    noms_pages = {'!accueilpage': 'page_accueil', '!generalpage': 'page_general', '!miseajourpage': 'page_miseajour', '!editionpage': 'page_edition',
                   '!qualitebasepage': 'page_qualitebase', '!selectionenregistrementspage': 'page_selectionenregistrements', '!affichagepage': 'page_affichage'}
     for P in (ap, gp, map, ep,
               qbp, afp, sep):
