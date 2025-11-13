@@ -7,7 +7,13 @@ print("Module qualite_base_page chargé avec succès.")
 class QualiteBasePage(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+
         self.label = ttk.Label(
-            self, text="Menu de qualité de la base", style="TLabel")
-        self.label.pack(expand=True, padx=20, pady=20)
-        self.configure(style="TFrame")
+            self,
+            text="Menu de qualité de la base",
+            style="Accueil.TLabel")  # police, taille, style
+        # Application du style Accueil.Tframe à l'écran
+        self.configure(style="Accueil.TFrame")
+        # NE PAS UTILISER pack. Frame géré en cours de traitement par "place" incompatible avec "pack"
+        # Centrer dans le frame
+        self.label.place(relx=0.5, rely=0.5, anchor="center")

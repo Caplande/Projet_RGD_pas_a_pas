@@ -5,10 +5,6 @@ from src.ui.app_ui import AppUi as AppUi
 from src.ui.activation_ecran import activer_ecran as activer_ecran
 
 if __name__ == "__main__":
-    # instanciation de la base de données et connexion
-    # conn = ctxt.db.connect()
-    # print("Connexion établie sur :", ctxt.path_bdd)
-
     # Active le menu principal et lance l'interface
     """Point d'entrée pour l'interface."""
     app = AppUi()  # Instance de tk.Tk()
