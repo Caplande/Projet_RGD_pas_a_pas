@@ -303,57 +303,6 @@ def extraire_un_parametre(indicateur):
     return row[0]
 
 
-class AffichageEcran():
-    def __init__(self, master):
-        # Le conteneur principal (root)
-        self.master = master
-        self.master.title("Exemple Application modulaire")
-        self.master.geometry("600x400")
-
-        # Frame principale
-        self.main_frame = tk.Frame(master, bg="lightblue")
-        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Crée une sous-section par méthode
-        self.creer_zone_titre()
-        self.creer_zone_boutons()
-
-    def creer_zone_titre(self):
-        """Créer une frame contenant le titre"""
-        self.frame_titre = tk.Frame(
-            self.main_frame, bg="white", relief="groove", bd=2)
-        self.frame_titre.pack(fill="x", pady=5)
-        self.label_titre = tk.Label(
-            self.frame_titre, text="Bienvenue !", font=("Arial", 14))
-        self.label_titre.pack(padx=10, pady=5)
-
-    def creer_zone_boutons(self):
-        """Créer une frame contenant les boutons"""
-        self.frame_boutons = tk.Frame(self.main_frame, bg="#f0f0f0")
-        self.frame_boutons.pack(pady=10)
-
-        self.btn_ajouter = tk.Button(
-            self.frame_boutons, text="Ajouter", command=self.ajouter_message)
-        self.btn_ajouter.pack(side="left", padx=5)
-
-        self.btn_effacer = tk.Button(
-            self.frame_boutons, text="Effacer", command=self.effacer_widgets)
-        self.btn_effacer.pack(side="left", padx=5)
-
-    def ajouter_message(self):
-        """Exemple d’ajout dynamique d’un widget"""
-        label = tk.Label(self.main_frame, text="Nouveau message", bg="yellow")
-        label.pack(pady=2)
-        # Tu pourrais garder une liste de widgets créés ici
-        # self.widgets.append(label)
-
-    def effacer_widgets(self):
-        """Supprime tout le contenu de la main_frame sauf les zones fixes"""
-        for w in self.main_frame.winfo_children():
-            if w not in (self.frame_titre, self.frame_boutons):
-                w.destroy()
-
-
 def appliquer_couleur_jaune_fond(mon_widget):
     style = ttk.Style()
     style.configure("Jaune.TFrame", background="yellow")
@@ -376,6 +325,145 @@ def appliquer_couleur_orange_fond(mon_widget):
     style = ttk.Style()
     style.configure("Orange.TFrame", background="orange")
     mon_widget.configure(style="Orange.TFrame")
+
+
+def hierarchie_widgets(widget):
+    """
+    Retourne un dictionnaire représentant la hiérarchie des widgets
+    à partir du widget donné (souvent root).
+    Clés : noms Tkinter des widgets
+    Valeurs : sous-dictionnaires (même structure)
+    """
+    enfants = widget.winfo_children()
+    return {
+        str(widget): {
+            child.winfo_name(): hierarchie_widgets(child)
+            for child in enfants
+        }
+    }
+
+
+def print_widget_tree(widget, indent=""):
+    # Couleurs ANSI
+    C_RESET = "\033[0m"
+    C_CLS = "\033[96m"   # cyan clair pour la classe
+    C_PATH = "\033[92m"   # vert pour le chemin
+    C_MGR = "\033[93m"   # jaune pour le manager
+    C_FORG = "\033[91m"   # rouge pour forgotten
+    C_OK = "\033[92m"   # vert status
+
+    cls = widget.winfo_class()
+    path = str(widget)
+    mgr = widget.winfo_manager()
+
+    if mgr == "":
+        status = f"{C_FORG}FORGOTTEN{C_RESET}"
+        mgr_display = "none"
+    else:
+        status = f"{C_OK}active{C_RESET}"
+        mgr_display = mgr
+
+    print(
+        f"{indent}"
+        f"{C_CLS}{cls}{C_RESET} "
+        f"{C_PATH}{path}{C_RESET}  "
+        f"manager={C_MGR}{mgr_display}{C_RESET}  "
+        f"status={status}"
+    )
+
+    for child in widget.winfo_children():
+        print_widget_tree(child, indent + "    ")
+
+
+class WidgetManager:
+    """ Cette classe permet de gérer une hiérarchie de widgets en termes de création,masquage,affichage 
+        pour les 3 systèmes de gestion:pack,grid,place
+    """
+
+    def __init__(self, container):
+        self.container = container
+        self.items = {}
+        self.current = None
+
+    # --------------------------
+    # PUBLIC API
+    # --------------------------
+    def add(self, name, root_widget):
+        """Ajoute un arbre de widgets sous 'name'."""
+        tree = self._scan_tree(root_widget)
+        self.items[name] = tree
+
+        # Neutraliser toute la hiérarchie
+        for w, info in tree.items():
+            self._hide(w)
+
+    def show(self, name):
+        """Affiche un arbre, masque l’autre."""
+        tree = self.items[name]
+
+        # cacher l’arbre courant
+        if self.current is not None:
+            for w, info in self.current.items():
+                self._hide(w)
+
+        # montrer le nouvel arbre
+        for w, info in tree.items():
+            self._restore(w, info)
+
+        self.current = tree
+
+    # --------------------------
+    # INTERNALS
+    # --------------------------
+    def _scan_tree(self, root):
+        """Retourne un dict {widget: {manager, info}} pour toute la hiérarchie."""
+        tree = {}
+
+        def recurse(widget):
+            mgr = widget.winfo_manager()
+
+            # récupérer les paramètres selon manager
+            if mgr == "pack":
+                info = widget.pack_info()
+            elif mgr == "grid":
+                info = widget.grid_info()
+            elif mgr == "place":
+                info = widget.place_info()
+            else:
+                info = {}
+
+            tree[widget] = {
+                "manager": mgr,
+                "info": info,
+            }
+
+            # explorer les enfants
+            for child in widget.winfo_children():
+                recurse(child)
+
+        recurse(root)
+        return tree
+
+    def _hide(self, widget):
+        mgr = widget.winfo_manager()
+        if mgr == "pack":
+            widget.pack_forget()
+        elif mgr == "place":
+            widget.place_forget()
+        elif mgr == "grid":
+            widget.grid_remove()
+
+    def _restore(self, widget, info):
+        mgr = info["manager"]
+        cfg = info["info"]
+
+        # restaurer identique
+        if mgr == "pack":
+            widget.pack(**cfg)
+        elif mgr == "grid":
+            widget.grid(**cfg)
+        elif mgr == "place":
+            widget.place(**cfg)
 
 
 if __name__ == "__main__":

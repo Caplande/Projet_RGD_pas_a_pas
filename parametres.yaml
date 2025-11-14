@@ -110,3 +110,11 @@ POLICES:
     bouton: ["Gill Sans", 10, "bold"]
     statut: ["Consolas", 10, "normal"]
     barre_etat: ["Gill Sans", 8, "normal"]
+
+  police_test:
+    titre: ["Calibri", 40, "bold"]
+    soustitre: ["Calibri", 35, "italic"]
+    texte: ["Calibri", 30, "normal"]
+    bouton: ["Calibri", 10, "bold"]
+    statut: ["Consolas", 10, "normal"]
+    barre_etat: ["Calibri", 8, "normal"]

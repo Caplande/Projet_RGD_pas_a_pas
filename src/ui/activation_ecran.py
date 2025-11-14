@@ -23,6 +23,9 @@ def activer_ecran():
         # On instancie chaque page dans le frame fr_centre.
         page = P(ctxt.ecran.fr_centre)  # type: ignore
         ctxt.ecran.pages[noms_pages[page._name]] = page  # type: ignore
+
+    breakpoint()
+
     ctxt.ecran.afficher_page("page_accueil")  # type: ignore
 
     # **********************************************************************
@@ -30,6 +33,11 @@ def activer_ecran():
     #     ctxt.ecran.pages["page_accueil"])  # type: ignore
     # **********************************************************************
     creer_menu(ctxt.ecran.menubar)  # type: ignore
+
+
+def afficher_avancement(nom_page, msg):
+    page = ctxt.ecran.pages[nom_page]   # type: ignore
+    page.avancement.config(text=msg)
 
 
 def creer_menu(menubar):
@@ -93,6 +101,14 @@ def executer_action(message, index_menu):
             ctxt.ecran.quit()  # type: ignore
         case "20":
             ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
+
+            print("************************************************")
+            # hierarchie = u_sql_3.hierarchie_widgets(ctxt.ecran)
+            # print(f"hierarchie = {hierarchie}")
+            print("************************************************")
+
+            ctxt.ecran.pages["page_miseajour"].avancement.config(  # type: ignore
+                text='Actualisation démarrée')
             ad.actualiser_bdd(ad.actualiser_bdd_executer)
         case "21":
             ctxt.ecran.afficher_page("page_miseajour")  # type: ignore

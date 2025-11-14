@@ -34,7 +34,9 @@ class AppUi(tk.Tk):
         # Inventaire des palettes et polices disponibles
         self.d_palettes_polices = self.lister_palettes_polices()
 
-        self.style = definir_theme_global(self)
+        self.theme = definir_theme_global(self)
+
+        # Instanciation du manager de widgets (wm). PASSER PAR wm POUR TOUTES LES TRANSACTIONS SUR LES WIDGETS
 
         # Création de la racine du menu principal
         self.menubar = tk.Menu(self)
@@ -121,7 +123,7 @@ class AppUi(tk.Tk):
             d_palette, d_police = get_theme_selection()
             ctxt.set_palette(d_palette)
             ctxt.set_police(d_police)
-            self.style = definir_theme_global(self)
+            self.theme = definir_theme_global(self)
 
             # --- Frame theme ---
         fr_theme = ttk.Frame(ctxt.ecran.pages['page_affichage'], borderwidth=2,  # type: ignore

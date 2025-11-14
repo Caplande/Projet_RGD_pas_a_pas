@@ -1,16 +1,24 @@
 from tkinter import ttk
 import tkinter as tk
 from src.core.context import context as ctxt
+import parametres as config
 
 print("Module accueil chargé avec succès.")
 
 
 class AccueilPage(ttk.Frame):
+    nb_instances = 0
+
     def __init__(self, parent):
         super().__init__(parent)
+        AccueilPage.nb_instances += 1
+        if AccueilPage.nb_instances > 1:
+            print(
+                f"******************** AccueilPage.nb_instances = {AccueilPage.nb_instances} ********************")
+            breakpoint()
         self.label = ttk.Label(
             self,
-            text=f"Bienvenue dans l'application {ctxt.nom_court}",
+            text=config.BIENVENUE,
             style="Accueil.TLabel")  # police, taille, style
         # Application du style Accueil.Tframe à l'écran
         self.configure(style="Accueil.TFrame")

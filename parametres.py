@@ -23,6 +23,7 @@ MODE_DEBUG = True
 VERSION = "1.0.0"
 NOM_APPLICATION = "Copropriété Monica - Exploitation du relevé général des dépenses"
 NOM_COURT = "Exploitation du RGD Monica"
+BIENVENUE = "Bienvenue dans l'application d'analyse du relevé général des dépenses"
 
 # Configuration du theme en vigueur
 PALETTES, POLICES = extraire_themes()

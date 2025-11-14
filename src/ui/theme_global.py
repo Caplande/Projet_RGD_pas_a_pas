@@ -93,9 +93,41 @@ def definir_theme_global(root=None):
                     font=font_normale())
 
     # Visualisation d'un cadre par remplissage d'une couleur repérable
-    style.configure("Visualiser.TFrame",
-                    fieldbackground="#082f13",
+    style.configure("Avancement.TLabel",
+                    fieldbackground="#1e2c22",
                     foreground="#f5f8f9",
+                    font=font_normale())
+    return style
+
+    # Visualisation d'un cadre au moyen d'un remplissage de couleur saturée à des fins de test
+    # Rouge
+    style.configure("Test_rouge.TFrame",
+                    fieldbackground="#fF0000",
+                    foreground="#00ff00",
+                    font=font_normale())
+    return style
+    # Vert
+    style.configure("Test_vert.TFrame",
+                    fieldbackground="#00ff00",
+                    foreground="#fF0000",
+                    font=font_normale())
+    return style
+    # Bleu
+    style.configure("Test_vert.TFrame",
+                    fieldbackground="#0000ff",
+                    foreground="#ffffff",
+                    font=font_normale())
+    return style
+    # Orange
+    style.configure("Test_vert.TFrame",
+                    fieldbackground="#e17007",
+                    foreground="#00ff00",
+                    font=font_normale())
+    return style
+    # Mauve
+    style.configure("Test_vert.TFrame",
+                    fieldbackground="#430486",
+                    foreground="#00ff00",
                     font=font_normale())
     return style
 
