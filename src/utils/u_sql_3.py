@@ -387,23 +387,48 @@ class WidgetTreeManager:
         ---> On peut afficher n'importe quel widget wtm.show("/fr_centre/mon_label") 
         ---> On peut recupérer un widget: lbl = wtm.get("/fr_centre/mon_label")
         ---> On peut cacher un ou plusieurs widgets: wtm.hide("/page1", "/page2", "/fr_centre/sidebar")
-        ---> Représentation de la hiérarchie: wtm.print_tree()
+        ---> Représentation de la hiérarchie: wtm.print_tree_status()
+        ---> Pack, Grid, Place tous pris en charge
+        ---> Système auto-refresh basé sur les events Tkinter (Map/Unmap/Configure/Destroy)
+        ---> Peut restaurer automatiquement les geometry managers d’origine
     """
 
     def __init__(self, widg_contenant):
         self.root = widg_contenant
         self.tree = {}   # path → {widget, manager, info}
         self._build_tree()
+        self._bind_events()  # activation du refresh automatique
 
-    # ------------------------------------------------------------
+    # ============================================================
+    # AUTO-REFRESH
+    # ============================================================
+    def _bind_events(self):
+        """
+        Active un système global d'écoute :
+        - <Map>       : widget rendu visible
+        - <Unmap>     : widget masqué
+        - <Configure> : taille/geometry manager changé
+        - <Destroy>   : widget détruit
+
+        Le tree est ainsi toujours à jour sans appeler refresh().
+        """
+        root = self.root.winfo_toplevel()
+
+        root.bind_all("<Map>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Unmap>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Configure>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Destroy>", lambda e: self._build_tree(), add="+")
+
+    # ============================================================
     # BUILD TREE
-    # ------------------------------------------------------------
-
+    # ============================================================
     def _build_tree(self):
+        """Reconstruit totalement le tree."""
         self.tree.clear()
 
         def recurse(widget, path):
             mgr = widget.winfo_manager()
+
             if mgr == "pack":
                 info = widget.pack_info()
             elif mgr == "grid":
@@ -415,14 +440,15 @@ class WidgetTreeManager:
 
             self.tree[path] = {"widget": widget, "manager": mgr, "info": info}
 
+            # enfants
             for child in widget.winfo_children():
                 recurse(child, f"{path}/{child.winfo_name()}")
 
         recurse(self.root, "")
 
-    # ------------------------------------------------------------
-    # INTERNAL
-    # ------------------------------------------------------------
+    # ============================================================
+    # INTERNAL TOOLS
+    # ============================================================
     def _hide(self, widget):
         mgr = widget.winfo_manager()
         if mgr == "pack":
@@ -441,18 +467,18 @@ class WidgetTreeManager:
             widget.place(**info)
 
     def _descendants(self, path):
-        """Liste tous les chemins descendants (récursif)"""
+        """Retourne tous les chemins descendants récursifs."""
         prefix = path + "/" if path else ""
         return [
             p for p in self.tree
             if p.startswith(prefix) and p != path
         ]
 
-    # ------------------------------------------------------------
+    # ============================================================
     # PUBLIC API
-    # ------------------------------------------------------------
+    # ============================================================
     def show(self, path):
-        """Affiche un widget + tous ses descendants"""
+        """Affiche un widget ET tous ses descendants."""
         self._build_tree()
         p = path.lstrip("/")
 
@@ -463,17 +489,16 @@ class WidgetTreeManager:
         for entry in self.tree.values():
             self._hide(entry["widget"])
 
-        # restaurer widget cible
+        # restaurer cible + descendants
         entry = self.tree[p]
         self._restore(entry["widget"], entry["manager"], entry["info"])
 
-        # restaurer tous les descendants
         for child_path in self._descendants(p):
             e = self.tree[child_path]
             self._restore(e["widget"], e["manager"], e["info"])
 
     def hide(self, *paths):
-        """Cache un ou plusieurs widgets (et leurs descendants)."""
+        """Cache un ou plusieurs widgets + leurs descendants."""
         self._build_tree()
 
         for path in paths:
@@ -481,18 +506,22 @@ class WidgetTreeManager:
             if p not in self.tree:
                 continue
 
-            # cacher widget
+            # widget principal
             self._hide(self.tree[p]["widget"])
 
-            # cacher descendants
+            # descendants
             for c in self._descendants(p):
                 self._hide(self.tree[c]["widget"])
 
     def get(self, path):
+        """Renvoie directement l’objet widget."""
         return self.tree[path.lstrip("/")]["widget"]
 
+    # ============================================================
+    # PRINT TREE (couleurs)
+    # ============================================================
     def print_tree_status(self):
-        """Affiche l'arbre avec couleurs + statut actif/inactif + noms python."""
+        """Affiche l'arbre avec couleurs + statut actif/inactif + geometry manager."""
         self._build_tree()
 
         COLOR = {
@@ -518,8 +547,8 @@ class WidgetTreeManager:
             widget = entry["widget"]
             mgr = entry["manager"] or "none"
 
-            # --- nom python ou nom Tk ---
-            if widget in ctxt.widget_names:
+            # nom python si dispo
+            if widget in getattr(ctxt, "widget_names", {}):
                 name = ctxt.widget_names[widget]
             else:
                 name = widget.winfo_name()
