@@ -1,0 +1,1 @@
+ctxt.wtm = WidgetTreeManager(ctxt.ecran)

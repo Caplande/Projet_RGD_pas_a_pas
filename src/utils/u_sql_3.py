@@ -257,7 +257,7 @@ def creer_vue(nom_vue='v_t_base_data', cdtn='1=1'):
         LEFT JOIN t_lexique_bat AS lb ON b.bat = lb.bat
         LEFT JOIN t_lexique_batrub AS lbr ON b.batrub = lbr.batrub
         LEFT JOIN t_lexique_typ AS lt ON b.typ = lt.typ
-        WHERE {cdtn} 
+        WHERE {cdtn}
         ORDER BY b.bat || b.batrub || b.typ;
     """
     cur.execute(sql)
@@ -271,12 +271,12 @@ def maj_t_lexique_cles_old():
     cur = conn.cursor()
 
     cur.executescript("""
-        DROP TABLE IF EXISTS t_lexique_cles;             
-                      
+        DROP TABLE IF EXISTS t_lexique_cles;
+
         CREATE TABLE t_lexique_cles AS
         SELECT DISTINCT cle, groupe
         FROM t_base_data;
-        
+
         CREATE INDEX id ON t_lexique_cles(cle, groupe);
         """)
 
@@ -376,7 +376,7 @@ def print_widget_tree(widget, indent=""):
 
 
 class WidgetTreeManager:
-    """ Cette classe permet de visualiser et/ou extraire une hiérarchie de widgets en termes de création,masquage,affichage 
+    """ Cette classe permet de visualiser et/ou extraire une hiérarchie de widgets en termes de création,masquage,affichage
         pour les 3 systèmes de gestion:pack,grid,place
         3 fonctionnalités essentielles:
         Si wtm = WidgetTreeManager(widget_contenant)
@@ -384,7 +384,7 @@ class WidgetTreeManager:
         ---> Gestion récursive. Le manager parcourt widget_contenant, repère tous les enfants, petits enfants quel que soit leur geometry manager
              Peut les cacher, les retaurer en navigant grace au chemin absolu /fr_centre/label1..
         ---> On peut détecter les widgets créés plus tard par wtm.refresh()
-        ---> On peut afficher n'importe quel widget wtm.show("/fr_centre/mon_label") 
+        ---> On peut afficher n'importe quel widget wtm.show("/fr_centre/mon_label")
         ---> On peut recupérer un widget: lbl = wtm.get("/fr_centre/mon_label")
         ---> On peut cacher un ou plusieurs widgets: wtm.hide("/page1", "/page2", "/fr_centre/sidebar")
         ---> Représentation de la hiérarchie: wtm.print_tree_status()
@@ -427,8 +427,16 @@ class WidgetTreeManager:
         self.tree.clear()
 
         def recurse(widget, path):
-            mgr = widget.winfo_manager()
+            # --- nom logique pour le chemin ---
+            if widget in ctxt.widget_names:
+                name = ctxt.widget_names[widget]
+            else:
+                name = widget.winfo_name()
 
+            fullpath = f"{path}/{name}" if path else name
+
+            # --- infos manager ---
+            mgr = widget.winfo_manager()
             if mgr == "pack":
                 info = widget.pack_info()
             elif mgr == "grid":
@@ -438,11 +446,14 @@ class WidgetTreeManager:
             else:
                 info = {}
 
-            self.tree[path] = {"widget": widget, "manager": mgr, "info": info}
+            self.tree[fullpath] = {
+                "widget": widget,
+                "manager": mgr,
+                "info": info
+            }
 
-            # enfants
             for child in widget.winfo_children():
-                recurse(child, f"{path}/{child.winfo_name()}")
+                recurse(child, fullpath)
 
         recurse(self.root, "")
 
@@ -477,24 +488,42 @@ class WidgetTreeManager:
     # ============================================================
     # PUBLIC API
     # ============================================================
+    def _resolve(self, p: str):
+        """Trouve le chemin réel associé à p (nom exact, partiel ou segment)."""
+        p = p.strip("/")
+        if not p:
+            return "" if "" in self.tree else None
+
+        # 1) match exact
+        if p in self.tree:
+            return p
+
+        # 2) match sur les segments
+        for key in self.tree.keys():
+            if p in key.split("/"):
+                return key
+
+        return None
+
     def show(self, path):
-        """Affiche un widget ET tous ses descendants."""
+        """Affiche un widget + tous ses descendants."""
         self._build_tree()
-        p = path.lstrip("/")
 
-        if p not in self.tree:
-            raise KeyError(f"Widget '{path}' introuvable")
+        key = self._resolve(path)
+        if key is None:
+            raise KeyError(f"[WTM.show] Chemin non trouvé : {path}")
 
-        # cacher tout
+        # cacher tous les widgets
         for entry in self.tree.values():
             self._hide(entry["widget"])
 
-        # restaurer cible + descendants
-        entry = self.tree[p]
-        self._restore(entry["widget"], entry["manager"], entry["info"])
+        # restaurer la cible
+        e = self.tree[key]
+        self._restore(e["widget"], e["manager"], e["info"])
 
-        for child_path in self._descendants(p):
-            e = self.tree[child_path]
+        # restaurer les descendants
+        for child in self._descendants(key):
+            e = self.tree[child]
             self._restore(e["widget"], e["manager"], e["info"])
 
     def hide(self, *paths):
@@ -502,15 +531,16 @@ class WidgetTreeManager:
         self._build_tree()
 
         for path in paths:
-            p = path.lstrip("/")
-            if p not in self.tree:
+            key = self._resolve(path)
+            if key is None:
+                print(f"[WTM.hide] Chemin non trouvé : {path}")
                 continue
 
-            # widget principal
-            self._hide(self.tree[p]["widget"])
+            # cacher ce widget
+            self._hide(self.tree[key]["widget"])
 
-            # descendants
-            for c in self._descendants(p):
+            # cacher tous les descendants
+            for c in self._descendants(key):
                 self._hide(self.tree[c]["widget"])
 
     def get(self, path):
@@ -584,6 +614,18 @@ class WidgetTreeManager:
 
             for c in sorted(children):
                 rec(c, level + 1)
+        # --- Création d'une racine virtuelle "" si elle n'existe pas ---
+        if "" not in self.tree:
+            # On trouve tous les vrais racines : chemins sans "/"
+            real_roots = [p for p in self.tree if "/" not in p]
+
+            # Stockage dans l'entrée racine
+            self.tree[""] = {
+                "widget": self.root,        # widget racine réel
+                "manager": None,
+                "visible": True,
+                "children": real_roots,
+            }
 
         rec("", 0)
 

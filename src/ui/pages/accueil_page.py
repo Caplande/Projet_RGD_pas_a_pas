@@ -24,6 +24,8 @@ class AccueilPage(ttk.Frame):
         self.configure(style="Accueil.TFrame")
         # NE PAS UTILISER pack. Frame géré en cours de traitement par "place" incompatible avec "pack"
         # Centrer dans le frame
-        self.label.place(relx=0.5, rely=0.5, anchor="center")
+        # self.label.place(relx=0.5, rely=0.5, anchor="center")
+        ctxt.set_widget_names(self.label, "label")
+
         # Mise à jour de la barre d'état
         ctxt.ecran.maj_barre_etat()  # type: ignore

@@ -75,7 +75,7 @@ def creer_menu(menubar):
         label="Bidon", command=lambda: bidon)
     menu_v1.add_separator()
     menu_v1.add_command(
-        label="Choix3", command=lambda: executer_action("Choix3", 3))
+        label="Choix3", command=lambda: executer_action("Choix3", "3"))
 
     menu_v2.add_command(
         label="Actualiser données", command=lambda: executer_action("Actualiser données...", "20"))

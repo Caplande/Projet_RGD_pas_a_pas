@@ -6,6 +6,8 @@ import src.core.variables_metier as vm
 from src.core.data import Database  # ta classe qui gère SQLite
 from colorama import Fore, Style
 
+# from src.utils.u_sql_3 import WidgetTreeManager
+
 print("Module context chargé avec succès.")
 
 
@@ -60,8 +62,9 @@ class AppContext:
         self.engine = vmp.ENGINE
 
         # Mappage des noms système:noms utilisateur des widgets Tkinter
-        # Cette variable doit se valoriser au fur et à mesure des créations de widgets. Voir ci-dessous: set_widget_names()
+        # Cette variable doit être valorisée au fur et à mesure des créations de widgets. Voir ci-dessous: set_widget_names()
         self.widget_names = {}
+        self.wtm: "WidgetTreeManager | None" = None  # type: ignore
 
         # Variables métier partagées
         self.vm_composantes_bdd = vm.composantes_bdd
