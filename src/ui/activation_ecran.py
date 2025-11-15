@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from typing import dataclass_transform
 from src.core.context import context as ctxt
 from src.ui.pages.accueil_page import AccueilPage as ap
 from src.ui.pages.general_page import GeneralPage as gp
@@ -18,11 +19,18 @@ print("Module activation_ecran chargé avec succès.")
 def activer_ecran():
     noms_pages = {'!accueilpage': 'page_accueil', '!generalpage': 'page_general', '!miseajourpage': 'page_miseajour', '!editionpage': 'page_edition',
                   '!qualitebasepage': 'page_qualitebase', '!selectionenregistrementspage': 'page_selectionenregistrements', '!affichagepage': 'page_affichage'}
-    for P in (ap, gp, map, ep,
-              qbp, afp, sep):
+    for P in (ap, gp, map, ep, qbp, afp, sep):
         # On instancie chaque page dans le frame fr_centre.
         page = P(ctxt.ecran.fr_centre)  # type: ignore
-        ctxt.ecran.pages[noms_pages[page._name]] = page  # type: ignore
+        nom_page = noms_pages[page._name]  # type: ignore
+        ctxt.ecran.pages[nom_page] = page  # type: ignore
+
+    # u_sql_3.print_widget_tree(ctxt.ecran)
+    # breakpoint()
+
+    wtm = ctxt.ecran.wtm  # type: ignore
+    wtm.hide("/fr_centre")
+    wtm.print_tree_status()
 
     breakpoint()
 
@@ -54,7 +62,8 @@ def creer_menu(menubar):
     menubar.add_cascade(label="Qualité de la base", menu=menu_v4)
 
     menu_v5 = tk.Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Sélection enregistrements", menu=menu_v5)
+    menubar.add_cascade(
+        label="Sélection enregistrements", menu=menu_v5)
 
     menu_v6 = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Affichage", menu=menu_v6)
@@ -93,54 +102,54 @@ def creer_menu(menubar):
     menu_v6.add_command(
         label="Affichage", command=lambda: executer_action("Affichage...", "60"))
 
+    def executer_action(message, index_menu: str):
+        match index_menu:
+            case "10":
+                ctxt.ecran.afficher_page("page_general")  # type: ignore
+                ctxt.ecran.quit()  # type: ignore
+            case "20":
+                ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
 
-def executer_action(message, index_menu):
-    match index_menu:
-        case "10":
-            ctxt.ecran.afficher_page("page_general")  # type: ignore
-            ctxt.ecran.quit()  # type: ignore
-        case "20":
-            ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
+                print("************************************************")
+                # hierarchie = u_sql_3.hierarchie_widgets(ctxt.ecran)
+                # print(f"hierarchie = {hierarchie}")
+                print("************************************************")
 
-            print("************************************************")
-            # hierarchie = u_sql_3.hierarchie_widgets(ctxt.ecran)
-            # print(f"hierarchie = {hierarchie}")
-            print("************************************************")
+                ctxt.ecran.pages["page_miseajour"].avancement.config(  # type: ignore
+                    text='Actualisation démarrée')
+                ad.actualiser_bdd(ad.actualiser_bdd_executer)
+            case "21":
+                ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
+                rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
+            case "30":
+                ctxt.ecran.afficher_page("page_edition")  # type: ignore
+                res.creer_pdf_pivot_hierarchique_vue_typ()
+            case "31":
+                ctxt.ecran.afficher_page("page_edition")  # type: ignore
+                res.creer_pdf_pivot_hierarchique_vue_groupe()
+            case "32":
+                ctxt.ecran.afficher_page("page_edition")  # type: ignore
+                res.ed_spec_par_typ()
+            case "33":
+                ctxt.ecran.afficher_page("page_edition")  # type: ignore
+                res.ed_spec_par_groupe()
+            case "40":
+                ctxt.ecran.afficher_page(  # type: ignore
+                    "page_qualitebase")  # type: ignore
+                sy.afficher_table()
+            case "50":
+                ctxt.ecran.afficher_page(  # type: ignore
+                    "page_selectionenregistrements")  # type: ignore
+            case "60":
+                ctxt.ecran.afficher_page("page_affichage")  # type: ignore
+                # **********************************************************************
+                # u_sql_3.appliquer_couleur_orange_fond(
+                #     ctxt.ecran.pages["page_affichage"])  # type: ignore
+                # **********************************************************************
+                ctxt.ecran.changer_theme()  # type: ignore
+            case _:
+                messagebox.showinfo(
+                    "Action", f"Tu as sélectionné : {message}")
 
-            ctxt.ecran.pages["page_miseajour"].avancement.config(  # type: ignore
-                text='Actualisation démarrée')
-            ad.actualiser_bdd(ad.actualiser_bdd_executer)
-        case "21":
-            ctxt.ecran.afficher_page("page_miseajour")  # type: ignore
-            rb.reinitialiser_bdd(rb.reinitialiser_bdd_executer)
-        case "30":
-            ctxt.ecran.afficher_page("page_edition")  # type: ignore
-            res.creer_pdf_pivot_hierarchique_vue_typ()
-        case "31":
-            ctxt.ecran.afficher_page("page_edition")  # type: ignore
-            res.creer_pdf_pivot_hierarchique_vue_groupe()
-        case "32":
-            ctxt.ecran.afficher_page("page_edition")  # type: ignore
-            res.ed_spec_par_typ()
-        case "33":
-            ctxt.ecran.afficher_page("page_edition")  # type: ignore
-            res.ed_spec_par_groupe()
-        case "40":
-            ctxt.ecran.afficher_page("page_qualitebase")  # type: ignore
-            sy.afficher_table()
-        case "50":
-            ctxt.ecran.afficher_page(  # type: ignore
-                "page_selectionenregistrements")  # type: ignore
-        case "60":
-            ctxt.ecran.afficher_page("page_affichage")  # type: ignore
-            # **********************************************************************
-            # u_sql_3.appliquer_couleur_orange_fond(
-            #     ctxt.ecran.pages["page_affichage"])  # type: ignore
-            # **********************************************************************
-            ctxt.ecran.changer_theme()  # type: ignore
-        case _:
-            messagebox.showinfo("Action", f"Tu as sélectionné : {message}")
-
-
-def bidon(self):
-    messagebox.showinfo("Action", "bidon...")
+    def bidon(self):
+        messagebox.showinfo("Action", "bidon...")

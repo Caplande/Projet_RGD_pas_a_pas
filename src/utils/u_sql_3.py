@@ -375,54 +375,35 @@ def print_widget_tree(widget, indent=""):
         print_widget_tree(child, indent + "    ")
 
 
-class WidgetManager:
-    """ Cette classe permet de gérer une hiérarchie de widgets en termes de création,masquage,affichage 
+class WidgetTreeManager:
+    """ Cette classe permet de visualiser et/ou extraire une hiérarchie de widgets en termes de création,masquage,affichage 
         pour les 3 systèmes de gestion:pack,grid,place
+        3 fonctionnalités essentielles:
+        Si wtm = WidgetTreeManager(widget_contenant)
+        ---> root est la racine (ctxt.ecran)
+        ---> Gestion récursive. Le manager parcourt widget_contenant, repère tous les enfants, petits enfants quel que soit leur geometry manager
+             Peut les cacher, les retaurer en navigant grace au chemin absolu /fr_centre/label1..
+        ---> On peut détecter les widgets créés plus tard par wtm.refresh()
+        ---> On peut afficher n'importe quel widget wtm.show("/fr_centre/mon_label") 
+        ---> On peut recupérer un widget: lbl = wtm.get("/fr_centre/mon_label")
+        ---> On peut cacher un ou plusieurs widgets: wtm.hide("/page1", "/page2", "/fr_centre/sidebar")
+        ---> Représentation de la hiérarchie: wtm.print_tree()
     """
 
-    def __init__(self, container):
-        self.container = container
-        self.items = {}
-        self.current = None
+    def __init__(self, widg_contenant):
+        self.root = widg_contenant
+        self.tree = {}   # path → {widget, manager, info}
+        self._build_tree()
 
-    # --------------------------
-    # PUBLIC API
-    # --------------------------
-    def add(self, name, root_widget):
-        """Ajoute un arbre de widgets sous 'name'."""
-        tree = self._scan_tree(root_widget)
-        self.items[name] = tree
+    # ------------------------------------------------------------
+    # BUILD TREE
+    # ------------------------------------------------------------
 
-        # Neutraliser toute la hiérarchie
-        for w, info in tree.items():
-            self._hide(w)
+    def _build_tree(self):
+        self.tree.clear()
 
-    def show(self, name):
-        """Affiche un arbre, masque l’autre."""
-        tree = self.items[name]
-
-        # cacher l’arbre courant
-        if self.current is not None:
-            for w, info in self.current.items():
-                self._hide(w)
-
-        # montrer le nouvel arbre
-        for w, info in tree.items():
-            self._restore(w, info)
-
-        self.current = tree
-
-    # --------------------------
-    # INTERNALS
-    # --------------------------
-    def _scan_tree(self, root):
-        """Retourne un dict {widget: {manager, info}} pour toute la hiérarchie."""
-        tree = {}
-
-        def recurse(widget):
+        def recurse(widget, path):
             mgr = widget.winfo_manager()
-
-            # récupérer les paramètres selon manager
             if mgr == "pack":
                 info = widget.pack_info()
             elif mgr == "grid":
@@ -432,38 +413,150 @@ class WidgetManager:
             else:
                 info = {}
 
-            tree[widget] = {
-                "manager": mgr,
-                "info": info,
-            }
+            self.tree[path] = {"widget": widget, "manager": mgr, "info": info}
 
-            # explorer les enfants
             for child in widget.winfo_children():
-                recurse(child)
+                recurse(child, f"{path}/{child.winfo_name()}")
 
-        recurse(root)
-        return tree
+        recurse(self.root, "")
 
+    # ------------------------------------------------------------
+    # INTERNAL
+    # ------------------------------------------------------------
     def _hide(self, widget):
         mgr = widget.winfo_manager()
         if mgr == "pack":
             widget.pack_forget()
-        elif mgr == "place":
-            widget.place_forget()
         elif mgr == "grid":
             widget.grid_remove()
-
-    def _restore(self, widget, info):
-        mgr = info["manager"]
-        cfg = info["info"]
-
-        # restaurer identique
-        if mgr == "pack":
-            widget.pack(**cfg)
-        elif mgr == "grid":
-            widget.grid(**cfg)
         elif mgr == "place":
-            widget.place(**cfg)
+            widget.place_forget()
+
+    def _restore(self, widget, mgr, info):
+        if mgr == "pack":
+            widget.pack(**info)
+        elif mgr == "grid":
+            widget.grid(**info)
+        elif mgr == "place":
+            widget.place(**info)
+
+    def _descendants(self, path):
+        """Liste tous les chemins descendants (récursif)"""
+        prefix = path + "/" if path else ""
+        return [
+            p for p in self.tree
+            if p.startswith(prefix) and p != path
+        ]
+
+    # ------------------------------------------------------------
+    # PUBLIC API
+    # ------------------------------------------------------------
+    def show(self, path):
+        """Affiche un widget + tous ses descendants"""
+        self._build_tree()
+        p = path.lstrip("/")
+
+        if p not in self.tree:
+            raise KeyError(f"Widget '{path}' introuvable")
+
+        # cacher tout
+        for entry in self.tree.values():
+            self._hide(entry["widget"])
+
+        # restaurer widget cible
+        entry = self.tree[p]
+        self._restore(entry["widget"], entry["manager"], entry["info"])
+
+        # restaurer tous les descendants
+        for child_path in self._descendants(p):
+            e = self.tree[child_path]
+            self._restore(e["widget"], e["manager"], e["info"])
+
+    def hide(self, *paths):
+        """Cache un ou plusieurs widgets (et leurs descendants)."""
+        self._build_tree()
+
+        for path in paths:
+            p = path.lstrip("/")
+            if p not in self.tree:
+                continue
+
+            # cacher widget
+            self._hide(self.tree[p]["widget"])
+
+            # cacher descendants
+            for c in self._descendants(p):
+                self._hide(self.tree[c]["widget"])
+
+    def get(self, path):
+        return self.tree[path.lstrip("/")]["widget"]
+
+    def print_tree_status(self):
+        """Affiche l'arbre avec couleurs + statut actif/inactif + noms python."""
+        self._build_tree()
+
+        COLOR = {
+            "root": "\033[96m",
+            "container": "\033[94m",
+            "leaf": "\033[92m",
+            "inactive": "\033[91m",
+            "mgr": "\033[90m",
+            "reset": "\033[0m",
+        }
+
+        def is_container(widget):
+            return len(widget.winfo_children()) > 0
+
+        def is_visible(widget):
+            return widget.winfo_manager() != ""
+
+        def indent(level):
+            return "  " * level
+
+        def rec(path, level):
+            entry = self.tree[path]
+            widget = entry["widget"]
+            mgr = entry["manager"] or "none"
+
+            # --- nom python ou nom Tk ---
+            if widget in ctxt.widget_names:
+                name = ctxt.widget_names[widget]
+            else:
+                name = widget.winfo_name()
+
+            # couleur du type
+            if path == "":
+                color = COLOR["root"]
+            elif is_container(widget):
+                color = COLOR["container"]
+            else:
+                color = COLOR["leaf"]
+
+            # actif/inactif
+            active = is_visible(widget)
+            state_color = COLOR["leaf"] if active else COLOR["inactive"]
+            state_txt = "actif" if active else "inactif"
+
+            print(
+                f"{indent(level)}"
+                f"{color}{name}{COLOR['reset']} "
+                f"{COLOR['mgr']}[{mgr}]{COLOR['reset']} "
+                f"{state_color}({state_txt}){COLOR['reset']}"
+            )
+
+            # enfants directs
+            prefix = path + "/" if path else ""
+            children = [
+                p for p in self.tree
+                if p.startswith(prefix)
+                and p.count("/") == path.count("/") + 1
+                and p != path
+            ]
+
+            for c in sorted(children):
+                rec(c, level + 1)
+
+        rec("", 0)
 
 
 if __name__ == "__main__":

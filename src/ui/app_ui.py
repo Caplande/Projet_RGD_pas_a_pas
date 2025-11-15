@@ -7,6 +7,7 @@ from .theme_global import definir_theme_global, zones, fonts
 from src.core.context import context as ctxt
 from colorama import Fore, Style
 from src.utils import u_sql_3 as u_sql_3
+
 print("Module app_ui chargé avec succès.")
 
 ecran = None
@@ -36,23 +37,28 @@ class AppUi(tk.Tk):
 
         self.theme = definir_theme_global(self)
 
-        # Instanciation du manager de widgets (wm). PASSER PAR wm POUR TOUTES LES TRANSACTIONS SUR LES WIDGETS
+        # Instanciation du manager de widgets (self.wtm_xxx).
+        self.wtm = u_sql_3.WidgetTreeManager(self)
 
         # Création de la racine du menu principal
         self.menubar = tk.Menu(self)
         self.configure(menu=self.menubar)
+        ctxt.set_widget_names(self.menubar, "menubar")
+        # breakpoint()
 
         # Création d'un Frame central pour accueillir les pages
         self.fr_centre = ttk.Frame(self)
         self.fr_centre.pack(side="top", fill="both", expand=True)
+        ctxt.set_widget_names(self.fr_centre, "fr_centre")
 
         # Affichage initial: frame de statut: fr_statut et page d'accueil: AccueilPage
         # Affichage de la barre de statut fr_statut
         self.fr_statut = ttk.Frame(
             self, height=25, style="FondBarreEtat.TFrame")
-        # Empêcher le redimensionnement automatique
+        # Empêcher le redimensionnement automatique calculé par rapport à la teille des enfants
         self.fr_statut.pack_propagate(False)
         self.fr_statut.pack(side="bottom", fill="x")
+        ctxt.set_widget_names(self.fr_statut, "fr_statut")
         self.label_statut_1 = ttk.Label(
             self.fr_statut,
             anchor="w", style="LabelBarreEtat.TLabel"
@@ -62,27 +68,14 @@ class AppUi(tk.Tk):
             anchor="w", style="LabelBarreEtat.TLabel"
         )
 
-        # **********************************************************
-        # self.after(2000, lambda: style.configure(
-        #    "TLabel", background="yellow"))
-        # **********************************************************
-
         self.label_statut_1.pack(side="left", padx=10)
         self.label_statut_2.pack(side="left", padx=10)
-
-        # **********************************************************
-        # u_sql_3.appliquer_couleur_jaune_fond(self.fr_centre)
-        # u_sql_3.appliquer_couleur_bleu_fond(self.fr_statut)
-        # u_sql_3.appliquer_couleur_vert_fond(self.label_statut_1)
-        # u_sql_3.appliquer_couleur_orange_fond(self.label_statut_2)
-        # **********************************************************
+        ctxt.set_widget_names(self.label_statut_1, "label_statut_1")
+        ctxt.set_widget_names(self.label_statut_2, "label_statut_2")
 
         # Dictionnaire des pages initialisé depuis AppUi mais rempli depuis activation_ecran.py (pour éviter référence circulaires)
         self.pages = {}
-        # **********************************************************
-        # self.after(2000, lambda: (print("Changement de style"),
-        #           style.configure("LabelBarreEtat.TLabel", font=("Arial", 40, "bold"))))
-        # **********************************************************
+
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def afficher_page(self, nom_page):

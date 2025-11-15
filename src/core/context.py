@@ -59,6 +59,10 @@ class AppContext:
         # Accès SQLITE à la base de données via SQLAlchemy
         self.engine = vmp.ENGINE
 
+        # Mappage des noms système:noms utilisateur des widgets Tkinter
+        # Cette variable doit se valoriser au fur et à mesure des créations de widgets. Voir ci-dessous: set_widget_names()
+        self.widget_names = {}
+
         # Variables métier partagées
         self.vm_composantes_bdd = vm.composantes_bdd
         self.vm_composantes_bdd_initialisation = vm.composantes_bdd_initialisation
@@ -81,6 +85,10 @@ class AppContext:
 
     def set_police(self, police):
         self.police = police
+
+    def set_widget_names(self, widget, name):
+        self.widget_names[widget] = name
+        return widget
 
 
 # Singleton : une seule instance réutilisable partout. Créée au moment de l'importation du module context.py depuis main.py
