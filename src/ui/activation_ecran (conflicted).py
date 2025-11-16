@@ -28,8 +28,6 @@ def activer_ecran():
         ctxt.set_widget_names(page, nom_page)
 
     wtm = ctxt.wtm  # type: ignore
-
-    print("****************** Avant hide ************************")
     wtm.print_tree_status()  # type: ignore
     # ***********************
     # a = [x for x in dir(wtm) if not x.startswith('_')]
@@ -37,15 +35,12 @@ def activer_ecran():
     # print("********************>>>>>", wtm.__dict__)
     # ***********************
     wtm.hide_contenu("tk/fr_centre")  # type: ignore
-    print("****************** Après hide ************************")
-    wtm.print_tree_status()  # type: ignore
-    # wtm.print_tree_status()  # type: ignore
-    # breakpoint()
 
-    # ctxt.ecran.afficher_page("page_accueil")  # type: ignore
-    print("Manager page_accueil:",
-          ctxt.ecran.pages["page_accueil"].winfo_manager())  # type: ignore
-    ctxt.wtm.show("tk/fr_centre/page_accueil")  # type: ignore
+    # wtm.print_tree_status()  # type: ignore
+    breakpoint()
+
+    ctxt.ecran.afficher_page("page_accueil")  # type: ignore
+
     # **********************************************************************
     # u_sql_3.appliquer_couleur_vert_fond(
     #     ctxt.ecran.pages["page_accueil"])  # type: ignore
