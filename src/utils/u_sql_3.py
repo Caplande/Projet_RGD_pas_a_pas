@@ -303,6 +303,291 @@ def extraire_un_parametre(indicateur):
     return row[0]
 
 
+def appliquer_couleur_jaune_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Jaune.TFrame", background="yellow")
+    mon_widget.configure(style="Jaune.TFrame")
+
+
+def appliquer_couleur_bleu_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Bleu.TFrame", background="blue")
+    mon_widget.configure(style="Bleu.TFrame")
+
+
+def appliquer_couleur_vert_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Vert.TFrame", background="green")
+    mon_widget.configure(style="Vert.TFrame")
+
+
+def appliquer_couleur_orange_fond(mon_widget):
+    style = ttk.Style()
+    style.configure("Orange.TFrame", background="orange")
+    mon_widget.configure(style="Orange.TFrame")
+
+
+def hierarchie_widgets(widget):
+    """
+    Retourne un dictionnaire représentant la hiérarchie des widgets
+    à partir du widget donné (souvent root).
+    Clés : noms Tkinter des widgets
+    Valeurs : sous-dictionnaires (même structure)
+    """
+    enfants = widget.winfo_children()
+    return {
+        str(widget): {
+            child.winfo_name(): hierarchie_widgets(child)
+            for child in enfants
+        }
+    }
+
+
+def print_widget_tree(widget, indent=""):
+    # Couleurs ANSI
+    C_RESET = "\033[0m"
+    C_CLS = "\033[96m"   # cyan clair pour la classe
+    C_PATH = "\033[92m"   # vert pour le chemin
+    C_MGR = "\033[93m"   # jaune pour le manager
+    C_FORG = "\033[91m"   # rouge pour forgotten
+    C_OK = "\033[92m"   # vert status
+
+    cls = widget.winfo_class()
+    path = str(widget)
+    mgr = widget.winfo_manager()
+
+    if mgr == "":
+        status = f"{C_FORG}FORGOTTEN{C_RESET}"
+        mgr_display = "none"
+    else:
+        status = f"{C_OK}active{C_RESET}"
+        mgr_display = mgr
+
+    print(
+        f"{indent}"
+        f"{C_CLS}{cls}{C_RESET} "
+        f"{C_PATH}{path}{C_RESET}  "
+        f"manager={C_MGR}{mgr_display}{C_RESET}  "
+        f"status={status}"
+    )
+
+    for child in widget.winfo_children():
+        print_widget_tree(child, indent + "    ")
+
+
+class WidgetTreeManager:
+    """ Cette classe permet de visualiser et/ou extraire une hiérarchie de widgets en termes de création,masquage,affichage 
+        pour les 3 systèmes de gestion:pack,grid,place
+        3 fonctionnalités essentielles:
+        Si wtm = WidgetTreeManager(widget_contenant)
+        ---> root est la racine (ctxt.ecran)
+        ---> Gestion récursive. Le manager parcourt widget_contenant, repère tous les enfants, petits enfants quel que soit leur geometry manager
+             Peut les cacher, les retaurer en navigant grace au chemin absolu /fr_centre/label1..
+        ---> On peut détecter les widgets créés plus tard par wtm.refresh()
+        ---> On peut afficher n'importe quel widget wtm.show("/fr_centre/mon_label") 
+        ---> On peut recupérer un widget: lbl = wtm.get("/fr_centre/mon_label")
+        ---> On peut cacher un ou plusieurs widgets: wtm.hide("/page1", "/page2", "/fr_centre/sidebar")
+        ---> Représentation de la hiérarchie: wtm.print_tree_status()
+        ---> Pack, Grid, Place tous pris en charge
+        ---> Système auto-refresh basé sur les events Tkinter (Map/Unmap/Configure/Destroy)
+        ---> Peut restaurer automatiquement les geometry managers d’origine
+    """
+
+    def __init__(self, widg_contenant):
+        self.root = widg_contenant
+        self.tree = {}   # path → {widget, manager, info}
+        self._build_tree()
+        self._bind_events()  # activation du refresh automatique
+
+    # ============================================================
+    # AUTO-REFRESH
+    # ============================================================
+    def _bind_events(self):
+        """
+        Active un système global d'écoute :
+        - <Map>       : widget rendu visible
+        - <Unmap>     : widget masqué
+        - <Configure> : taille/geometry manager changé
+        - <Destroy>   : widget détruit
+
+        Le tree est ainsi toujours à jour sans appeler refresh().
+        """
+        root = self.root.winfo_toplevel()
+
+        root.bind_all("<Map>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Unmap>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Configure>", lambda e: self._build_tree(), add="+")
+        root.bind_all("<Destroy>", lambda e: self._build_tree(), add="+")
+
+    # ============================================================
+    # BUILD TREE
+    # ============================================================
+    def _build_tree(self):
+        """Reconstruit totalement le tree."""
+        self.tree.clear()
+
+        def recurse(widget, path):
+            mgr = widget.winfo_manager()
+
+            if mgr == "pack":
+                info = widget.pack_info()
+            elif mgr == "grid":
+                info = widget.grid_info()
+            elif mgr == "place":
+                info = widget.place_info()
+            else:
+                info = {}
+
+            self.tree[path] = {"widget": widget, "manager": mgr, "info": info}
+
+            # enfants
+            for child in widget.winfo_children():
+                recurse(child, f"{path}/{child.winfo_name()}")
+
+        recurse(self.root, "")
+
+    # ============================================================
+    # INTERNAL TOOLS
+    # ============================================================
+    def _hide(self, widget):
+        mgr = widget.winfo_manager()
+        if mgr == "pack":
+            widget.pack_forget()
+        elif mgr == "grid":
+            widget.grid_remove()
+        elif mgr == "place":
+            widget.place_forget()
+
+    def _restore(self, widget, mgr, info):
+        if mgr == "pack":
+            widget.pack(**info)
+        elif mgr == "grid":
+            widget.grid(**info)
+        elif mgr == "place":
+            widget.place(**info)
+
+    def _descendants(self, path):
+        """Retourne tous les chemins descendants récursifs."""
+        prefix = path + "/" if path else ""
+        return [
+            p for p in self.tree
+            if p.startswith(prefix) and p != path
+        ]
+
+    # ============================================================
+    # PUBLIC API
+    # ============================================================
+    def show(self, path):
+        """Affiche un widget ET tous ses descendants."""
+        self._build_tree()
+        p = path.lstrip("/")
+
+        if p not in self.tree:
+            raise KeyError(f"Widget '{path}' introuvable")
+
+        # cacher tout
+        for entry in self.tree.values():
+            self._hide(entry["widget"])
+
+        # restaurer cible + descendants
+        entry = self.tree[p]
+        self._restore(entry["widget"], entry["manager"], entry["info"])
+
+        for child_path in self._descendants(p):
+            e = self.tree[child_path]
+            self._restore(e["widget"], e["manager"], e["info"])
+
+    def hide(self, *paths):
+        """Cache un ou plusieurs widgets + leurs descendants."""
+        self._build_tree()
+
+        for path in paths:
+            p = path.lstrip("/")
+            if p not in self.tree:
+                continue
+
+            # widget principal
+            self._hide(self.tree[p]["widget"])
+
+            # descendants
+            for c in self._descendants(p):
+                self._hide(self.tree[c]["widget"])
+
+    def get(self, path):
+        """Renvoie directement l’objet widget."""
+        return self.tree[path.lstrip("/")]["widget"]
+
+    # ============================================================
+    # PRINT TREE (couleurs)
+    # ============================================================
+    def print_tree_status(self):
+        """Affiche l'arbre avec couleurs + statut actif/inactif + geometry manager."""
+        self._build_tree()
+
+        COLOR = {
+            "root": "\033[96m",
+            "container": "\033[94m",
+            "leaf": "\033[92m",
+            "inactive": "\033[91m",
+            "mgr": "\033[90m",
+            "reset": "\033[0m",
+        }
+
+        def is_container(widget):
+            return len(widget.winfo_children()) > 0
+
+        def is_visible(widget):
+            return widget.winfo_manager() != ""
+
+        def indent(level):
+            return "  " * level
+
+        def rec(path, level):
+            entry = self.tree[path]
+            widget = entry["widget"]
+            mgr = entry["manager"] or "none"
+
+            # nom python si dispo
+            if widget in getattr(ctxt, "widget_names", {}):
+                name = ctxt.widget_names[widget]
+            else:
+                name = widget.winfo_name()
+
+            # couleur du type
+            if path == "":
+                color = COLOR["root"]
+            elif is_container(widget):
+                color = COLOR["container"]
+            else:
+                color = COLOR["leaf"]
+
+            # actif/inactif
+            active = is_visible(widget)
+            state_color = COLOR["leaf"] if active else COLOR["inactive"]
+            state_txt = "actif" if active else "inactif"
+
+            print(
+                f"{indent(level)}"
+                f"{color}{name}{COLOR['reset']} "
+                f"{COLOR['mgr']}[{mgr}]{COLOR['reset']} "
+                f"{state_color}({state_txt}){COLOR['reset']}"
+            )
+
+            # enfants directs
+            prefix = path + "/" if path else ""
+            children = [
+                p for p in self.tree
+                if p.startswith(prefix)
+                and p.count("/") == path.count("/") + 1
+                and p != path
+            ]
+
+            for c in sorted(children):
+                rec(c, level + 1)
+
+        rec("", 0)
+
+
 if __name__ == "__main__":
     # maj_etat_bdd()
     # get_date_importation_site()
