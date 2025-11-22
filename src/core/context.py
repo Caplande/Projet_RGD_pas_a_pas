@@ -66,6 +66,9 @@ class AppContext:
         self.widget_names = {}
         self.wtm: "WidgetTreeManager | None" = None  # type: ignore
 
+        # debug ui
+        self.debug_ui = True
+
         # Variables métier partagées
         self.vm_composantes_bdd = vm.composantes_bdd
         self.vm_composantes_bdd_initialisation = vm.composantes_bdd_initialisation

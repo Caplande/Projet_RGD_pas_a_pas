@@ -30,6 +30,8 @@ class AppUi(tk.Tk):
         self.title(
             f"{ctxt.nom_application} (version:{ctxt.version})")
 
+        # Activer/désactiver le mode debuggage
+        self.bind("<F12>", self.toggle_debug_ui)
         # Les palettes, les styles
         # Appliquer le thème global
         # Affecte le thème global TFrame à tous les frames, TLabel à tous les labels etc...
@@ -78,6 +80,20 @@ class AppUi(tk.Tk):
         self.pages = {}
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def toggle_debug_ui(self, event=None):
+        """Active/désactive le mode debug UI et affiche l'état."""
+        ctxt.debug_ui = not getattr(ctxt, "debug_ui", False)
+
+        etat = "ACTIVÉ" if ctxt.debug_ui else "désactivé"
+        print(f"\n=== Mode DEBUG UI {etat} ===")
+
+        # Optionnel : afficher l'arbre immédiatement si debug activé
+        if ctxt.debug_ui:
+            try:
+                ctxt.wtm.print_tree_status()
+            except Exception:
+                pass
 
     def afficher_page(self, nom_page):
         # Voir ci-dessus: self.pages est rempli depuis activation_ecran.py

@@ -17,40 +17,48 @@ print("Module activation_ecran chargé avec succès.")
 
 
 def activer_ecran():
-    noms_pages = {'!accueilpage': 'page_accueil', '!generalpage': 'page_general', '!miseajourpage': 'page_miseajour', '!editionpage': 'page_edition',
-                  '!qualitebasepage': 'page_qualitebase', '!selectionenregistrementspage': 'page_selectionenregistrements', '!affichagepage': 'page_affichage'}
-    for P in (ap, gp, map, ep, qbp, afp, sep):
-        # On instancie chaque page dans le frame fr_centre.
-        page = P(ctxt.ecran.fr_centre)  # type: ignore
-        page.pack(side="top", fill="both", expand=True)
-        nom_page = noms_pages[page._name]  # type: ignore
-        ctxt.ecran.pages[nom_page] = page  # type: ignore
-        ctxt.set_widget_names(page, nom_page)
+    """
+    Active l'écran principal :
+    - construit l'UI si nécessaire
+    - masque le contenu actuel
+    - affiche la page d'accueil
+    - trace l'état des widgets si mode debug activé
+    """
 
-    wtm = ctxt.wtm  # type: ignore
+    debug = getattr(ctxt, "debug_ui", False)
 
-    print("****************** Avant hide ************************")
-    wtm.print_tree_status()  # type: ignore
-    # ***********************
-    # a = [x for x in dir(wtm) if not x.startswith('_')]
-    # print("------------------>", a)
-    # print("********************>>>>>", wtm.__dict__)
-    # ***********************
-    wtm.hide_contenu("tk/fr_centre")  # type: ignore
-    print("****************** Après hide ************************")
-    wtm.print_tree_status()  # type: ignore
-    # wtm.print_tree_status()  # type: ignore
-    # breakpoint()
+    # --- Construction UI ---
+    if not ctxt.ecran.is_ui_built:
+        if debug:
+            print(">>> Construction de l’UI (ecran non construit)")
+        ctxt.ecran.construire_ui()
 
-    # ctxt.ecran.afficher_page("page_accueil")  # type: ignore
-    print("Manager page_accueil:",
-          ctxt.ecran.pages["page_accueil"].winfo_manager())  # type: ignore
-    ctxt.wtm.show("tk/fr_centre/page_accueil")  # type: ignore
-    # **********************************************************************
-    # u_sql_3.appliquer_couleur_vert_fond(
-    #     ctxt.ecran.pages["page_accueil"])  # type: ignore
-    # **********************************************************************
-    creer_menu(ctxt.ecran.menubar)  # type: ignore
+    # --- Debug avant masquage ---
+    if debug:
+        print("\n************* AVANT HIDE *************")
+        ctxt.wtm.print_tree_status()
+
+    # --- Masquage du contenu principal ---
+    ctxt.wtm.hide_contenu("tk/fr_centre")
+
+    # --- Debug après masquage ---
+    if debug:
+        print("\n************* APRÈS HIDE *************")
+        ctxt.wtm.print_tree_status()
+
+    # --- Affichage page d’accueil ---
+    if debug:
+        print("\n>>> Affichage de la page_accueil via afficher_page()")
+
+    ctxt.ecran.afficher_page("page_accueil")
+
+    # --- Debug final ---
+    if debug:
+        print("\n************* APRÈS afficher_page *************")
+        ctxt.wtm.print_tree_status()
+
+        page_accueil = ctxt.ecran.pages["page_accueil"]
+        print("→ Manager page_accueil :", page_accueil.winfo_manager())
 
 
 def afficher_avancement(nom_page, msg):
